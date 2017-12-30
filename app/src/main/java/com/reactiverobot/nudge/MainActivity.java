@@ -37,20 +37,11 @@ public class MainActivity extends AppCompatActivity {
 
         UsageEvents usageStats = usageStatsManager.queryEvents(timeNow, timeYesterday);
 
-        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean appInactive = usageStatsManager.isAppInactive("com.reactiverobot.nudge");
-
-            Log.d(TAG, "isInactive : " + appInactive);
-        }
 
         JobScheduler jobService = (JobScheduler) this.getSystemService(JOB_SCHEDULER_SERVICE);
 
         JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(this, CheckActiveAppJobService.class))
-                .setMinimumLatency(5000)
+                .setMinimumLatency(0)
                 .setBackoffCriteria(5000, JobInfo.BACKOFF_POLICY_LINEAR)
                 .build();
 
