@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(this, CheckActiveAppJobService.class))
                 .setMinimumLatency(5000)
+                .setBackoffCriteria(5000, JobInfo.BACKOFF_POLICY_LINEAR)
                 .build();
 
         jobService.schedule(jobInfo);

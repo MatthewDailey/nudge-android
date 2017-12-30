@@ -11,7 +11,9 @@ public class CheckActiveAppJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Log.d(TAG, "hi from job");
-        return false;
+
+        jobFinished(jobParameters, true);
+        return true;
     }
 
     @Override
