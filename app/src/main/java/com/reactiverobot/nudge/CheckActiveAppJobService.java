@@ -1,6 +1,7 @@
 package com.reactiverobot.nudge;
 
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -49,19 +50,30 @@ public class CheckActiveAppJobService extends JobService {
         return "";
     }
 
-    @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        Log.d(TAG, "Other foreground - " + getLollipopFGAppPackageName(this));
+    private boolean isScreenLocked() {
+        KeyguardManager myKM = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
+        return  myKM.inKeyguardRestrictedInputMode();
+    }
 
+    public static void scheduleJob(Context context) {
+        JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
 
-        // Schedule next one.
-        JobScheduler jobService = (JobScheduler) this.getSystemService(JOB_SCHEDULER_SERVICE);
-
-        JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(this, CheckActiveAppJobService.class))
+        JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(context, CheckActiveAppJobService.class))
                 .setMinimumLatency(5000)
                 .build();
 
         jobService.schedule(jobInfo);
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters jobParameters) {
+        if (isScreenLocked()) {
+            Log.d(TAG, "Phone is locked");
+        } else {
+            Log.d(TAG, "Other foreground - " + getLollipopFGAppPackageName(this));
+        }
+
+        CheckActiveAppJobService.scheduleJob(this);
 
         return false;
     }
