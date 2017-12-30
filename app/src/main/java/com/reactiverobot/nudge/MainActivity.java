@@ -1,13 +1,18 @@
 package com.reactiverobot.nudge;
 
 import android.app.ActivityManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.app.job.JobService;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "isInactive : " + appInactive);
         }
+
+        JobScheduler jobService = (JobScheduler) this.getSystemService(JOB_SCHEDULER_SERVICE);
+
+        JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(this, CheckActiveAppJobService.class))
+                .setMinimumLatency(5000)
+                .build();
+
+        jobService.schedule(jobInfo);
 
         Log.d(TAG, "Usage stats" + usageStats);
     }
