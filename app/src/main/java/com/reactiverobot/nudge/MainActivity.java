@@ -29,23 +29,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        UsageStatsManager usageStatsManager = (UsageStatsManager) getApplication()
-                .getSystemService(Context.USAGE_STATS_SERVICE);
-
-        long timeNow = System.currentTimeMillis();
-        long timeYesterday = timeNow - (24 * 60 * 60 * 1000);
-
-        UsageEvents usageStats = usageStatsManager.queryEvents(timeNow, timeYesterday);
-
-
-        JobScheduler jobService = (JobScheduler) this.getSystemService(JOB_SCHEDULER_SERVICE);
-
-        JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(this, CheckActiveAppJobService.class))
-                .setMinimumLatency(5000)
-                .build();
-
-        jobService.schedule(jobInfo);
-
-        Log.d(TAG, "Usage stats" + usageStats);
+        CheckActiveAppJobService.scheduleJob(this);
     }
 }
