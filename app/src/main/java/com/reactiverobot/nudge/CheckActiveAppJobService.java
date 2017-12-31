@@ -51,11 +51,6 @@ public class CheckActiveAppJobService extends JobService {
         return "";
     }
 
-    private void launchApplication(String packageName) {
-        Intent i = getPackageManager().getLaunchIntentForPackage(packageName);
-        startActivity(i);
-    }
-
     private boolean isScreenLocked() {
         KeyguardManager myKM = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
         return  myKM.inKeyguardRestrictedInputMode();
