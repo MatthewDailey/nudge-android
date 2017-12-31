@@ -41,7 +41,7 @@ public class CheckActiveAppJobService extends JobService {
                 }
             }
             if ("com.instagram.android".equals(recentPkg)) {
-                launchApplication("com.amazon.kindle");
+                startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
             }
 
             return recentPkg;
