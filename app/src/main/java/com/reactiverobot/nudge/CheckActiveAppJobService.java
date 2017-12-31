@@ -1,6 +1,5 @@
 package com.reactiverobot.nudge;
 
-import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
@@ -10,19 +9,17 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class CheckActiveAppJobService extends JobService {
 
     public static final String TAG = CheckActiveAppJobService.class.getName();
 
-    private static String getLollipopFGAppPackageName(Context ctx) {
+    private String getLollipopFGAppPackageName(Context ctx) {
 
         try {
             UsageStatsManager usageStatsManager = (UsageStatsManager) ctx.getSystemService(USAGE_STATS_SERVICE);
@@ -43,11 +40,20 @@ public class CheckActiveAppJobService extends JobService {
                     recentStats = stats;
                 }
             }
+            if ("com.instagram.android".equals(recentPkg)) {
+                launchApplication("com.amazon.kindle");
+            }
+
             return recentPkg;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
         return "";
+    }
+
+    private void launchApplication(String packageName) {
+        Intent i = getPackageManager().getLaunchIntentForPackage(packageName);
+        startActivity(i);
     }
 
     private boolean isScreenLocked() {
