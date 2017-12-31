@@ -28,15 +28,15 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Why don't you do something else?"
-            app:layout_constraintBottom_toTopOf="@+id/button2"
+            app:layout_constraintBottom_toTopOf="@+id/button_open_option_1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/button_open_option_1"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="215dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
@@ -47,7 +47,7 @@
             tools:layout_editor_absoluteY="231dp" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_open_option_2"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button2" />
+            app:layout_constraintTop_toBottomOf="@+id/button_open_option_1" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
