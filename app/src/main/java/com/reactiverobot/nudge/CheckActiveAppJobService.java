@@ -71,6 +71,11 @@ public class CheckActiveAppJobService extends JobService {
         jobService.schedule(jobInfo);
     }
 
+    public static void cancelJob(Context context) {
+        JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
+        jobService.cancel(1001);
+    }
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         if (isScreenLocked()) {

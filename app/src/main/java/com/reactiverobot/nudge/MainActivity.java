@@ -16,6 +16,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +31,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CheckActiveAppJobService.scheduleJob(this);
+        ((Switch) findViewById(R.id.switch_enable_service))
+                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
+                        if (isEnabled) {
+                            CheckActiveAppJobService.scheduleJob(getApplicationContext());
+                        } else {
+                            CheckActiveAppJobService.cancelJob(getApplicationContext());
+                        }
+                    }
+                });
+        
+
     }
 }

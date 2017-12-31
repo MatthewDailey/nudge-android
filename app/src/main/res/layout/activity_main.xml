@@ -7,7 +7,7 @@
     tools:context="com.reactiverobot.nudge.MainActivity">
 
     <Switch
-        android:id="@+id/enable_service_switch"
+        android:id="@+id/switch_enable_service"
         android:layout_width="140dp"
         android:layout_height="28dp"
         android:layout_marginEnd="8dp"
