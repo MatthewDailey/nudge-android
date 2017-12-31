@@ -34,9 +34,12 @@ public class CheckActiveAppJobService extends JobService {
             String recentPkg = "";
             for (int i = 0; i < queryUsageStats.size(); i++) {
                 UsageStats stats = queryUsageStats.get(i);
+
                 if (stats.getLastTimeStamp() > recentTime) {
-                    recentTime = stats.getLastTimeUsed();
+                    recentTime = stats.getLastTimeStamp();
                     recentPkg = stats.getPackageName();
+
+
                     recentStats = stats;
                 }
             }
