@@ -57,6 +57,8 @@ public class CheckActiveAppJobService extends JobService {
     }
 
     public static void scheduleJob(Context context) {
+        Prefs.from(context).setCheckActiveEnabled(true);
+
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
 
         JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(context, CheckActiveAppJobService.class))
@@ -67,6 +69,8 @@ public class CheckActiveAppJobService extends JobService {
     }
 
     public static void cancelJob(Context context) {
+        Prefs.from(context).setCheckActiveEnabled(false);
+
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
         jobService.cancel(1001);
     }
@@ -78,6 +82,8 @@ public class CheckActiveAppJobService extends JobService {
         } else {
             Log.d(TAG, "Other foreground - " + getLollipopFGAppPackageName(this));
         }
+
+        Prefs.from(this).setCheckActiveEnabled(false);
 
         CheckActiveAppJobService.scheduleJob(this);
 

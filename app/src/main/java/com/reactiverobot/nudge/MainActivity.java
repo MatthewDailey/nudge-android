@@ -27,12 +27,20 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
+        enableServiceSwitch.setChecked(Prefs.from(this).getCheckActiveEnabled());
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ((Switch) findViewById(R.id.switch_enable_service))
-                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
+        enableServiceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
                         if (isEnabled) {
