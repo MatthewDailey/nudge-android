@@ -17,41 +17,43 @@ import java.util.List;
 
 public class CheckActiveAppJobService extends JobService {
 
-    public static final String TAG = CheckActiveAppJobService.class.getName();
+    private static final String TAG = CheckActiveAppJobService.class.getName();
 
-    private String getLollipopFGAppPackageName(Context ctx) {
+    private static final long ONE_MIN_MILLIS = 60 * 1000;
+    public static final String INSTAGRAM_PACKAGE = "com.instagram.android";
+    public static final int JOB_ID = 1001;
+    public static final int CHECK_INTERVAL_MILLIS = 5000;
 
+    private String getForegroundAppPackageName() {
         try {
-            UsageStatsManager usageStatsManager = (UsageStatsManager) ctx.getSystemService(USAGE_STATS_SERVICE);
-            long milliSecs = 60 * 1000;
+            UsageStatsManager usageStatsManager =
+                    (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+            ;
             Date date = new Date();
-            List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, date.getTime() - milliSecs, date.getTime());
-            if (queryUsageStats.size() > 0) {
-                Log.i(TAG, "queryUsageStats size: " + queryUsageStats.size());
-            }
-            long recentTime = 0;
-            UsageStats recentStats = null;
-            String recentPkg = "";
-            for (int i = 0; i < queryUsageStats.size(); i++) {
-                UsageStats stats = queryUsageStats.get(i);
 
-                if (stats.getLastTimeStamp() > recentTime) {
-                    recentTime = stats.getLastTimeStamp();
-                    recentPkg = stats.getPackageName();
+            List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY,
+                    date.getTime() - ONE_MIN_MILLIS, date.getTime());
 
-
-                    recentStats = stats;
-                }
-            }
-            if ("com.instagram.android".equals(recentPkg)) {
-                startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
-            }
-
-            return recentPkg;
+            return computeMostRecentPackageFromStats(queryUsageStats);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
         return "";
+    }
+
+    private String computeMostRecentPackageFromStats(List<UsageStats> queryUsageStats) {
+        long recentTime = 0;
+        String recentPkg = "";
+
+        for (UsageStats stats : queryUsageStats) {
+            if (stats.getLastTimeStamp() > recentTime) {
+                recentTime = stats.getLastTimeStamp();
+                recentPkg = stats.getPackageName();
+            }
+        }
+
+        return recentPkg;
     }
 
     private boolean isScreenLocked() {
@@ -64,8 +66,10 @@ public class CheckActiveAppJobService extends JobService {
 
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
 
-        JobInfo jobInfo = new JobInfo.Builder(1001, new ComponentName(context, CheckActiveAppJobService.class))
-                .setMinimumLatency(5000)
+        JobInfo jobInfo = new JobInfo.Builder(
+                JOB_ID,
+                new ComponentName(context, CheckActiveAppJobService.class))
+                .setMinimumLatency(CHECK_INTERVAL_MILLIS)
                 .build();
 
         jobService.schedule(jobInfo);
@@ -75,7 +79,7 @@ public class CheckActiveAppJobService extends JobService {
         Prefs.from(context).setCheckActiveEnabled(false);
 
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        jobService.cancel(1001);
+        jobService.cancel(JOB_ID);
     }
 
     @Override
@@ -83,7 +87,12 @@ public class CheckActiveAppJobService extends JobService {
         if (isScreenLocked()) {
             Log.d(TAG, "Phone is locked");
         } else {
-            Log.d(TAG, "Other foreground - " + getLollipopFGAppPackageName(this));
+            String foregroundPackageName = getForegroundAppPackageName();
+            Log.d(TAG, "Other foreground - " + foregroundPackageName);
+
+            if (INSTAGRAM_PACKAGE.equals(foregroundPackageName)) {
+                startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
+            }
         }
 
         Prefs.from(this).setCheckActiveEnabled(false);
