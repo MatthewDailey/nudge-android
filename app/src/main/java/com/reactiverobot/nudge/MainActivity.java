@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -21,9 +22,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 import java.util.List;
@@ -60,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator("GOOD OPTIONS");
         host.addTab(spec);
 
+        Picasso.with(this)
+                .load("https://lh3.googleusercontent.com/aYbdIM1abwyVSUZLDKoE0CDZGRhlkpsaPOg9tNnBktUQYsXflwknnOn2Ge1Yr7rImGk=w300-rw")
+                .into((ImageView) findViewById(R.id.imageView2));
 
         TextView titleView = (TextView) findViewById(R.id.title_text_view);
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
