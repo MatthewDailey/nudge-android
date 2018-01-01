@@ -51,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
         //Tab 1
         TabHost.TabSpec spec = host.newTabSpec("Tab One");
         spec.setContent(R.id.tab1);
-        spec.setIndicator("HIDE");
+        spec.setIndicator("BAD HABITS");
         host.addTab(spec);
 
         //Tab 2
         spec = host.newTabSpec("Tab Two");
         spec.setContent(R.id.tab2);
-        spec.setIndicator("SHOW");
+        spec.setIndicator("GOOD OPTIONS");
         host.addTab(spec);
 
 
