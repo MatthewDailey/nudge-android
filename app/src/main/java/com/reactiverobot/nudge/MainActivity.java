@@ -11,7 +11,9 @@ import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -64,9 +66,17 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator("GOOD OPTIONS");
         host.addTab(spec);
 
-        Picasso.with(this)
-                .load("https://lh3.googleusercontent.com/aYbdIM1abwyVSUZLDKoE0CDZGRhlkpsaPOg9tNnBktUQYsXflwknnOn2Ge1Yr7rImGk=w300-rw")
-                .into((ImageView) findViewById(R.id.imageView2));
+        try {
+            Drawable icon = getPackageManager().getApplicationIcon("com.google.android.youtube");
+            Log.d(TAG, getPackageManager().getApplicationInfo("com.google.android.youtube", 0).loadLabel(getPackageManager()).toString());
+            ((ImageView) findViewById(R.id.imageView2)).setImageDrawable(icon);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+//        Picasso.with(this)
+//                .load("https://lh3.googleusercontent.com/aYbdIM1abwyVSUZLDKoE0CDZGRhlkpsaPOg9tNnBktUQYsXflwknnOn2Ge1Yr7rImGk=w300-rw")
+//                .into((ImageView) findViewById(R.id.imageView2));
 
         TextView titleView = (TextView) findViewById(R.id.title_text_view);
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
