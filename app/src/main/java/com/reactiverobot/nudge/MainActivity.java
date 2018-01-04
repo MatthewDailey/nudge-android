@@ -108,38 +108,6 @@ public class MainActivity extends AppCompatActivity {
                         new ComponentName(
                                 "com.reactiverobot.nudge",
                                 SearchActivity.class.getCanonicalName())));
-
-//        final RequestQueue requestQueue = Volley.newRequestQueue(this);
-//
-//        searchBar.setOnSearchClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                CharSequence query = searchBar.getQuery();
-//                Log.d(TAG, "Hit search! " + query);
-//
-//                if (query != null && !query.toString().isEmpty()) {
-//                    String url = "http://android-app-index.herokuapp.com/api/v1/search/" + query;
-//
-//                    JsonObjectRequest request = new JsonObjectRequest(url, null,
-//                            new Response.Listener<JSONObject>() {
-//                                @Override
-//                                public void onResponse(JSONObject response) {
-//                                    Log.d(TAG, "Search results: " + response);
-//                                }
-//                            },
-//                            new Response.ErrorListener() {
-//                                @Override
-//                                public void onErrorResponse(VolleyError error) {
-//                                    Log.e(TAG, "Failed to load package data.", error);
-//                                }
-//                            });
-//
-//                    requestQueue.add(request);
-//                } else {
-//                    Log.d(TAG, "Empty query.");
-//                }
-//            }
-//        });
     }
 
 
