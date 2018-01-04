@@ -78,6 +78,16 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
+                    <SearchView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:queryHint="Search Bad Habits"
+                        android:layout_margin="8dp"
+                        android:elevation="2dp"
+                        android:background="@color/white"
+                        android:queryBackground="@color/white"
+                    />
+
                     <ListView
                         android:id="@+id/list_view_bad_habits"
                         android:layout_width="match_parent"
