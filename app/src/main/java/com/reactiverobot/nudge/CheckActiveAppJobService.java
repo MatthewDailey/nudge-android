@@ -97,6 +97,7 @@ public class CheckActiveAppJobService extends JobService {
             }
         }
 
+        // This is how we expired the active check. It should be re-set true when scheduling a job.
         Prefs.from(this).setCheckActiveEnabled(false);
         CheckActiveAppJobService.scheduleJob(this);
 
