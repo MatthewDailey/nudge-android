@@ -63,7 +63,7 @@ public class SearchActivity extends AppCompatActivity {
                 ((TextView) findViewById(R.id.text_view_search_query))
                         .setText("Loading search results for '" + query + "'...");
 
-
+                // TODO: Try using algolia android api for this instead.
                 String url = "https://android-app-index.herokuapp.com/api/v1/search?q=" + query;
 
                 StringRequest request = new StringRequest(Request.Method.GET, url,
