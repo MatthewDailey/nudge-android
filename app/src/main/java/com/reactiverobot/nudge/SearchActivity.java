@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -42,18 +44,26 @@ public class SearchActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
+            final String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d(TAG, "Received search query '" + query + "'");
 
             final RequestQueue requestQueue = Volley.newRequestQueue(this);
 
             if (query != null && !query.toString().isEmpty()) {
+
+                ((TextView) findViewById(R.id.text_view_search_query))
+                        .setText("Loading search results for '" + query + "'...");
+
+
                 String url = "https://android-app-index.herokuapp.com/api/v1/search?q=" + query;
 
                 StringRequest request = new StringRequest(Request.Method.GET, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
+                                ((TextView) findViewById(R.id.text_view_search_query))
+                                        .setText("Showing search results for '" + query + "'");
+                                findViewById(R.id.progress_bar_search_results).setVisibility(View.INVISIBLE);
                                 Log.d(TAG, "Search results: " + response);
                             }
                         },
