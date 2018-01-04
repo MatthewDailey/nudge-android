@@ -55,7 +55,7 @@ public class Prefs {
             getPrefs().edit().putStringSet(key, defaultPackages).commit();
         }
 
-        return pinnedPackages;
+        return new HashSet<>(pinnedPackages);
     }
 
     public Set<String> getPinnedPackages() {
@@ -87,7 +87,7 @@ public class Prefs {
     }
 
     public Set<String> getIndexedPackages() {
-        return getPrefs().getStringSet(INDEXED_PACKAGES, new HashSet<String>());
+        return new HashSet<>(getPrefs().getStringSet(INDEXED_PACKAGES, new HashSet<String>()));
     }
 
     synchronized public void setPackageIndexed(String packageName) {

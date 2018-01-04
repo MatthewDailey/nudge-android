@@ -44,6 +44,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -53,6 +54,8 @@ import java.util.stream.Collectors;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
+
+    PackageArrayAdapter badHabitPackageAdapter;
 
     /**
      * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
@@ -117,6 +120,24 @@ public class MainActivity extends AppCompatActivity {
 
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setChecked(Prefs.from(this).getCheckActiveEnabled());
+
+        Set<String> pinnedPackages = Prefs.from(this).getPinnedPackages();
+        for (int knownPinnedPackageIndex = 0; knownPinnedPackageIndex < badHabitPackageAdapter.getCount(); knownPinnedPackageIndex++) {
+            pinnedPackages.remove(badHabitPackageAdapter.getItem(knownPinnedPackageIndex).packageName);
+        }
+
+        final Set<String> blockedPackages = Prefs.from(this).getBlockedPackages();
+        badHabitPackageAdapter.addAll(pinnedPackages.stream()
+            .map(new Function<String, PackageInfo>() {
+                @Override
+                public PackageInfo apply(String packageName) {
+                    return new PackageInfo(
+                            null,
+                            null,
+                            packageName,
+                            blockedPackages.contains(packageName));
+                }
+            }).collect(Collectors.<PackageInfo>toList()));
     }
 
     @Override
@@ -158,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).collect(Collectors.<PackageInfo>toList());
 
-        PackageArrayAdapter badHabitPackageAdapter = new PackageArrayAdapter(this);
+        badHabitPackageAdapter = new PackageArrayAdapter(this);
         badHabitPackageAdapter.addAll(pinnedPackageInfos);
 
         ListView badHabitsList = (ListView) findViewById(R.id.list_view_bad_habits);

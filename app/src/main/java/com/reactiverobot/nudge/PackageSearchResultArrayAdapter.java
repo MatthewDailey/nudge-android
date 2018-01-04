@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,10 +52,11 @@ public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
                 prefs.setPackageBlocked(packageInfo.packageName, true);
                 prefs.setPackagePinned(packageInfo.packageName, true);
 
-                Toast.makeText(getContext(),
+                Toast toast = Toast.makeText(getContext(),
                         packageInfo.name + " has been marked as a bad habit. You'll be nudged away from it!",
-                        Toast.LENGTH_LONG)
-                    .show();
+                        Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
 
                 callingActivity.finish();
             }
