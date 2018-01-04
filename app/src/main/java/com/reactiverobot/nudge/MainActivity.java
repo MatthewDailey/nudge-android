@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         PackageArrayAdapter badHabitPackageAdapter = new PackageArrayAdapter(this);
         badHabitPackageAdapter.addAll(pinnedPackageInfos);
 
-        ListView badHabitsList = (ListView) findViewById(R.id.tab1);
+        ListView badHabitsList = (ListView) findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);
 
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
