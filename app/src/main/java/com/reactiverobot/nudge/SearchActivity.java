@@ -35,7 +35,7 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Pick an app");
+        toolbar.setTitle("Select a Bad Habit app");
         toolbar.setTitleTextColor(getColor(R.color.black));
         setSupportActionBar(toolbar);
 
