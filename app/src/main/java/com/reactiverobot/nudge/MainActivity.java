@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -91,6 +92,17 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void setupSearchBar() {
+        final SearchView searchBar = (SearchView) findViewById(R.id.search_bad_habits);
+        searchBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchBar.setIconified(false);
+            }
+        });
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -103,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupSearchBar();
 
         TabHost host = (TabHost)findViewById(R.id.tabs_main);
         host.setup();
