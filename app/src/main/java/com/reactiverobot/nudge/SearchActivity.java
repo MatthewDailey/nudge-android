@@ -55,7 +55,7 @@ public class SearchActivity extends AppCompatActivity {
             ListView searchResultsListView = (ListView)
                     findViewById(R.id.list_view_search_results);
 
-            final PackageArrayAdapter packageArrayAdapter = new PackageArrayAdapter(this);
+            final PackageArrayAdapter packageArrayAdapter = new PackageSearchResultArrayAdapter(this);
             searchResultsListView.setAdapter(packageArrayAdapter);
 
             if (query != null && !query.toString().isEmpty()) {

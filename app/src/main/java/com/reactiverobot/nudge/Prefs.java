@@ -76,6 +76,11 @@ public class Prefs {
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
 
+    synchronized public void setPackagePinned(String packageName, boolean pinned) {
+        updateStringSet(PINNED_PACKAGES, getPinnedPackages(), packageName, pinned);
+
+    }
+
     synchronized public void setPackageBlocked(String packageName, boolean blocked) {
         updateStringSet(BLOCKED_PACKAGES, getBlockedPackages(), packageName, blocked);
 
