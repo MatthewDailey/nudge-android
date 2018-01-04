@@ -2,10 +2,10 @@ package com.reactiverobot.nudge;
 
 
 public final class PackageInfo {
-    public final String name;
-    public final String iconUrl;
-    public final String packageName;
-    public final boolean blocked;
+    public String name;
+    public String iconUrl;
+    public String packageName;
+    public boolean blocked;
 
     public PackageInfo(String name, String iconUrl, String packageName, boolean blocked) {
         this.name = name;
