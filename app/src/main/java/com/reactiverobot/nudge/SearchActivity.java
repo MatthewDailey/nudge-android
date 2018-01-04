@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -19,6 +20,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SearchActivity extends AppCompatActivity {
@@ -49,6 +52,12 @@ public class SearchActivity extends AppCompatActivity {
 
             final RequestQueue requestQueue = Volley.newRequestQueue(this);
 
+            ListView searchResultsListView = (ListView)
+                    findViewById(R.id.list_view_search_results);
+
+            final PackageArrayAdapter packageArrayAdapter = new PackageArrayAdapter(this);
+            searchResultsListView.setAdapter(packageArrayAdapter);
+
             if (query != null && !query.toString().isEmpty()) {
 
                 ((TextView) findViewById(R.id.text_view_search_query))
@@ -63,7 +72,24 @@ public class SearchActivity extends AppCompatActivity {
                             public void onResponse(String response) {
                                 ((TextView) findViewById(R.id.text_view_search_query))
                                         .setText("Showing search results for '" + query + "'");
-                                findViewById(R.id.progress_bar_search_results).setVisibility(View.INVISIBLE);
+                                findViewById(R.id.progress_bar_search_results).setVisibility(View.GONE);
+
+                                try {
+                                    JSONArray jsonarray = new JSONArray(response);
+                                    for (int i = 0; i < jsonarray.length(); i++) {
+                                        JSONObject jsonobject = jsonarray.getJSONObject(i);
+                                        packageArrayAdapter.add(new PackageInfo(
+                                                jsonobject.getString("name"),
+                                                jsonobject.getString("icon_url"),
+                                                jsonobject.getString("package"),
+                                                true));
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
                                 Log.d(TAG, "Search results: " + response);
                             }
                         },

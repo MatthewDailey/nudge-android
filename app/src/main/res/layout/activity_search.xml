@@ -47,16 +47,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/appBarLayout2" />
 
-    <ScrollView
-        android:id="@+id/scroll_view_search_results"
+    <ListView
+        android:id="@+id/list_view_search_results"
         android:layout_width="match_parent"
         android:layout_height="411dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/progress_bar_search_results"
         app:layout_constraintStart_toStartOf="@+id/progress_bar_search_results"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_search_query">
+        app:layout_constraintTop_toBottomOf="@+id/text_view_search_query"
+        android:divider="#00000000">
 
-    </ScrollView>
+    </ListView>
 
 </android.support.constraint.ConstraintLayout>
