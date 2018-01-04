@@ -18,13 +18,15 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Pick an app");
+        toolbar.setTitleTextColor(getResources().getColor(R.color.black, null));
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // TODO: Figure out why the back button causes reload of icons on home page.
         final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
-        upArrow.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
+        upArrow.setColorFilter(getResources().getColor(R.color.black, null), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
         Intent intent = getIntent();
