@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -62,13 +64,25 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        final PackageInfo packageInfo = getItem(position);
+
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.list_item_package, null);
-        }
 
-        PackageInfo packageInfo = getItem(position);
+            CheckBox blockPackageCheckbox = (CheckBox) convertView.findViewById(
+                    R.id.checkbox_block_package);
+            blockPackageCheckbox.setOnCheckedChangeListener(
+                    new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Prefs.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
+                    packageInfo.blocked = isChecked;
+                    notifyDataSetChanged();
+                }
+            });
+        }
 
         if (packageInfo.name == null || packageInfo.iconUrl == null) {
             updatePackageInfo(packageInfo);
@@ -87,6 +101,9 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
 
         ((TextView) convertView.findViewById(R.id.text_view_package_name))
                 .setText(packageInfo.packageName);
+
+        ((CheckBox) convertView.findViewById(R.id.checkbox_block_package))
+            .setChecked(packageInfo.blocked);
 
         return convertView;
     }

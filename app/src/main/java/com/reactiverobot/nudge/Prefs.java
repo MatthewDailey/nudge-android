@@ -64,4 +64,16 @@ public class Prefs {
     public Set<String> getBlockedPackages() {
         return getPackages(BLOCKED_PACKAGES, DEFAULT_BLOCKED_PACKAGES);
     }
+
+    synchronized public void setPackageBlocked(String packageName, boolean blocked) {
+        Set<String> blockedPackages = getBlockedPackages();
+
+        if (blocked) {
+            blockedPackages.add(packageName);
+        } else {
+            blockedPackages.remove(packageName);
+        }
+
+        getPrefs().edit().putStringSet(BLOCKED_PACKAGES, getBlockedPackages());
+    }
 }

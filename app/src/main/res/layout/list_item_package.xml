@@ -36,7 +36,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/checkbox_block_package"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
