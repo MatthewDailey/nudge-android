@@ -102,9 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        searchBar.setIconifiedByDefault(false);
-
-
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchBar.setSearchableInfo(
                 searchManager.getSearchableInfo(
