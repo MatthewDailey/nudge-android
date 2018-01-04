@@ -82,11 +82,12 @@
                         android:id="@+id/search_bad_habits"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:queryHint="Search Bad Habits"
+                        android:queryHint="Search Apps"
                         android:layout_margin="16dp"
                         android:elevation="2dp"
                         android:background="@color/white"
                         android:queryBackground="@color/white"
+                        android:submitBackground="@color/white"
                     />
 
                     <ListView
