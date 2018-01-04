@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -33,6 +34,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,6 +85,25 @@ public class MainActivity extends AppCompatActivity {
         TextView titleView = (TextView) findViewById(R.id.title_text_view);
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
         titleView.setTypeface(typeFace);
+
+        final Set<String> blockedPackages = Prefs.from(this).getBlockedPackages();
+        List<PackageInfo> pinnedPackageInfos = Prefs.from(this).getPinnedPackages().stream()
+                .map(new Function<String, PackageInfo>() {
+                    @Override
+                    public PackageInfo apply(String packageName) {
+                        return new PackageInfo(
+                                null,
+                                null,
+                                packageName,
+                                blockedPackages.contains(packageName));
+                    }
+                }).collect(Collectors.<PackageInfo>toList());
+
+        PackageArrayAdapter badHabitPackageAdapter = new PackageArrayAdapter(this);
+        badHabitPackageAdapter.addAll(pinnedPackageInfos);
+
+        ListView badHabitsList = (ListView) findViewById(R.id.tab1);
+        badHabitsList.setAdapter(badHabitPackageAdapter);
 
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
