@@ -18,6 +18,7 @@ public class Prefs {
 
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
+    private static final String INDEXED_PACKAGES = "indexed_packages";
     private static final String PINNED_PACKAGES = "pinned_packages";
     private static final String BLOCKED_PACKAGES = "blocked_packages";
 
@@ -65,15 +66,27 @@ public class Prefs {
         return getPackages(BLOCKED_PACKAGES, DEFAULT_BLOCKED_PACKAGES);
     }
 
-    synchronized public void setPackageBlocked(String packageName, boolean blocked) {
-        Set<String> blockedPackages = getBlockedPackages();
-
-        if (blocked) {
-            blockedPackages.add(packageName);
+    private void updateStringSet(String setKey, Set<String> originalSet, String toUpdate, boolean membership) {
+        if (membership) {
+            originalSet.add(toUpdate);
         } else {
-            blockedPackages.remove(packageName);
+            originalSet.remove(toUpdate);
         }
 
-        getPrefs().edit().putStringSet(BLOCKED_PACKAGES, getBlockedPackages());
+        getPrefs().edit().putStringSet(setKey, originalSet).commit();
+    }
+
+    synchronized public void setPackageBlocked(String packageName, boolean blocked) {
+        updateStringSet(BLOCKED_PACKAGES, getBlockedPackages(), packageName, blocked);
+
+    }
+
+    public Set<String> getIndexedPackages() {
+        return getPrefs().getStringSet(INDEXED_PACKAGES, new HashSet<String>());
+    }
+
+    synchronized public void setPackageIndexed(String packageName) {
+        updateStringSet(INDEXED_PACKAGES, getIndexedPackages(), packageName, true);
+
     }
 }

@@ -11,6 +11,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -30,17 +31,65 @@ import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
+
+    /**
+     * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
+     * and not rely on clients to suggest data to index. However, this is enough for now.
+     */
+    private void indexAllApps() {
+        final RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        final Prefs prefs = Prefs.from(this);
+        final Set<String> indexedPackages = prefs.getIndexedPackages();
+
+        List<ApplicationInfo> installedApplications = getPackageManager().getInstalledApplications(0);
+
+        installedApplications.stream()
+                .forEach(new Consumer<ApplicationInfo>() {
+                    @Override
+                    public void accept(final ApplicationInfo applicationInfo) {
+                        if (!indexedPackages.contains(applicationInfo.packageName)) {
+                            String url = "http://android-app-index.herokuapp.com/api/v1/update/" + applicationInfo.packageName;
+
+                            JsonObjectRequest request = new JsonObjectRequest(url, new JSONObject(),
+                                    new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            prefs.setPackageIndexed(applicationInfo.packageName);
+                                            Log.d(TAG, "Successfully indexed " + applicationInfo.packageName);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e(TAG, "Failed to load package data.", error);
+                                }
+                            });
+
+                            requestQueue.add(request);
+                        }
+                    }
+                });
+    }
 
     @Override
     protected void onResume() {
@@ -106,5 +155,6 @@ public class MainActivity extends AppCompatActivity {
                 });
         
 
+        indexAllApps();
     }
 }
