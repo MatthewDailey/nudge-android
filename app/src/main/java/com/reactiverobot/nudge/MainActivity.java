@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 searchManager.getSearchableInfo(
                         new ComponentName(
                                 "com.reactiverobot.nudge",
-                                SearchResultsActivity.class.getCanonicalName())));
+                                SearchActivity.class.getCanonicalName())));
 
 //        final RequestQueue requestQueue = Volley.newRequestQueue(this);
 //
