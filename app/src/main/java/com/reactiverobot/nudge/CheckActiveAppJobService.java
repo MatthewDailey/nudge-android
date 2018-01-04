@@ -14,13 +14,13 @@ import android.util.Log;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class CheckActiveAppJobService extends JobService {
 
     private static final String TAG = CheckActiveAppJobService.class.getName();
 
     private static final long ONE_MIN_MILLIS = 60 * 1000;
-    public static final String INSTAGRAM_PACKAGE = "com.instagram.android";
     public static final int JOB_ID = 1001;
     public static final int CHECK_INTERVAL_MILLIS = 5000;
 
@@ -90,13 +90,14 @@ public class CheckActiveAppJobService extends JobService {
             String foregroundPackageName = getForegroundAppPackageName();
             Log.d(TAG, "Other foreground - " + foregroundPackageName);
 
-            if (INSTAGRAM_PACKAGE.equals(foregroundPackageName)) {
+
+            Set<String> blockedPackages = Prefs.from(this).getBlockedPackages();
+            if (blockedPackages.contains(foregroundPackageName)) {
                 startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
             }
         }
 
         Prefs.from(this).setCheckActiveEnabled(false);
-
         CheckActiveAppJobService.scheduleJob(this);
 
         return false;
