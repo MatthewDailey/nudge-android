@@ -1,22 +1,13 @@
 package com.reactiverobot.nudge.di;
 
-import android.app.Activity;
-
 import com.reactiverobot.nudge.MainActivity;
+import com.reactiverobot.nudge.di.test.TestModule;
 
-import dagger.Binds;
 import dagger.Module;
-import dagger.android.ActivityKey;
-import dagger.android.AndroidInjector;
-import dagger.multibindings.IntoMap;
+import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = MainActivitySubcomponent.class)
+@Module
 abstract class MainActivityModule  {
-
-    @Binds
-    @IntoMap
-    @ActivityKey(MainActivity.class)
-    abstract AndroidInjector.Factory<? extends Activity>
-        bindMainActivityInjectorFactory(MainActivitySubcomponent.Builder builder);
-
+    @ContributesAndroidInjector(modules = { TestModule.class })
+    abstract MainActivity contributeMainActivityInjector();
 }
