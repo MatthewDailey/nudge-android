@@ -22,7 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.di.test.TestInterface;
-import com.reactiverobot.nudge.prefs.PrefsImpl;
+import com.reactiverobot.nudge.prefs.Prefs;
 
 import org.json.JSONObject;
 
@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     TestInterface testInterface;
-
+    @Inject
+    Prefs prefs;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private void indexAllApps() {
         final RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        final PrefsImpl prefs = PrefsImpl.from(this);
         final Set<String> indexedPackages = prefs.getIndexedPackages();
 
         List<ApplicationInfo> installedApplications = getPackageManager().getInstalledApplications(0);
@@ -108,14 +108,14 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
-        enableServiceSwitch.setChecked(PrefsImpl.from(this).getCheckActiveEnabled());
+        enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
 
-        Set<String> pinnedPackages = PrefsImpl.from(this).getPinnedPackages();
+        Set<String> pinnedPackages = prefs.getPinnedPackages();
         for (int knownPinnedPackageIndex = 0; knownPinnedPackageIndex < badHabitPackageAdapter.getCount(); knownPinnedPackageIndex++) {
             pinnedPackages.remove(badHabitPackageAdapter.getItem(knownPinnedPackageIndex).packageName);
         }
 
-        final Set<String> blockedPackages = PrefsImpl.from(this).getBlockedPackages();
+        final Set<String> blockedPackages = prefs.getBlockedPackages();
         badHabitPackageAdapter.addAll(pinnedPackages.stream()
             .map(new Function<String, PackageInfo>() {
                 @Override
@@ -158,8 +158,8 @@ public class MainActivity extends AppCompatActivity {
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
         titleView.setTypeface(typeFace);
 
-        final Set<String> blockedPackages = PrefsImpl.from(this).getBlockedPackages();
-        List<PackageInfo> pinnedPackageInfos = PrefsImpl.from(this).getPinnedPackages().stream()
+        final Set<String> blockedPackages = prefs.getBlockedPackages();
+        List<PackageInfo> pinnedPackageInfos = prefs.getPinnedPackages().stream()
                 .map(new Function<String, PackageInfo>() {
                     @Override
                     public PackageInfo apply(String packageName) {

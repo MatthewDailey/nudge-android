@@ -18,7 +18,11 @@ public class NudgeApplication extends Application implements HasActivityInjector
     public void onCreate() {
         super.onCreate();
 
-        DaggerNudgeApplicationComponent.create().inject(this);
+        DaggerNudgeApplicationComponent
+                .builder()
+                .context(this)
+                .build()
+                .inject(this);
     }
 
     @Override

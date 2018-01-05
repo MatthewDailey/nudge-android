@@ -20,6 +20,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.di.test.TestInterface;
+import com.reactiverobot.nudge.prefs.Prefs;
 
 import org.json.JSONArray;
 import org.json.JSONException;
