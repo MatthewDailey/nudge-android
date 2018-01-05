@@ -22,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.di.test.TestInterface;
+import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import org.json.JSONObject;
@@ -39,9 +40,9 @@ import dagger.android.AndroidInjection;
 public class MainActivity extends AppCompatActivity {
 
     @Inject
-    TestInterface testInterface;
-    @Inject
     Prefs prefs;
+    @Inject
+    CheckActiveAppJobScheduler jobScheduler;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -135,8 +136,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        testInterface.coolMethod();
-
         setupSearchBar();
 
         TabHost host = (TabHost) findViewById(R.id.tabs_main);
@@ -182,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
                 if (isEnabled) {
-                    CheckActiveAppJobService.scheduleJob(getApplicationContext());
+                    jobScheduler.scheduleJob();
                 } else {
-                    CheckActiveAppJobService.cancelJob(getApplicationContext());
+                    jobScheduler.cancelJob();
                 }
             }
         });

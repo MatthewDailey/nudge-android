@@ -11,10 +11,10 @@ import dagger.android.ContributesAndroidInjector;
 @Module
 abstract class ActivityModule {
 
-    @ContributesAndroidInjector(modules = { TestModule.class, PrefsModule.class })
+    @ContributesAndroidInjector(modules = { PrefsModule.class })
     abstract MainActivity contributeMainActivityInjector();
 
-    @ContributesAndroidInjector(modules = { TestModule.class, PrefsModule.class })
+    @ContributesAndroidInjector(modules = { PrefsModule.class })
     abstract SearchActivity contributeSearchActivityInjector();
 
 }

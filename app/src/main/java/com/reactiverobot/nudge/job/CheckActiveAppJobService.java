@@ -1,30 +1,31 @@
-package com.reactiverobot.nudge;
+package com.reactiverobot.nudge.job;
 
 import android.app.KeyguardManager;
-import android.app.job.JobInfo;
 import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.reactiverobot.nudge.SuggestChangeActivity;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 public class CheckActiveAppJobService extends JobService {
+
+    @Inject
+    CheckActiveAppJobScheduler jobScheduler;
 
     private static final String TAG = CheckActiveAppJobService.class.getName();
 
     private static final long ONE_MIN_MILLIS = 60 * 1000;
-    public static final int JOB_ID = 1001;
-    public static final int CHECK_INTERVAL_MILLIS = 5000;
 
     private String getForegroundAppPackageName() {
         try {
@@ -63,26 +64,6 @@ public class CheckActiveAppJobService extends JobService {
         return  myKM.inKeyguardRestrictedInputMode();
     }
 
-    public static void scheduleJob(Context context) {
-        PrefsImpl.from(context).setCheckActiveEnabled(true);
-
-        JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-
-        JobInfo jobInfo = new JobInfo.Builder(
-                JOB_ID,
-                new ComponentName(context, CheckActiveAppJobService.class))
-                .setMinimumLatency(CHECK_INTERVAL_MILLIS)
-                .build();
-
-        jobService.schedule(jobInfo);
-    }
-
-    public static void cancelJob(Context context) {
-        PrefsImpl.from(context).setCheckActiveEnabled(false);
-
-        JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        jobService.cancel(JOB_ID);
-    }
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
@@ -101,7 +82,7 @@ public class CheckActiveAppJobService extends JobService {
 
         // This is how we expired the active check. It should be re-set true when scheduling a job.
         PrefsImpl.from(this).setCheckActiveEnabled(false);
-        CheckActiveAppJobService.scheduleJob(this);
+        jobScheduler.scheduleJob();
 
         return false;
     }

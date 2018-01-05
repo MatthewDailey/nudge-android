@@ -34,9 +34,6 @@ public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = SearchActivity.class.getName();
 
-    @Inject
-    TestInterface testInterface;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -53,8 +50,6 @@ public class SearchActivity extends AppCompatActivity {
         final Drawable upArrow = getDrawable(R.drawable.abc_ic_ab_back_material);
         upArrow.setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
-
-        testInterface.coolMethod();
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
