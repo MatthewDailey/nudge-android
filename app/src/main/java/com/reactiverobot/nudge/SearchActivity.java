@@ -19,19 +19,27 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.reactiverobot.nudge.di.test.TestInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
+
 public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = SearchActivity.class.getName();
 
-
+    @Inject
+    TestInterface testInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -44,6 +52,8 @@ public class SearchActivity extends AppCompatActivity {
         final Drawable upArrow = getDrawable(R.drawable.abc_ic_ab_back_material);
         upArrow.setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
+
+        testInterface.coolMethod();
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
