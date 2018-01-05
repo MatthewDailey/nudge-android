@@ -40,6 +40,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.di.test.DaggerTestComponent;
 import com.reactiverobot.nudge.di.test.TestComponent;
+import com.reactiverobot.nudge.di.test.TestInterface;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -53,7 +54,15 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+
 public class MainActivity extends AppCompatActivity {
+
+    @Inject
+    TestInterface testInterface;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -144,11 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TestComponent testComponent = DaggerTestComponent.create();
-        testComponent.testClass().run();
+        testInterface.coolMethod();
 
         setupSearchBar();
 

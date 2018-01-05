@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
-import dagger.android.support.DaggerAppCompatActivity;
 
 
 public class NudgeApplication extends Application implements HasActivityInjector {
@@ -18,6 +17,8 @@ public class NudgeApplication extends Application implements HasActivityInjector
     @Override
     public void onCreate() {
         super.onCreate();
+
+        DaggerNudgeApplicationComponent.create().inject(this);
     }
 
     @Override
