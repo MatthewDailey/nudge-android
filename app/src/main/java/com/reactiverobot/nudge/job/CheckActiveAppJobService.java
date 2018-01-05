@@ -18,6 +18,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 public class CheckActiveAppJobService extends JobService {
 
     @Inject
@@ -26,6 +28,12 @@ public class CheckActiveAppJobService extends JobService {
     private static final String TAG = CheckActiveAppJobService.class.getName();
 
     private static final long ONE_MIN_MILLIS = 60 * 1000;
+
+    @Override
+    public void onCreate() {
+        AndroidInjection.inject(this);
+        super.onCreate();
+    }
 
     private String getForegroundAppPackageName() {
         try {

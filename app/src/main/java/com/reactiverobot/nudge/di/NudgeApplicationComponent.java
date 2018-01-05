@@ -4,13 +4,11 @@ import android.content.Context;
 
 import com.reactiverobot.nudge.job.CheckActiveAppModule;
 
-import javax.inject.Singleton;
-
 import dagger.BindsInstance;
 import dagger.Component;
 
 @Component(modules = {
-        ActivityModule.class,
+        AppModule.class,
         CheckActiveAppModule.class
 })
 public interface NudgeApplicationComponent {

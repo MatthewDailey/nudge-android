@@ -18,7 +18,6 @@
         android:theme="@style/AppTheme">
         <service
             android:name=".job.CheckActiveAppJobService"
-            android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
