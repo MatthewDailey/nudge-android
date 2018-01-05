@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.reactiverobot.nudge.prefs.Prefs;
+import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
     private static final String TAG = PackageSearchResultArrayAdapter.class.getName();
@@ -31,7 +31,7 @@ public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Prefs prefs = Prefs.from(getContext());
+                PrefsImpl prefs = PrefsImpl.from(getContext());
 
                 prefs.setPackageBlocked(packageInfo.packageName, true);
                 prefs.setPackagePinned(packageInfo.packageName, true);

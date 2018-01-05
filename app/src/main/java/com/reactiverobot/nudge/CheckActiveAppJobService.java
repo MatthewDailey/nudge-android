@@ -12,7 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.reactiverobot.nudge.prefs.Prefs;
+import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import java.util.Date;
 import java.util.List;
@@ -64,7 +64,7 @@ public class CheckActiveAppJobService extends JobService {
     }
 
     public static void scheduleJob(Context context) {
-        Prefs.from(context).setCheckActiveEnabled(true);
+        PrefsImpl.from(context).setCheckActiveEnabled(true);
 
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
 
@@ -78,7 +78,7 @@ public class CheckActiveAppJobService extends JobService {
     }
 
     public static void cancelJob(Context context) {
-        Prefs.from(context).setCheckActiveEnabled(false);
+        PrefsImpl.from(context).setCheckActiveEnabled(false);
 
         JobScheduler jobService = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
         jobService.cancel(JOB_ID);
@@ -93,14 +93,14 @@ public class CheckActiveAppJobService extends JobService {
             Log.d(TAG, "Other foreground - " + foregroundPackageName);
 
 
-            Set<String> blockedPackages = Prefs.from(this).getBlockedPackages();
+            Set<String> blockedPackages = PrefsImpl.from(this).getBlockedPackages();
             if (blockedPackages.contains(foregroundPackageName)) {
                 startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
             }
         }
 
         // This is how we expired the active check. It should be re-set true when scheduling a job.
-        Prefs.from(this).setCheckActiveEnabled(false);
+        PrefsImpl.from(this).setCheckActiveEnabled(false);
         CheckActiveAppJobService.scheduleJob(this);
 
         return false;

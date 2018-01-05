@@ -17,7 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.reactiverobot.nudge.prefs.Prefs;
+import com.reactiverobot.nudge.prefs.PrefsImpl;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -76,7 +76,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
                     new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Prefs.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
+                    PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
                     packageInfo.blocked = isChecked;
                     notifyDataSetChanged();
                 }
