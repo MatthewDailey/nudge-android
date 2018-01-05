@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.reactiverobot.nudge.prefs.Prefs;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;

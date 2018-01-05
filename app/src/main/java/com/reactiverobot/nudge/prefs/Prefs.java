@@ -1,4 +1,4 @@
-package com.reactiverobot.nudge;
+package com.reactiverobot.nudge.prefs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
