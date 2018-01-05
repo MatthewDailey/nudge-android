@@ -38,6 +38,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.reactiverobot.nudge.di.test.DaggerTestComponent;
+import com.reactiverobot.nudge.di.test.TestComponent;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -144,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        TestComponent testComponent = DaggerTestComponent.create();
+        testComponent.testClass().run();
 
         setupSearchBar();
 
