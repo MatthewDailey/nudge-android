@@ -33,7 +33,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/start_button_background"
         android:fontFamily="@font/roboto_black"
-        android:text="GET START"
+        android:text="GET STARTED"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
