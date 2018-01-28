@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
      * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
      * and not rely on clients to suggest data to index. However, this is enough for now.
      */
+    // TODO: do this async
     private void indexAllApps() {
         final RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -110,12 +111,10 @@ public class MainActivity extends AppCompatActivity {
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
 
-        Set<String> pinnedPackages = prefs.getPinnedPackages();
-        for (int knownPinnedPackageIndex = 0; knownPinnedPackageIndex < badHabitPackageAdapter.getCount(); knownPinnedPackageIndex++) {
-            pinnedPackages.remove(badHabitPackageAdapter.getItem(knownPinnedPackageIndex).packageName);
-        }
+        final Set<String> pinnedPackages = prefs.getPinnedPackages();
 
         final Set<String> blockedPackages = prefs.getBlockedPackages();
+
         badHabitPackageAdapter.addAll(pinnedPackages.stream()
             .map(new Function<String, PackageInfo>() {
                 @Override
@@ -128,6 +127,22 @@ public class MainActivity extends AppCompatActivity {
                             blockedPackages.contains(packageName));
                 }
             }).collect(Collectors.<PackageInfo>toList()));
+
+        getPackageManager().getInstalledApplications(0)
+                .stream()
+                .forEach(new Consumer<ApplicationInfo>() {
+                    @Override
+                    public void accept(final ApplicationInfo applicationInfo) {
+                        if (!pinnedPackages.contains(applicationInfo.packageName)) {
+                            badHabitPackageAdapter.add(new PackageInfo(
+                                    null,
+                                    null,
+                                    null,
+                                    applicationInfo.packageName,
+                                    blockedPackages.contains(applicationInfo.packageName)));
+                        }
+                    }
+                });
     }
 
     @Override
@@ -172,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 }).collect(Collectors.<PackageInfo>toList());
 
         badHabitPackageAdapter = new PackageArrayAdapter(this);
-        badHabitPackageAdapter.addAll(pinnedPackageInfos);
 
         ListView badHabitsList = (ListView) findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);

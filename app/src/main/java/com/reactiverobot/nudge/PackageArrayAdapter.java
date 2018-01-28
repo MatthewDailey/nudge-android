@@ -82,21 +82,22 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
 
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.list_item_package, null);
-
-            CheckBox blockPackageCheckbox = (CheckBox) convertView.findViewById(
-                    R.id.checkbox_block_package);
-            blockPackageCheckbox.setOnCheckedChangeListener(
-                    new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
-                    packageInfo.blocked = isChecked;
-                    notifyDataSetChanged();
-                }
-            });
         }
 
-        if (packageInfo.name == null || packageInfo.iconUrl == null) {
+        CheckBox blockPackageCheckbox = (CheckBox) convertView.findViewById(
+                R.id.checkbox_block_package);
+        blockPackageCheckbox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
+                        packageInfo.blocked = isChecked;
+                        notifyDataSetChanged();
+                    }
+                });
+
+        if (packageInfo.name == null
+                || (packageInfo.iconUrl == null && packageInfo.iconDrawable == null)) {
             updatePackageInfo(packageInfo);
         }
 
