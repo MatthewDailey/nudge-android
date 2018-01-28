@@ -1,6 +1,8 @@
 package com.reactiverobot.nudge;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,30 +37,41 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
-        String url = "http://android-app-index.herokuapp.com/api/v1/get/" + packageInfo.packageName;
+        try {
+            PackageManager packageManager = getContext().getPackageManager();
 
-        JsonObjectRequest request = new JsonObjectRequest(url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(TAG, response.toString());
-                        try {
-                            packageInfo.name = response.getString("name");
-                            packageInfo.iconUrl = response.getString("icon_url");
+            Drawable appIcon = packageManager.getApplicationIcon(packageInfo.packageName);
+            String appName = packageManager.getApplicationInfo(packageInfo.packageName, 0)
+                    .loadLabel(packageManager).toString();
 
-                            notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+            packageInfo.name = appName;
+            packageInfo.iconDrawable = appIcon;
+        } catch (PackageManager.NameNotFoundException e) {
+            String url = "http://android-app-index.herokuapp.com/api/v1/get/" + packageInfo.packageName;
+
+            JsonObjectRequest request = new JsonObjectRequest(url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(TAG, response.toString());
+                            try {
+                                packageInfo.name = response.getString("name");
+                                packageInfo.iconUrl = response.getString("icon_url");
+
+                                notifyDataSetChanged();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Failed to load package data.", error);
-            }
-        });
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Failed to load package data.", error);
+                }
+            });
 
-        requestQueue.add(request);
+            requestQueue.add(request);
+        }
     }
 
     @Override
@@ -92,7 +105,10 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
                     .setText(packageInfo.name);
         }
 
-        if (packageInfo.iconUrl != null) {
+        if (packageInfo.iconDrawable != null) {
+            ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
+                    .setImageDrawable(packageInfo.iconDrawable);
+        } else if (packageInfo.iconUrl != null) {
             Picasso.with(getContext())
                     .load(packageInfo.iconUrl)
                     .into((ImageView) convertView.findViewById(R.id.image_view_app_icon));

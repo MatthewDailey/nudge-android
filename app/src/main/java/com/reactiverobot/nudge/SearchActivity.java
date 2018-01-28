@@ -87,6 +87,7 @@ public class SearchActivity extends AppCompatActivity {
                                         packageArrayAdapter.add(new PackageInfo(
                                                 jsonobject.getString("name"),
                                                 jsonobject.getString("icon_url"),
+                                                null,
                                                 jsonobject.getString("package"),
                                                 true));
                                     }

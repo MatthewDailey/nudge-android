@@ -21,7 +21,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.reactiverobot.nudge.di.test.TestInterface;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -124,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     return new PackageInfo(
                             null,
                             null,
+                            null,
                             packageName,
                             blockedPackages.contains(packageName));
                 }
@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public PackageInfo apply(String packageName) {
                         return new PackageInfo(
+                                null,
                                 null,
                                 null,
                                 packageName,
