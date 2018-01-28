@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -84,10 +85,25 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
         }
     }
 
-    private void setPackageInfos(Collection<PackageInfo> packageInfos) {
+    public void setPackageInfos(Collection<PackageInfo> packageInfos) {
         clear();
         addAll(packageInfos);
-        // TODO: Sort
+        sort(new Comparator<PackageInfo>() {
+            @Override
+            public int compare(PackageInfo o1, PackageInfo o2) {
+                if (o1.blocked && !o2.blocked) {
+                    return -1;
+                } else if (o2.blocked && !o1.blocked) {
+                    return 1;
+                }
+
+                if (o1.name == null || o2.name == null) {
+                    return o1.packageName.compareTo(o2.packageName);
+                }
+
+                return o1.name.compareTo(o2.name);
+            }
+        });
     }
 
     public void setFilter(final Optional<String> filter) {
