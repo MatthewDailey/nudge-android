@@ -34,18 +34,22 @@ public class OnboardingActivity extends AppCompatActivity {
         final ConstraintSet constraintSet2 = new ConstraintSet();
         constraintSet2.clone(this, R.layout.activity_onboarding_2);
 
-        final AtomicBoolean changed = new AtomicBoolean(false);
+        final ConstraintSet constraintSet3 = new ConstraintSet();
+        constraintSet3.clone(this, R.layout.activity_onboarding_3);
 
         findViewById(R.id.button_get_started).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TransitionManager.beginDelayedTransition(constraintLayout);
-                if (changed.get()) {
-                    constraintSet.applyTo(constraintLayout);
-                } else {
-                    constraintSet2.applyTo(constraintLayout);
-                }
-                changed.set(!changed.get());
+                constraintSet2.applyTo(constraintLayout);
+            }
+        });
+
+        findViewById(R.id.button_open_settings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransitionManager.beginDelayedTransition(constraintLayout);
+                constraintSet3.applyTo(constraintLayout);
             }
         });
     }
