@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,10 +26,19 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
     private static final String TAG = PackageArrayAdapter.class.getName();
 
     private final RequestQueue requestQueue;
+
+    private Optional<String> filter = Optional.empty();
+    private List<PackageInfo> filteredOut = new ArrayList<>();
 
     public PackageArrayAdapter(@NonNull Context context) {
         super(context, R.layout.list_item_package);
@@ -71,6 +81,45 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
             });
 
             requestQueue.add(request);
+        }
+    }
+
+    private void setPackageInfos(Collection<PackageInfo> packageInfos) {
+        clear();
+        addAll(packageInfos);
+        // TODO: Sort
+    }
+
+    public void setFilter(final Optional<String> filter) {
+        int packageCount = getCount();
+
+        final List<PackageInfo> filteredOut = new ArrayList<>();
+        final List<PackageInfo> filteredIn = new ArrayList<>();
+
+        List<PackageInfo> allPackages = new ArrayList<>();
+        allPackages.addAll(this.filteredOut);
+        for (int i = 0; i < packageCount; i++) {
+            allPackages.add(getItem(i));
+        }
+
+        if (filter.isPresent()) {
+            allPackages.forEach(new Consumer<PackageInfo>() {
+                @Override
+                public void accept(PackageInfo packageInfo) {
+                    if (packageInfo.name == null
+                        || !packageInfo.name.toLowerCase().contains(filter.get().toLowerCase())) {
+                        filteredOut.add(packageInfo);
+                    } else {
+                        filteredIn.add(packageInfo);
+                    }
+                }
+            });
+
+            this.filteredOut = filteredOut;
+            setPackageInfos(filteredIn);
+        } else {
+            this.filteredOut = new ArrayList<>();
+            setPackageInfos(allPackages);
         }
     }
 

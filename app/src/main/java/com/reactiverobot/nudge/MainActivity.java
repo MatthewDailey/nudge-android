@@ -27,6 +27,7 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -92,6 +93,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 searchBar.setIconified(false);
+            }
+        });
+
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText == null || newText.isEmpty()) {
+                    badHabitPackageAdapter.setFilter(Optional.<String>empty());
+                } else {
+                    badHabitPackageAdapter.setFilter(Optional.of(newText));
+                }
+
+                return false;
             }
         });
 
