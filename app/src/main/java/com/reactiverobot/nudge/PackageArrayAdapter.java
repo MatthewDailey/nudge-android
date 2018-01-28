@@ -86,6 +86,17 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
     }
 
     public void setPackageInfos(Collection<PackageInfo> packageInfos) {
+        packageInfos.stream()
+                .forEach(new Consumer<PackageInfo>() {
+                    @Override
+                    public void accept(PackageInfo packageInfo) {
+                        if (packageInfo.name == null
+                                || (packageInfo.iconUrl == null && packageInfo.iconDrawable == null)) {
+                            updatePackageInfo(packageInfo);
+                        }
+                    }
+                });
+
         clear();
         addAll(packageInfos);
         sort();
@@ -138,8 +149,19 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
             this.filteredOut = filteredOut;
             setPackageInfos(filteredIn);
         } else {
-            this.filteredOut = new ArrayList<>();
-            setPackageInfos(allPackages);
+            allPackages.forEach(new Consumer<PackageInfo>() {
+                @Override
+                public void accept(PackageInfo packageInfo) {
+                    if (packageInfo.blocked) {
+                        filteredOut.add(packageInfo);
+                    } else {
+                        filteredIn.add(packageInfo);
+                    }
+                }
+            });
+
+            this.filteredOut = filteredOut;
+            setPackageInfos(filteredIn);
         }
     }
 
