@@ -37,6 +37,9 @@ public class OnboardingActivity extends AppCompatActivity {
         final ConstraintSet constraintSet3 = new ConstraintSet();
         constraintSet3.clone(this, R.layout.activity_onboarding_3);
 
+        final ConstraintSet constraintSet4 = new ConstraintSet();
+        constraintSet4.clone(this, R.layout.activity_onboarding_4);
+
         findViewById(R.id.button_get_started).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,6 +53,14 @@ public class OnboardingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TransitionManager.beginDelayedTransition(constraintLayout);
                 constraintSet3.applyTo(constraintLayout);
+            }
+        });
+
+        findViewById(R.id.button_bad_habits).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransitionManager.beginDelayedTransition(constraintLayout);
+                constraintSet4.applyTo(constraintLayout);
             }
         });
     }
