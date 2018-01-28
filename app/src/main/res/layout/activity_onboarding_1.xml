@@ -76,7 +76,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Before Nudge can help you, we need to set a few things up."
+                android:text="Before Nudge can help you, we need to set up a few things."
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="14sp" />
 
