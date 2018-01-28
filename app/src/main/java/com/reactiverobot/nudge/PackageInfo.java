@@ -6,6 +6,21 @@ import android.graphics.drawable.Drawable;
 public final class PackageInfo {
     final public String packageName;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PackageInfo that = (PackageInfo) o;
+
+        return packageName.equals(that.packageName);
+    }
+
+    @Override
+    public int hashCode() {
+        return packageName.hashCode();
+    }
+
     public String name;
     public String iconUrl;
     public Drawable iconDrawable;

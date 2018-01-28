@@ -88,6 +88,10 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
     public void setPackageInfos(Collection<PackageInfo> packageInfos) {
         clear();
         addAll(packageInfos);
+        sort();
+    }
+
+    private void sort() {
         sort(new Comparator<PackageInfo>() {
             @Override
             public int compare(PackageInfo o1, PackageInfo o2) {
@@ -157,7 +161,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo> {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
                         packageInfo.blocked = isChecked;
-                        notifyDataSetChanged();
+                        sort();
                     }
                 });
 

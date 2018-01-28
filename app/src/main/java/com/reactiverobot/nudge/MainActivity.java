@@ -27,6 +27,7 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -131,11 +132,12 @@ public class MainActivity extends AppCompatActivity {
         Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
 
+        final Set<String> pinnedPackages = prefs.getPinnedPackages();
         final Set<String> blockedPackages = prefs.getBlockedPackages();
 
-        final List<PackageInfo> allPackages = new ArrayList<>();
+        final Set<PackageInfo> allPackages = new HashSet<>();
 
-        allPackages.addAll(blockedPackages.stream()
+        allPackages.addAll(pinnedPackages.stream()
             .map(new Function<String, PackageInfo>() {
                 @Override
                 public PackageInfo apply(String packageName) {
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 .forEach(new Consumer<ApplicationInfo>() {
                     @Override
                     public void accept(final ApplicationInfo applicationInfo) {
-                        if (!blockedPackages.contains(applicationInfo.packageName)) {
+                        if (!pinnedPackages.contains(applicationInfo.packageName)) {
                             allPackages.add(new PackageInfo(
                                     null,
                                     null,
