@@ -45,18 +45,16 @@
 
         <Button
             android:id="@+id/button_open_option_1"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:text="Open Kindle"
             android:drawableLeft="@drawable/ic_check_24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="231dp">
-        </Button>
+            android:elevation="2dp"
+            android:background="@color/white"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Kindle"/>
 
         <View
             android:layout_height="16dp"
@@ -71,10 +69,11 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:text="Open Spire"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_open_option_1" />
+            android:drawableLeft="@drawable/ic_check_24dp"
+            android:elevation="2dp"
+            android:background="@color/white"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" />
 
     </LinearLayout>
 
