@@ -51,10 +51,12 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:text="Open Kindle"
+            android:drawableLeft="@drawable/ic_check_24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="231dp" />
+            tools:layout_editor_absoluteY="231dp">
+        </Button>
 
         <View
             android:layout_height="16dp"
