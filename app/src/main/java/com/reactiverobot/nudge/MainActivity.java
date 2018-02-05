@@ -177,6 +177,12 @@ public class MainActivity extends AppCompatActivity {
 
         setupSearchBar();
 
+        /*
+            1. create packgin info manager, it loads on it's own thread
+            2. create 2 package list manager (1 for each tab)
+            3. subscribe each list to
+         */
+
         TabHost host = (TabHost) findViewById(R.id.tabs_main);
         host.setup();
 

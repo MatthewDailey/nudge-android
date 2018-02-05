@@ -26,6 +26,10 @@ public final class PackageInfo {
     public Drawable iconDrawable;
     public boolean blocked;
 
+    public PackageInfo(String packageName) {
+        this.packageName = packageName;
+    }
+
     public PackageInfo(String name, String iconUrl, Drawable iconDrawable, String packageName, boolean blocked) {
         this.name = name;
         this.iconUrl = iconUrl;
