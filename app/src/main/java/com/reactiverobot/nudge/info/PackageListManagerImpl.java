@@ -8,12 +8,9 @@ import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class PackageListManagerImpl implements PackageListManager, PackageInfoManager.Subscriber {
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
     private final PackageManager packageManager;
@@ -28,22 +25,20 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
     @Override
     public void initialize() {
-//        executor.submit(() -> {
-           List<PackageInfo> packages = new ArrayList<>();
+       List<PackageInfo> packages = new ArrayList<>();
 
-           prefs.getPinnedPackages()
-                   .stream()
-                   .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
+       prefs.getPinnedPackages()
+               .stream()
+               .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
 
-           packageManager.getInstalledApplications(0)
-                .stream()
-                .forEach(applicationInfo ->
-                        packages.add(packageInfoManager.get(applicationInfo.packageName)));
+       packageManager.getInstalledApplications(0)
+            .stream()
+            .forEach(applicationInfo ->
+                    packages.add(packageInfoManager.get(applicationInfo.packageName)));
 
-           for (PackageListHandler handler : subscribers) {
-               handler.accept(packages);
-           }
-//        });
+       for (PackageListHandler handler : subscribers) {
+           handler.accept(packages);
+       }
     }
 
     @Override
