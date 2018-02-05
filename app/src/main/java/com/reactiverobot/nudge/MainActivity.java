@@ -54,44 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
     PackageArrayAdapter badHabitPackageAdapter;
 
-    /**
-     * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
-     * and not rely on clients to suggest data to index. However, this is enough for now.
-     */
-    // TODO: do this async
-    private void indexAllApps() {
-        final RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-        final Set<String> indexedPackages = prefs.getIndexedPackages();
-
-        List<ApplicationInfo> installedApplications = getPackageManager().getInstalledApplications(0);
-
-        installedApplications.stream()
-                .forEach(new Consumer<ApplicationInfo>() {
-                    @Override
-                    public void accept(final ApplicationInfo applicationInfo) {
-                        if (!indexedPackages.contains(applicationInfo.packageName)) {
-                            String url = "http://android-app-index.herokuapp.com/api/v1/update/" + applicationInfo.packageName;
-
-                            JsonObjectRequest request = new JsonObjectRequest(url, new JSONObject(),
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            prefs.setPackageIndexed(applicationInfo.packageName);
-                                            Log.d(TAG, "Successfully indexed " + applicationInfo.packageName);
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.e(TAG, "Failed to load package data.", error);
-                                }
-                            });
-
-                            requestQueue.add(request);
-                        }
-                    }
-                });
-    }
 
 //    private void setupSearchBar() {
 //        final SearchView searchBar = (SearchView) findViewById(R.id.search_bad_habits);
@@ -221,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
                 jobScheduler.cancelJob();
             }
         });
-
 
 //        indexAllApps();
     }

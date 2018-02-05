@@ -8,19 +8,25 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.PackageInfo;
+import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class PackageInfoManagerImpl implements PackageInfoManager {
 
@@ -32,6 +38,7 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     private Map<String, PackageInfo> packageInfoMap;
     private final RequestQueue requestQueue;
 
+    private final Context context;
     private final PackageManager packageManager;
     private final Collection<String> priorityPackages;
     private final boolean loadAllPackages;
@@ -41,6 +48,7 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
             PackageManager packageManager,
             Collection<String> priorityPackages,
             boolean loadAllPackages) {
+        this.context = context;
         this.packageManager = packageManager;
         this.loadAllPackages = loadAllPackages;
         this.priorityPackages = priorityPackages;
@@ -103,6 +111,8 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
                                             applicationInfo.packageName,
                                             false))));
         }
+
+        executor.submit(() -> this.indexAllApps());
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
@@ -133,6 +143,31 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
 
             requestQueue.add(request);
         }
+    }
+
+    /**
+     * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
+     * and not rely on clients to suggest data to index. However, this is enough for now.
+     */
+    private void indexAllApps() {
+        final Set<String> indexedPackages = PrefsImpl.from(context).getIndexedPackages();
+
+        List<ApplicationInfo> installedApplications = packageManager.getInstalledApplications(0);
+
+        installedApplications.stream()
+                .forEach(applicationInfo -> {
+                    if (!indexedPackages.contains(applicationInfo.packageName)) {
+                        String url = "http://android-app-index.herokuapp.com/api/v1/update/" + applicationInfo.packageName;
+
+                        JsonObjectRequest request = new JsonObjectRequest(url, new JSONObject(),
+                                response -> {
+                                    PrefsImpl.from(context).setPackageIndexed(applicationInfo.packageName);
+                                    Log.d(TAG, "Successfully indexed " + applicationInfo.packageName);
+                                }, error -> Log.e(TAG, "Failed to load package data.", error));
+
+                        requestQueue.add(request);
+                    }
+                });
     }
 
 
