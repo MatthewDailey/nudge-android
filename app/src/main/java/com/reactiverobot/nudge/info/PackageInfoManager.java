@@ -9,7 +9,7 @@ public interface PackageInfoManager {
         void update();
     }
 
-    public PackageInfo get(String packageName);
+    PackageInfo get(String packageName);
 
-    public void subscribe(Subscriber subscriber);
+    void subscribe(Subscriber subscriber);
 }

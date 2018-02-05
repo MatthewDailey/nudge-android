@@ -21,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.info.PackageInfoManager;
+import com.reactiverobot.nudge.info.PackageListManager;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 import com.squareup.picasso.Picasso;
 
@@ -34,21 +35,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class PackageArrayAdapter extends ArrayAdapter<String>
-        implements PackageInfoManager.Subscriber {
+public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
+        implements PackageListManager.PackageListHandler {
     private static final String TAG = PackageArrayAdapter.class.getName();
 
-    protected final PackageInfoManager packageInfoManager;
-
-    public PackageArrayAdapter(@NonNull Context context, PackageInfoManager packageInfoManager) {
+    public PackageArrayAdapter(@NonNull Context context) {
         super(context, R.layout.list_item_package);
-
-        this.packageInfoManager = packageInfoManager;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final PackageInfo packageInfo = packageInfoManager.get(getItem(position));
+        final PackageInfo packageInfo = getItem(position);
 
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 
@@ -64,11 +61,6 @@ public class PackageArrayAdapter extends ArrayAdapter<String>
                     packageInfo.blocked = isChecked;
                 });
 
-        if (packageInfo.name != null) {
-            ((TextView) convertView.findViewById(R.id.text_view_app_name))
-                    .setText(packageInfo.name);
-        }
-
         if (packageInfo.iconDrawable != null) {
             ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
                     .setImageDrawable(packageInfo.iconDrawable);
@@ -76,7 +68,13 @@ public class PackageArrayAdapter extends ArrayAdapter<String>
             Picasso.with(getContext())
                     .load(packageInfo.iconUrl)
                     .into((ImageView) convertView.findViewById(R.id.image_view_app_icon));
+        } else {
+            ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
+                    .setImageDrawable(null);
         }
+
+        ((TextView) convertView.findViewById(R.id.text_view_app_name))
+                .setText(packageInfo.name);
 
         ((TextView) convertView.findViewById(R.id.text_view_package_name))
                 .setText(packageInfo.packageName);
@@ -85,6 +83,12 @@ public class PackageArrayAdapter extends ArrayAdapter<String>
             .setChecked(packageInfo.blocked);
 
         return convertView;
+    }
+
+    @Override
+    public void accept(List<PackageInfo> packageInfos) {
+        addAll(packageInfos);
+        notifyDataSetChanged();
     }
 
     @Override

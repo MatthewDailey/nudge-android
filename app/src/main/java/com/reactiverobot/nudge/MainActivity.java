@@ -23,6 +23,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageInfoManagerImpl;
+import com.reactiverobot.nudge.info.PackageListManagerImpl;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -55,127 +56,38 @@ public class MainActivity extends AppCompatActivity {
     PackageArrayAdapter badHabitPackageAdapter;
 
 
-//    private void setupSearchBar() {
-//        final SearchView searchBar = (SearchView) findViewById(R.id.search_bad_habits);
-//        searchBar.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                searchBar.setIconified(false);
-//            }
-//        });
-//
-//        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                if (newText == null || newText.isEmpty()) {
-//                    badHabitPackageAdapter.setFilter(Optional.<String>empty());
-//                } else {
-//                    badHabitPackageAdapter.setFilter(Optional.of(newText));
-//                }
-//
-//                return false;
-//            }
-//        });
-//
-//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        searchBar.setSearchableInfo(
-//                searchManager.getSearchableInfo(
-//                        new ComponentName(
-//                                "com.reactiverobot.nudge",
-//                                SearchActivity.class.getCanonicalName())));
-//    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
 
-        Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
+        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
-//
-//        final Set<String> pinnedPackages = prefs.getPinnedPackages();
-//        final Set<String> blockedPackages = prefs.getBlockedPackages();
-//
-//        final Set<PackageInfo> allPackages = new HashSet<>();
-//
-//        allPackages.addAll(pinnedPackages.stream()
-//            .map(new Function<String, PackageInfo>() {
-//                @Override
-//                public PackageInfo apply(String packageName) {
-//                    return new PackageInfo(
-//                            null,
-//                            null,
-//                            null,
-//                            packageName,
-//                            blockedPackages.contains(packageName));
-//                }
-//            }).collect(Collectors.<PackageInfo>toList()));
-//
-//        getPackageManager().getInstalledApplications(0)
-//                .stream()
-//                .forEach(new Consumer<ApplicationInfo>() {
-//                    @Override
-//                    public void accept(final ApplicationInfo applicationInfo) {
-//                        if (!pinnedPackages.contains(applicationInfo.packageName)) {
-//                            allPackages.add(new PackageInfo(
-//                                    null,
-//                                    null,
-//                                    null,
-//                                    applicationInfo.packageName,
-//                                    blockedPackages.contains(applicationInfo.packageName)));
-//                        }
-//                    }
-//                });
-
-//        badHabitPackageAdapter.setPackageInfos(allPackages);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Set<String> pinnedPackages = prefs.getPinnedPackages();
 
-        packageInfoManager = PackageInfoManagerImpl.builder(getPackageManager())
-                .withPriorityPackages(pinnedPackages)
-                .withAllPackages()
-                .build(this);
-
-
-//        setupSearchBar();
+        packageInfoManager = new PackageInfoManagerImpl(this);
 
         setupTabsAndTitle();
 
-//        final Set<String> blockedPackages = prefs.getBlockedPackages();
-//        List<PackageInfo> pinnedPackageInfos = pinnedPackages.stream()
-//                .map(new Function<String, PackageInfo>() {
-//                    @Override
-//                    public PackageInfo apply(String packageName) {
-//                        return new PackageInfo(
-//                                null,
-//                                null,
-//                                null,
-//                                packageName,
-//                                blockedPackages.contains(packageName));
-//                    }
-//                }).collect(Collectors.<PackageInfo>toList());
+        badHabitPackageAdapter = new PackageArrayAdapter(this);
 
-        badHabitPackageAdapter = new PackageArrayAdapter(this, packageInfoManager);
-        badHabitPackageAdapter.addAll(pinnedPackages);
-
-        packageInfoManager.subscribe(badHabitPackageAdapter);
-
-        ListView badHabitsList = (ListView) findViewById(R.id.list_view_bad_habits);
+        ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);
 
-        Switch enableServiceSwitch = (Switch) findViewById(R.id.switch_enable_service);
+        PackageListManagerImpl packageListManager = new PackageListManagerImpl(getPackageManager(), prefs, packageInfoManager);
+        packageListManager.subscribe(badHabitPackageAdapter);
+        packageListManager.initialize();
+        packageInfoManager.subscribe(packageListManager);
+
+        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
             if (isEnabled) {
                 jobScheduler.scheduleJob();
@@ -184,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        indexAllApps();
     }
 
     private void setupTabsAndTitle() {

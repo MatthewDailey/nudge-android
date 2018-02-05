@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -35,84 +36,18 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final List<Subscriber> subscribers = new ArrayList<>();
 
-    private Map<String, PackageInfo> packageInfoMap;
+    private ConcurrentHashMap<String, PackageInfo> packageInfoMap;
     private final RequestQueue requestQueue;
 
     private final Context context;
     private final PackageManager packageManager;
-    private final Collection<String> priorityPackages;
-    private final boolean loadAllPackages;
 
-    private PackageInfoManagerImpl(
-            Context context,
-            PackageManager packageManager,
-            Collection<String> priorityPackages,
-            boolean loadAllPackages) {
+    public PackageInfoManagerImpl(Context context) {
         this.context = context;
-        this.packageManager = packageManager;
-        this.loadAllPackages = loadAllPackages;
-        this.priorityPackages = priorityPackages;
+        this.packageManager = context.getPackageManager();
 
-        this.packageInfoMap = new HashMap<>();
+        this.packageInfoMap = new ConcurrentHashMap<>();
         this.requestQueue = Volley.newRequestQueue(context);
-    }
-
-    public static Builder builder(PackageManager packageManager) {
-        return new Builder(packageManager);
-    }
-
-    public static class Builder {
-        private final PackageManager packageManager;
-
-        private Collection<String> priorityPackages = new ArrayList<>();
-        private boolean loadAllPackages = false;
-
-        public Builder(PackageManager manager) {
-            this.packageManager = manager;
-        }
-
-        public Builder withPriorityPackages(Collection<String> priorityPackages) {
-            this.priorityPackages = priorityPackages;
-            return this;
-        }
-
-        public Builder withAllPackages() {
-            this.loadAllPackages = true;
-            return this;
-        }
-
-        public PackageInfoManager build(Context context) {
-            PackageInfoManagerImpl manager = new PackageInfoManagerImpl(
-                    context, packageManager, priorityPackages, loadAllPackages);
-
-            manager.initializeAsync();
-
-            return manager;
-        }
-    }
-
-    public void initializeAsync() {
-        if (!this.priorityPackages.isEmpty()) {
-            executor.submit(() -> this.priorityPackages.forEach(packageName -> {
-                PackageInfo packageInfo = new PackageInfo(packageName);
-                packageInfoMap.put(packageName, packageInfo);
-                updatePackageInfo(packageInfo);
-            }));
-        }
-
-        if (this.loadAllPackages) {
-            executor.submit(() ->
-                    packageManager.getInstalledApplications(0).stream()
-                            .forEach((ApplicationInfo applicationInfo) ->
-                                    packageInfoMap.put(applicationInfo.packageName, new PackageInfo(
-                                            applicationInfo.loadLabel(packageManager).toString(),
-                                            null,
-                                            applicationInfo.loadIcon(packageManager),
-                                            applicationInfo.packageName,
-                                            false))));
-        }
-
-        executor.submit(() -> this.indexAllApps());
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
@@ -139,7 +74,9 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
                             e1.printStackTrace();
                         }
                     },
-                    error -> Log.e(TAG, "Failed to load package data.", error));
+                    error -> {
+                        Log.e(TAG, "Failed to load package data.", error);
+                    });
 
             requestQueue.add(request);
         }
@@ -173,11 +110,12 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
 
     @Override
     public @NonNull PackageInfo get(String packageName) {
-        PackageInfo loadedPackageInfo = this.packageInfoMap.get(packageName);
-        if (loadedPackageInfo == null) {
-            return new PackageInfo(packageName);
-        }
-        return loadedPackageInfo;
+        return this.packageInfoMap.computeIfAbsent(packageName,
+                (packageNameKey) -> {
+                    PackageInfo packageInfo = new PackageInfo(packageNameKey);
+                    executor.submit(() -> updatePackageInfo(packageInfo));
+                    return packageInfo;
+                });
     }
 
     @Override
