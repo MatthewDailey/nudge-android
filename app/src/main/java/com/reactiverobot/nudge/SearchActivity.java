@@ -84,12 +84,12 @@ public class SearchActivity extends AppCompatActivity {
                                     JSONArray jsonarray = new JSONArray(response);
                                     for (int i = 0; i < jsonarray.length(); i++) {
                                         JSONObject jsonobject = jsonarray.getJSONObject(i);
-                                        packageArrayAdapter.add(new PackageInfo(
-                                                jsonobject.getString("name"),
-                                                jsonobject.getString("icon_url"),
-                                                null,
-                                                jsonobject.getString("package"),
-                                                true));
+//                                        packageArrayAdapter.add(new PackageInfo(
+//                                                jsonobject.getString("name"),
+//                                                jsonobject.getString("icon_url"),
+//                                                null,
+//                                                jsonobject.getString("package"),
+//                                                true));
                                     }
 
                                 } catch (JSONException e) {

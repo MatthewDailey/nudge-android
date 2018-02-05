@@ -4,26 +4,23 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.PackageInfo;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public class PackageInfoManagerImpl implements PackageInfoManager {
 
@@ -36,13 +33,13 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     private final RequestQueue requestQueue;
 
     private final PackageManager packageManager;
-    private final List<String> priorityPackages;
+    private final Collection<String> priorityPackages;
     private final boolean loadAllPackages;
 
     private PackageInfoManagerImpl(
             Context context,
             PackageManager packageManager,
-            List<String> priorityPackages,
+            Collection<String> priorityPackages,
             boolean loadAllPackages) {
         this.packageManager = packageManager;
         this.loadAllPackages = loadAllPackages;
@@ -56,17 +53,17 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
         return new Builder(packageManager);
     }
 
-    static class Builder {
+    public static class Builder {
         private final PackageManager packageManager;
 
-        private List<String> priorityPackages = new ArrayList<>();
+        private Collection<String> priorityPackages = new ArrayList<>();
         private boolean loadAllPackages = false;
 
         public Builder(PackageManager manager) {
             this.packageManager = manager;
         }
 
-        public Builder withPriorityPackages(List<String> priorityPackages) {
+        public Builder withPriorityPackages(Collection<String> priorityPackages) {
             this.priorityPackages = priorityPackages;
             return this;
         }
@@ -106,7 +103,6 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
                                             applicationInfo.packageName,
                                             false))));
         }
-
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
@@ -118,29 +114,22 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
             packageInfo.name = appName;
             packageInfo.iconDrawable = appIcon;
 
-            update();
+            updateSubscribers();
         } catch (PackageManager.NameNotFoundException e) {
             String url = "http://android-app-index.herokuapp.com/api/v1/get/" + packageInfo.packageName;
 
             JsonObjectRequest request = new JsonObjectRequest(url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d(TAG, response.toString());
-                            try {
-                                packageInfo.name = response.getString("name");
-                                packageInfo.iconUrl = response.getString("icon_url");
-                                update();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                    response -> {
+                        Log.d(TAG, response.toString());
+                        try {
+                            packageInfo.name = response.getString("name");
+                            packageInfo.iconUrl = response.getString("icon_url");
+                            updateSubscribers();
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Failed to load package data.", error);
-                }
-            });
+                    },
+                    error -> Log.e(TAG, "Failed to load package data.", error));
 
             requestQueue.add(request);
         }
@@ -148,8 +137,12 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
 
 
     @Override
-    public @Nullable PackageInfo get(String packageName) {
-        return this.packageInfoMap.get(packageName);
+    public @NonNull PackageInfo get(String packageName) {
+        PackageInfo loadedPackageInfo = this.packageInfoMap.get(packageName);
+        if (loadedPackageInfo == null) {
+            return new PackageInfo(packageName);
+        }
+        return loadedPackageInfo;
     }
 
     @Override
@@ -157,7 +150,7 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
         this.subscribers.add(subscriber);
     }
 
-    private void update() {
+    private void updateSubscribers() {
         for (Subscriber subscriber : subscribers) {
             subscriber.update();
         }

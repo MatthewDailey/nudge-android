@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.reactiverobot.nudge.info.PackageInfoManager;
+import com.reactiverobot.nudge.info.PackageInfoManagerImpl;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
@@ -15,7 +17,7 @@ public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
     private final Activity callingActivity;
 
     public PackageSearchResultArrayAdapter(@NonNull Activity context) {
-        super(context);
+        super(context, PackageInfoManagerImpl.builder(context.getPackageManager()).build(context));
         callingActivity = context;
     }
 
@@ -23,7 +25,7 @@ public class PackageSearchResultArrayAdapter extends PackageArrayAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = super.getView(position, convertView, parent);
 
-        final PackageInfo packageInfo = getItem(position);
+        final PackageInfo packageInfo = this.packageInfoManager.get(getItem(position));
 
         view.findViewById(R.id.checkbox_block_package).setVisibility(View.INVISIBLE);
 
