@@ -53,7 +53,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             convertView = layoutInflater.inflate(R.layout.list_item_package, null);
         }
 
-        CheckBox blockPackageCheckbox = (CheckBox) convertView.findViewById(
+        CheckBox blockPackageCheckbox = convertView.findViewById(
                 R.id.checkbox_block_package);
         blockPackageCheckbox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {

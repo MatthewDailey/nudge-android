@@ -86,6 +86,7 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
      * This method exists to bootstrap the AndroidAppIndex indexes. Ideally, we would crawl
      * and not rely on clients to suggest data to index. However, this is enough for now.
      */
+    // TODO: Find the right place to do this. Probably anonther service that does just this one thing.
     private void indexAllApps() {
         final Set<String> indexedPackages = PrefsImpl.from(context).getIndexedPackages();
 

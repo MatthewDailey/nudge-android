@@ -8,6 +8,7 @@ import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class PackageListManagerImpl implements PackageListManager, PackageInfoManager.Subscriber {
 
@@ -25,20 +26,26 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
     @Override
     public void initialize() {
-       List<PackageInfo> packages = new ArrayList<>();
+        List<PackageInfo> packages = new ArrayList<>();
 
-       prefs.getPinnedPackages()
-               .stream()
-               .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
+        Set<String> blockedPackages = prefs.getBlockedPackages();
 
-       packageManager.getInstalledApplications(0)
-            .stream()
-            .forEach(applicationInfo ->
-                    packages.add(packageInfoManager.get(applicationInfo.packageName)));
+        prefs.getPinnedPackages()
+                .stream()
+                .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
 
-       for (PackageListHandler handler : subscribers) {
-           handler.accept(packages);
-       }
+        packageManager.getInstalledApplications(0)
+                .stream()
+                .forEach(applicationInfo ->
+                        packages.add(packageInfoManager.get(applicationInfo.packageName)));
+
+        // TODO: In-line this so it only does 1 pass.
+        packages.stream().forEach(packageInfo ->
+                packageInfo.blocked = blockedPackages.contains(packageInfo.packageName));
+
+        for (PackageListHandler handler : subscribers) {
+            handler.accept(packages);
+        }
     }
 
     @Override
