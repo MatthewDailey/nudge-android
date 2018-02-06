@@ -3,6 +3,7 @@ package com.reactiverobot.nudge.info;
 import android.content.pm.PackageManager;
 
 import com.reactiverobot.nudge.PackageInfo;
+import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,7 +12,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PackageListManagerImpl implements PackageListManager, PackageInfoManager.Subscriber {
+public class PackageListManagerImpl implements
+        PackageListManager,
+        PackageInfoManager.Subscriber,
+        Prefs.Subscriber {
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
@@ -94,4 +98,13 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
         return 0;
     };
+
+    @Override
+    public void onBadHabitPinned(String packageName, boolean pinned) {
+        pinnedPackages.add(packageInfoManager.get(packageName));
+        pinnedPackages.sort(ALPHABETIC);
+        // TODO Handle un-pinned case.
+
+        publishPackageList();
+    }
 }

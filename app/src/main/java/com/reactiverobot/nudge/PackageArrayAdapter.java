@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.reactiverobot.nudge.info.PackageListManager;
+import com.reactiverobot.nudge.prefs.Prefs;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 import com.squareup.picasso.Picasso;
 
@@ -20,8 +21,12 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         implements PackageListManager.PackageListHandler {
     private static final String TAG = PackageArrayAdapter.class.getName();
 
-    public PackageArrayAdapter(@NonNull Context context) {
+    private final Prefs prefs;
+
+    public PackageArrayAdapter(@NonNull Context context, Prefs prefs) {
         super(context, R.layout.list_item_package);
+
+        this.prefs = prefs;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                 R.id.checkbox_block_package);
         blockPackageCheckbox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
-                    PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
+                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
                     packageInfo.badHabit = isChecked;
                 });
 

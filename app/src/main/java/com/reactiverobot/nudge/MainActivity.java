@@ -1,41 +1,18 @@
 package com.reactiverobot.nudge;
 
-import android.app.SearchManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageInfoManagerImpl;
 import com.reactiverobot.nudge.info.PackageListManagerImpl;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
-
-import org.json.JSONObject;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -75,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        badHabitPackageAdapter = new PackageArrayAdapter(this);
+        badHabitPackageAdapter = new PackageArrayAdapter(this, prefs);
 
         ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);
@@ -83,11 +60,12 @@ public class MainActivity extends AppCompatActivity {
         PackageListManagerImpl packageListManager = new PackageListManagerImpl(
                 getPackageManager(),
                 packageInfoManager,
-                prefs::getPinnedPackages,
-                prefs::getBlockedPackages);
+                prefs::getPinnedBadHabitPackages,
+                prefs::getBadHabitPackages);
         packageListManager.subscribe(badHabitPackageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
+        prefs.subscribe(packageListManager);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {

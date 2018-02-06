@@ -4,19 +4,26 @@ import java.util.Set;
 
 public interface Prefs {
 
+    interface Subscriber {
+        void onBadHabitPinned(String packageName, boolean pinned);
+        // TODO onGoodOptionPinned
+    }
+
     void setCheckActiveEnabled(boolean enabled);
 
     boolean getCheckActiveEnabled();
 
-    Set<String> getPinnedPackages();
+    Set<String> getPinnedBadHabitPackages();
 
-    Set<String> getBlockedPackages();
+    Set<String> getBadHabitPackages();
 
-    void setPackagePinned(String packageName, boolean pinned);
+    void setPackageBadHabit(String packageName, boolean badHabit);
 
-    void setPackageBlocked(String packageName, boolean blocked);
+    // TODO setPackageGoodOption
 
     Set<String> getIndexedPackages();
 
     void setPackageIndexed(String packageName);
+
+    void subscribe(Subscriber subscriber);
 }

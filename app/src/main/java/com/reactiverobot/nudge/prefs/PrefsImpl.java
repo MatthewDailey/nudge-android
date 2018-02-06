@@ -3,7 +3,9 @@ package com.reactiverobot.nudge.prefs;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -16,10 +18,12 @@ public class PrefsImpl implements Prefs {
         return defaultPinnedPackages;
     }
 
+    private final List<Subscriber> subscribers = new ArrayList<>();
+
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
     private static final String INDEXED_PACKAGES = "indexed_packages";
-    private static final String PINNED_PACKAGES = "pinned_packages";
+    private static final String PINNED_BAD_HABIT_PACKAGES = "pinned_bad_habit_packages";
     private static final String BLOCKED_PACKAGES = "blocked_packages";
 
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
@@ -58,11 +62,11 @@ public class PrefsImpl implements Prefs {
         return new HashSet<>(pinnedPackages);
     }
 
-    public Set<String> getPinnedPackages() {
-        return getPackages(PINNED_PACKAGES, DEFAULT_BLOCKED_PACKAGES);
+    public Set<String> getPinnedBadHabitPackages() {
+        return getPackages(PINNED_BAD_HABIT_PACKAGES, DEFAULT_BLOCKED_PACKAGES);
     }
 
-    public Set<String> getBlockedPackages() {
+    public Set<String> getBadHabitPackages() {
         return getPackages(BLOCKED_PACKAGES, DEFAULT_BLOCKED_PACKAGES);
     }
 
@@ -76,14 +80,20 @@ public class PrefsImpl implements Prefs {
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
 
-    synchronized public void setPackagePinned(String packageName, boolean pinned) {
-        updateStringSet(PINNED_PACKAGES, getPinnedPackages(), packageName, pinned);
+    synchronized private void setPackagePinned(String packageName, boolean pinned) {
+        updateStringSet(PINNED_BAD_HABIT_PACKAGES, getPinnedBadHabitPackages(), packageName, pinned);
 
     }
 
-    synchronized public void setPackageBlocked(String packageName, boolean blocked) {
-        updateStringSet(BLOCKED_PACKAGES, getBlockedPackages(), packageName, blocked);
+    synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
+        updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
 
+        if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
+            setPackagePinned(packageName, true);
+
+            subscribers.stream()
+                    .forEach(subscriber -> subscriber.onBadHabitPinned(packageName, true));
+        }
     }
 
     public Set<String> getIndexedPackages() {
@@ -93,5 +103,10 @@ public class PrefsImpl implements Prefs {
     synchronized public void setPackageIndexed(String packageName) {
         updateStringSet(INDEXED_PACKAGES, getIndexedPackages(), packageName, true);
 
+    }
+
+    @Override
+    public void subscribe(Subscriber subscriber) {
+        subscribers.add(subscriber);
     }
 }

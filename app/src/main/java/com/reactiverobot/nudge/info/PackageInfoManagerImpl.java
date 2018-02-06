@@ -8,8 +8,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.PackageInfo;
@@ -20,15 +18,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public class PackageInfoManagerImpl implements PackageInfoManager {
 
@@ -56,7 +50,7 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     private void updatePackageInfo(final PackageInfo packageInfo) {
 
         // TODO: Also set goodOption on package info.
-        if (prefs.getBlockedPackages().contains(packageInfo.packageName)) {
+        if (prefs.getBadHabitPackages().contains(packageInfo.packageName)) {
             packageInfo.badHabit = true;
         }
 

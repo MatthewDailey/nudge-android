@@ -82,7 +82,7 @@ public class CheckActiveAppJobService extends JobService {
             Log.d(TAG, "Other foreground - " + foregroundPackageName);
 
 
-            Set<String> blockedPackages = PrefsImpl.from(this).getBlockedPackages();
+            Set<String> blockedPackages = PrefsImpl.from(this).getBadHabitPackages();
             if (blockedPackages.contains(foregroundPackageName)) {
                 startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
             }
