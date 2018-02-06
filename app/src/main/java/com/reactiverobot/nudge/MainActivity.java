@@ -81,7 +81,10 @@ public class MainActivity extends AppCompatActivity {
         badHabitsList.setAdapter(badHabitPackageAdapter);
 
         PackageListManagerImpl packageListManager = new PackageListManagerImpl(
-                getPackageManager(), prefs, packageInfoManager);
+                getPackageManager(),
+                packageInfoManager,
+                prefs::getPinnedPackages,
+                prefs::getBlockedPackages);
         packageListManager.subscribe(badHabitPackageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);

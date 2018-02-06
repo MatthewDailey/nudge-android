@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class PackageListManagerImpl implements PackageListManager, PackageInfoManager.Subscriber {
@@ -20,17 +21,23 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
     private final PackageManager packageManager;
     private final PackageInfoManager packageInfoManager;
-    private final Prefs prefs;
 
-    public PackageListManagerImpl(PackageManager packageManager, Prefs prefs, PackageInfoManager packageInfoManager) {
+    private final Supplier<Set<String>> pinnedPackagesSupplier;
+    private final Supplier<Set<String>> selectedPackagesSupplier;
+
+    public PackageListManagerImpl(PackageManager packageManager,
+                                  PackageInfoManager packageInfoManager,
+                                  Supplier<Set<String>> pinnedPackagesSupplier,
+                                  Supplier<Set<String>> selectedPackagesSupplier) {
         this.packageManager = packageManager;
         this.packageInfoManager = packageInfoManager;
-        this.prefs = prefs;
+        this.pinnedPackagesSupplier = pinnedPackagesSupplier;
+        this.selectedPackagesSupplier = selectedPackagesSupplier;
     }
 
     @Override
     public void initialize() {
-        pinnedPackages = prefs.getPinnedPackages()
+        pinnedPackages = pinnedPackagesSupplier.get()
                 .stream()
                 .map(packageName -> packageInfoManager.get(packageName))
                 .sorted(ALPHABETIC)
@@ -53,7 +60,7 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
         packages.addAll(allPackages);
 
         // TODO: In-line this so it only does 1 pass.
-        Set<String> blockedPackages = prefs.getBlockedPackages();
+        Set<String> blockedPackages = selectedPackagesSupplier.get();
         packages.stream().forEach(packageInfo ->
                 packageInfo.blocked = blockedPackages.contains(packageInfo.packageName));
 
