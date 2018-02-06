@@ -6,8 +6,10 @@ import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PackageListManagerImpl implements PackageListManager, PackageInfoManager.Subscriber {
 
@@ -31,16 +33,19 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
         packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
 
-        prefs.getPinnedPackages()
+        packages.addAll(prefs.getPinnedPackages()
                 .stream()
-                .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
+                .map(packageName -> packageInfoManager.get(packageName))
+                .sorted(ALPHABETIC)
+                .collect(Collectors.toList()));
 
         packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
 
-        packageManager.getInstalledApplications(0)
+        packages.addAll(packageManager.getInstalledApplications(0)
                 .stream()
-                .forEach(applicationInfo ->
-                        packages.add(packageInfoManager.get(applicationInfo.packageName)));
+                .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
+                .sorted(ALPHABETIC)
+                .collect(Collectors.toList()));
 
         // TODO: In-line this so it only does 1 pass.
         packages.stream().forEach(packageInfo ->
@@ -62,4 +67,24 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
             handler.update();
         }
     }
+
+    private final Comparator<PackageInfo> ALPHABETIC = (o1, o2) -> {
+        if (o1.name != null && o2.name != null) {
+            return o1.name.compareTo(o2.name);
+        }
+
+        if (o1.name == null && o2.name == null) {
+            return o1.packageName.compareTo(o2.packageName);
+        }
+
+        if (o1.name == null) {
+            return -1;
+        }
+
+        if (o2.name == null) {
+            return -1;
+        }
+
+        return 0;
+    };
 }
