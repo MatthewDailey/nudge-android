@@ -1,5 +1,6 @@
 package com.reactiverobot.nudge;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -22,11 +23,13 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     private static final String TAG = PackageArrayAdapter.class.getName();
 
     private final Prefs prefs;
+    private final Activity activity;
 
-    public PackageArrayAdapter(@NonNull Context context, Prefs prefs) {
+    public PackageArrayAdapter(@NonNull Activity context, Prefs prefs) {
         super(context, R.layout.list_item_package);
 
         this.prefs = prefs;
+        this.activity = context;
     }
 
     @Override
@@ -92,18 +95,19 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     @Override
     public void accept(List<PackageInfo> packageInfos) {
-        clear();
-        addAll(packageInfos);
-        notifyDataSetChanged();
+        this.activity.runOnUiThread(() -> {
+            clear();
+            addAll(packageInfos);
+        });
     }
 
     @Override
     public void update() {
-        notifyDataSetChanged();
+        this.activity.runOnUiThread(() -> notifyDataSetChanged());
     }
 
     @Override
     public void onBadHabitChecked(String packageName, boolean badHabit) {
-        notifyDataSetChanged();
+        this.activity.runOnUiThread(() -> notifyDataSetChanged());
     }
 }
