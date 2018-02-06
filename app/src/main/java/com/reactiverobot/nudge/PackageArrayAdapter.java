@@ -62,8 +62,8 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                 R.id.checkbox_block_package);
         blockPackageCheckbox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
-                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
                     packageInfo.badHabit = isChecked;
+                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
                 });
 
         if (packageInfo.iconDrawable != null) {
@@ -107,4 +107,3 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         notifyDataSetChanged();
     }
 }
-≠
