@@ -13,6 +13,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.reactiverobot.nudge.PackageInfo;
+import com.reactiverobot.nudge.prefs.Prefs;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import org.json.JSONException;
@@ -40,10 +41,12 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     private final RequestQueue requestQueue;
 
     private final Context context;
+    private final Prefs prefs;
     private final PackageManager packageManager;
 
-    public PackageInfoManagerImpl(Context context) {
+    public PackageInfoManagerImpl(Context context, Prefs prefs) {
         this.context = context;
+        this.prefs = prefs;
         this.packageManager = context.getPackageManager();
 
         this.packageInfoMap = new ConcurrentHashMap<>();
@@ -51,6 +54,12 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
+
+        // TODO: Also set goodOption on package info.
+        if (prefs.getBlockedPackages().contains(packageInfo.packageName)) {
+            packageInfo.badHabit = true;
+        }
+
         try {
             Drawable appIcon = packageManager.getApplicationIcon(packageInfo.packageName);
             String appName = packageManager.getApplicationInfo(packageInfo.packageName, 0)

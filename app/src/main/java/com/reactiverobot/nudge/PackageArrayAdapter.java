@@ -1,39 +1,20 @@
 package com.reactiverobot.nudge;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManager;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         implements PackageListManager.PackageListHandler {
@@ -77,7 +58,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         blockPackageCheckbox.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
                     PrefsImpl.from(getContext()).setPackageBlocked(packageInfo.packageName, isChecked);
-                    packageInfo.blocked = isChecked;
+                    packageInfo.badHabit = isChecked;
                 });
 
         if (packageInfo.iconDrawable != null) {
@@ -99,7 +80,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                 .setText(packageInfo.packageName);
 
         ((CheckBox) convertView.findViewById(R.id.checkbox_block_package))
-            .setChecked(packageInfo.blocked);
+            .setChecked(packageInfo.badHabit);
 
         return convertView;
     }

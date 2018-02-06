@@ -15,7 +15,8 @@ public final class PackageInfo {
     public String name;
     public String iconUrl;
     public Drawable iconDrawable;
-    public boolean blocked;
+    public boolean badHabit;
+    public boolean goodOption;
 
     public PackageInfo(String packageName) {
         this.packageName = packageName;

@@ -3,7 +3,6 @@ package com.reactiverobot.nudge.info;
 import android.content.pm.PackageManager;
 
 import com.reactiverobot.nudge.PackageInfo;
-import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,11 +57,6 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
         packages.addAll(pinnedPackages);
         packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
         packages.addAll(allPackages);
-
-        // TODO: In-line this so it only does 1 pass.
-        Set<String> blockedPackages = selectedPackagesSupplier.get();
-        packages.stream().forEach(packageInfo ->
-                packageInfo.blocked = blockedPackages.contains(packageInfo.packageName));
 
         for (PackageListHandler handler : subscribers) {
             handler.accept(packages);

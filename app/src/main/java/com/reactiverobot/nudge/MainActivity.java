@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        packageInfoManager = new PackageInfoManagerImpl(this);
+        packageInfoManager = new PackageInfoManagerImpl(this, prefs);
 
         setupTabsAndTitle();
 
