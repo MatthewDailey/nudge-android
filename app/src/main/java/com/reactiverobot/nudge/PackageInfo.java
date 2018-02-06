@@ -4,7 +4,28 @@ package com.reactiverobot.nudge;
 import android.graphics.drawable.Drawable;
 
 public final class PackageInfo {
+    public enum Type {
+        HEADING,
+        PACKAGE,
+    }
+
     final public String packageName;
+    final public Type type;
+
+    public String name;
+    public String iconUrl;
+    public Drawable iconDrawable;
+    public boolean blocked;
+
+    public PackageInfo(String packageName) {
+        this.packageName = packageName;
+        this.type = Type.PACKAGE;
+    }
+
+    public PackageInfo(String packageName, Type type) {
+        this.packageName = packageName;
+        this.type = type;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -19,22 +40,5 @@ public final class PackageInfo {
     @Override
     public int hashCode() {
         return packageName.hashCode();
-    }
-
-    public String name;
-    public String iconUrl;
-    public Drawable iconDrawable;
-    public boolean blocked;
-
-    public PackageInfo(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public PackageInfo(String name, String iconUrl, Drawable iconDrawable, String packageName, boolean blocked) {
-        this.name = name;
-        this.iconUrl = iconUrl;
-        this.iconDrawable = iconDrawable;
-        this.packageName = packageName;
-        this.blocked = blocked;
     }
 }

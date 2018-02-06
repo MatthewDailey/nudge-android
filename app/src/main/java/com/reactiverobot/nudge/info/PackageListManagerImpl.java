@@ -1,6 +1,5 @@
 package com.reactiverobot.nudge.info;
 
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import com.reactiverobot.nudge.PackageInfo;
@@ -30,9 +29,13 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
         Set<String> blockedPackages = prefs.getBlockedPackages();
 
+        packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
+
         prefs.getPinnedPackages()
                 .stream()
                 .forEach(packageName -> packages.add(packageInfoManager.get(packageName)));
+
+        packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
 
         packageManager.getInstalledApplications(0)
                 .stream()

@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Set<String> pinnedPackages = prefs.getPinnedPackages();
-
         packageInfoManager = new PackageInfoManagerImpl(this);
 
         setupTabsAndTitle();
@@ -82,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);
 
-        PackageListManagerImpl packageListManager = new PackageListManagerImpl(getPackageManager(), prefs, packageInfoManager);
+        PackageListManagerImpl packageListManager = new PackageListManagerImpl(
+                getPackageManager(), prefs, packageInfoManager);
         packageListManager.subscribe(badHabitPackageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);

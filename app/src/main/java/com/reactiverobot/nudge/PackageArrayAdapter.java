@@ -44,13 +44,32 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     }
 
     @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return getItem(position).type == PackageInfo.Type.HEADING ? 1 : 0;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final PackageInfo packageInfo = getItem(position);
 
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.list_item_package, null);
+            if (PackageInfo.Type.PACKAGE.equals(packageInfo.type)) {
+                convertView = layoutInflater.inflate(R.layout.list_item_package, null);
+            } else {
+                convertView = layoutInflater.inflate(R.layout.list_item_heading, null);
+            }
+        }
+
+        if (PackageInfo.Type.HEADING.equals(packageInfo.type)) {
+            ((TextView) convertView.findViewById(R.id.text_view_package_header)).setText(packageInfo.packageName);
+            return convertView;
         }
 
         CheckBox blockPackageCheckbox = convertView.findViewById(
@@ -87,6 +106,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     @Override
     public void accept(List<PackageInfo> packageInfos) {
+        clear();
         addAll(packageInfos);
         notifyDataSetChanged();
     }
