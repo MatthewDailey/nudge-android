@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class PackageListManagerImpl implements
         PackageListManager,
         PackageInfoManager.Subscriber,
-        Prefs.Subscriber {
+        Prefs.PinnedSubscriber {
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
@@ -26,16 +26,13 @@ public class PackageListManagerImpl implements
     private final PackageInfoManager packageInfoManager;
 
     private final Supplier<Set<String>> pinnedPackagesSupplier;
-    private final Supplier<Set<String>> selectedPackagesSupplier;
 
     public PackageListManagerImpl(PackageManager packageManager,
                                   PackageInfoManager packageInfoManager,
-                                  Supplier<Set<String>> pinnedPackagesSupplier,
-                                  Supplier<Set<String>> selectedPackagesSupplier) {
+                                  Supplier<Set<String>> pinnedPackagesSupplier) {
         this.packageManager = packageManager;
         this.packageInfoManager = packageInfoManager;
         this.pinnedPackagesSupplier = pinnedPackagesSupplier;
-        this.selectedPackagesSupplier = selectedPackagesSupplier;
     }
 
     @Override
@@ -107,4 +104,5 @@ public class PackageListManagerImpl implements
 
         publishPackageList();
     }
+
 }

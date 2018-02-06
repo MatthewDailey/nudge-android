@@ -4,9 +4,13 @@ import java.util.Set;
 
 public interface Prefs {
 
-    interface Subscriber {
+    interface PinnedSubscriber {
         void onBadHabitPinned(String packageName, boolean pinned);
         // TODO onGoodOptionPinned
+    }
+
+    interface CheckedSubscriber {
+        void onBadHabitChecked(String packageName, boolean badHabit);
     }
 
     void setCheckActiveEnabled(boolean enabled);
@@ -25,5 +29,7 @@ public interface Prefs {
 
     void setPackageIndexed(String packageName);
 
-    void subscribe(Subscriber subscriber);
+    void subscribe(PinnedSubscriber subscriber);
+
+    void subscribe(CheckedSubscriber subscriber);
 }

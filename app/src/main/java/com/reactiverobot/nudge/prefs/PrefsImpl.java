@@ -18,7 +18,8 @@ public class PrefsImpl implements Prefs {
         return defaultPinnedPackages;
     }
 
-    private final List<Subscriber> subscribers = new ArrayList<>();
+    private final List<PinnedSubscriber> pinnedSubscribers = new ArrayList<>();
+    private final List<CheckedSubscriber> checkedSubscribers = new ArrayList<>();
 
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
@@ -88,10 +89,13 @@ public class PrefsImpl implements Prefs {
     synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
 
+        checkedSubscribers.stream()
+                .forEach(subscriber -> subscriber.onBadHabitChecked(packageName, badHabit));
+
         if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
             setPackagePinned(packageName, true);
 
-            subscribers.stream()
+            pinnedSubscribers.stream()
                     .forEach(subscriber -> subscriber.onBadHabitPinned(packageName, true));
         }
     }
@@ -106,7 +110,12 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void subscribe(Subscriber subscriber) {
-        subscribers.add(subscriber);
+    public void subscribe(PinnedSubscriber subscriber) {
+        pinnedSubscribers.add(subscriber);
+    }
+
+    @Override
+    public void subscribe(CheckedSubscriber subscriber) {
+        checkedSubscribers.add(subscriber);
     }
 }

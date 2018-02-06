@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
-        implements PackageListManager.PackageListHandler {
+        implements PackageListManager.PackageListHandler, Prefs.CheckedSubscriber {
     private static final String TAG = PackageArrayAdapter.class.getName();
 
     private final Prefs prefs;
@@ -101,4 +101,10 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     public void update() {
         notifyDataSetChanged();
     }
+
+    @Override
+    public void onBadHabitChecked(String packageName, boolean badHabit) {
+        notifyDataSetChanged();
+    }
 }
+≠

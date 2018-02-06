@@ -27,11 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
 
-
     private PackageInfoManager packageInfoManager;
 
     PackageArrayAdapter badHabitPackageAdapter;
-
 
     @Override
     protected void onResume() {
@@ -60,12 +58,13 @@ public class MainActivity extends AppCompatActivity {
         PackageListManagerImpl packageListManager = new PackageListManagerImpl(
                 getPackageManager(),
                 packageInfoManager,
-                prefs::getPinnedBadHabitPackages,
-                prefs::getBadHabitPackages);
+                prefs::getPinnedBadHabitPackages);
         packageListManager.subscribe(badHabitPackageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
+
         prefs.subscribe(packageListManager);
+        prefs.subscribe(badHabitPackageAdapter);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTabsAndTitle() {
-        TabHost host = (TabHost) findViewById(R.id.tabs_main);
+        TabHost host = findViewById(R.id.tabs_main);
         host.setup();
 
         //Tab 1
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator("GOOD OPTIONS");
         host.addTab(spec);
 
-        TextView titleView = (TextView) findViewById(R.id.title_text_view);
+        TextView titleView = findViewById(R.id.title_text_view);
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
         titleView.setTypeface(typeFace);
     }
