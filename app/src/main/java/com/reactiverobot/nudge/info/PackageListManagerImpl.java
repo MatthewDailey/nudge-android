@@ -15,6 +15,9 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
+    private List<PackageInfo> pinnedPackages = new ArrayList<>();
+    private List<PackageInfo> allPackages = new ArrayList<>();
+
     private final PackageManager packageManager;
     private final PackageInfoManager packageInfoManager;
     private final Prefs prefs;
@@ -27,27 +30,30 @@ public class PackageListManagerImpl implements PackageListManager, PackageInfoMa
 
     @Override
     public void initialize() {
-        List<PackageInfo> packages = new ArrayList<>();
-
-        Set<String> blockedPackages = prefs.getBlockedPackages();
-
-        packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
-
-        packages.addAll(prefs.getPinnedPackages()
+        pinnedPackages = prefs.getPinnedPackages()
                 .stream()
                 .map(packageName -> packageInfoManager.get(packageName))
                 .sorted(ALPHABETIC)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
 
-        packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
-
-        packages.addAll(packageManager.getInstalledApplications(0)
+        allPackages = packageManager.getInstalledApplications(0)
                 .stream()
                 .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
                 .sorted(ALPHABETIC)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        publishPackageList();
+    }
+
+    private void publishPackageList() {
+        List<PackageInfo> packages = new ArrayList<>();
+        packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
+        packages.addAll(pinnedPackages);
+        packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
+        packages.addAll(allPackages);
 
         // TODO: In-line this so it only does 1 pass.
+        Set<String> blockedPackages = prefs.getBlockedPackages();
         packages.stream().forEach(packageInfo ->
                 packageInfo.blocked = blockedPackages.contains(packageInfo.packageName));
 
