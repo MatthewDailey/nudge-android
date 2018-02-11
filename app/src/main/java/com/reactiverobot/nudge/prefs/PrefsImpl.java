@@ -19,8 +19,11 @@ public class PrefsImpl implements Prefs {
         return defaultPinnedPackages;
     }
 
-    private final List<PinnedSubscriber> pinnedSubscribers = new ArrayList<>();
-    private final List<CheckedSubscriber> checkedSubscribers = new ArrayList<>();
+    private final List<PinnedSubscriber> pinnedSubscribersGoodOptions = new ArrayList<>();
+    private final List<CheckedSubscriber> checkedSubscribersGoodOptions = new ArrayList<>();
+
+    private final List<PinnedSubscriber> pinnedSubscribersBadHabits = new ArrayList<>();
+    private final List<CheckedSubscriber> checkedSubscribersBadHabits = new ArrayList<>();
 
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
@@ -89,14 +92,14 @@ public class PrefsImpl implements Prefs {
     synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
 
-        checkedSubscribers.stream()
-                .forEach(subscriber -> subscriber.onBadHabitsUpdate(packageName, badHabit));
+        checkedSubscribersBadHabits.stream()
+                .forEach(subscriber -> subscriber.onCheckedUpdate());
 
         if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
             updateStringSet(PINNED_BAD_HABIT_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
-            pinnedSubscribers.stream()
-                    .forEach(subscriber -> subscriber.onBadHabitPinned(packageName, true));
+            pinnedSubscribersBadHabits.stream()
+                    .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
     }
 
@@ -114,14 +117,14 @@ public class PrefsImpl implements Prefs {
     public void setPackageGoodOption(String packageName, boolean goodOption) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, goodOption);
 
-        checkedSubscribers.stream()
-                .forEach(subscriber -> subscriber.onGoodOptionsUpdate());
+        checkedSubscribersGoodOptions.stream()
+                .forEach(subscriber -> subscriber.onCheckedUpdate());
 
         if (goodOption && !getPinnedBadHabitPackages().contains(packageName)) {
             updateStringSet(PINNED_GOOD_OPTION_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
-            pinnedSubscribers.stream()
-                    .forEach(subscriber -> subscriber.onGoodOptionPinned(packageName, true));
+            pinnedSubscribersGoodOptions.stream()
+                    .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
     }
 
@@ -135,12 +138,22 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void subscribe(PinnedSubscriber subscriber) {
-        pinnedSubscribers.add(subscriber);
+    public void subscribeGoodOptions(PinnedSubscriber subscriber) {
+        pinnedSubscribersGoodOptions.add(subscriber);
     }
 
     @Override
-    public void subscribe(CheckedSubscriber subscriber) {
-        checkedSubscribers.add(subscriber);
+    public void subscribeBadHabits(PinnedSubscriber subscriber) {
+        pinnedSubscribersBadHabits.add(subscriber);
+    }
+
+    @Override
+    public void subscribeGoodOptions(CheckedSubscriber subscriber) {
+        checkedSubscribersGoodOptions.add(subscriber);
+    }
+
+    @Override
+    public void subscribeBadHabits(CheckedSubscriber subscriber) {
+        checkedSubscribersBadHabits.add(subscriber);
     }
 }

@@ -75,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
 
-        prefs.subscribe(packageListManager);
-        prefs.subscribe(badHabitPackageAdapter);
+        prefs.subscribeBadHabits(packageListManager);
+        prefs.subscribeBadHabits(badHabitPackageAdapter);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {

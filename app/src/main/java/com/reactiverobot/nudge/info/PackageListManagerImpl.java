@@ -97,16 +97,7 @@ public class PackageListManagerImpl implements
     };
 
     @Override
-    public void onBadHabitPinned(String packageName, boolean pinned) {
-        pinnedPackages.add(packageInfoManager.get(packageName));
-        pinnedPackages.sort(ALPHABETIC);
-        // TODO Handle un-pinned case.
-
-        publishPackageList();
-    }
-
-    @Override
-    public void onGoodOptionPinned(String packageName, boolean pinned) {
+    public void onPinned(String packageName, boolean pinned) {
         pinnedPackages.add(packageInfoManager.get(packageName));
         pinnedPackages.sort(ALPHABETIC);
         // TODO Handle un-pinned case.

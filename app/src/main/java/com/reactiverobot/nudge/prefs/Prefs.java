@@ -5,14 +5,11 @@ import java.util.Set;
 public interface Prefs {
 
     interface PinnedSubscriber {
-        void onBadHabitPinned(String packageName, boolean pinned);
-
-        void onGoodOptionPinned(String packageName, boolean pinned);
+        void onPinned(String packageName, boolean pinned);
     }
 
     interface CheckedSubscriber {
-        void onBadHabitsUpdate();
-        void onGoodOptionsUpdate();
+        void onCheckedUpdate();
     }
 
     void setCheckActiveEnabled(boolean enabled);
@@ -36,7 +33,9 @@ public interface Prefs {
 
     void setPackageIndexed(String packageName);
 
-    void subscribe(PinnedSubscriber subscriber);
+    void subscribeGoodOptions(PinnedSubscriber subscriber);
+    void subscribeBadHabits(PinnedSubscriber subscriber);
 
-    void subscribe(CheckedSubscriber subscriber);
+    void subscribeGoodOptions(CheckedSubscriber subscriber);
+    void subscribeBadHabits(CheckedSubscriber subscriber);
 }
