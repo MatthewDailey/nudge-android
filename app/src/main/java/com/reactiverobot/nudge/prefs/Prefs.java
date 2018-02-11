@@ -6,11 +6,13 @@ public interface Prefs {
 
     interface PinnedSubscriber {
         void onBadHabitPinned(String packageName, boolean pinned);
-        // TODO onGoodOptionPinned
+
+        void onGoodOptionPinned(String packageName, boolean pinned);
     }
 
     interface CheckedSubscriber {
-        void onBadHabitChecked(String packageName, boolean badHabit);
+        void onBadHabitsUpdate();
+        void onGoodOptionsUpdate();
     }
 
     void setCheckActiveEnabled(boolean enabled);
@@ -23,7 +25,12 @@ public interface Prefs {
 
     void setPackageBadHabit(String packageName, boolean badHabit);
 
-    // TODO setPackageGoodOption
+    // TODO: Combine these into a paramterized method call.
+    Set<String> getPinnedGoodOptionPackages();
+
+    Set<String> getGoodOptionPackages();
+
+    void setPackageGoodOption(String packageName, boolean goodOption);
 
     Set<String> getIndexedPackages();
 

@@ -108,7 +108,12 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     }
 
     @Override
-    public void onBadHabitChecked(String packageName, boolean badHabit) {
+    public void onBadHabitsUpdate() {
+        this.activity.runOnUiThread(() -> notifyDataSetChanged());
+    }
+
+    @Override
+    public void onGoodOptionsUpdate() {
         this.activity.runOnUiThread(() -> notifyDataSetChanged());
     }
 }

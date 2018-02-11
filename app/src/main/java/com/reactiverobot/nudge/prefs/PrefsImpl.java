@@ -11,6 +11,7 @@ import java.util.Set;
 
 public class PrefsImpl implements Prefs {
 
+    // TODO: Fix defaults for both sections.
     private static Set<String> getDefaultBlockedPackages() {
         Set<String> defaultPinnedPackages = new HashSet<>();
         defaultPinnedPackages.add("com.facebook.katana");
@@ -24,8 +25,12 @@ public class PrefsImpl implements Prefs {
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
     private static final String INDEXED_PACKAGES = "indexed_packages";
+
     private static final String PINNED_BAD_HABIT_PACKAGES = "pinned_bad_habit_packages";
     private static final String BLOCKED_PACKAGES = "blocked_packages";
+
+    private static final String PINNED_GOOD_OPTION_PACKAGES = "pinned_bad_habit_packages";
+    private static final String GOOD_OPTION_PACKAGES = "good_option_packages";
 
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
 
@@ -81,22 +86,42 @@ public class PrefsImpl implements Prefs {
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
 
-    synchronized private void setPackagePinned(String packageName, boolean pinned) {
-        updateStringSet(PINNED_BAD_HABIT_PACKAGES, getPinnedBadHabitPackages(), packageName, pinned);
-
-    }
-
     synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
 
         checkedSubscribers.stream()
-                .forEach(subscriber -> subscriber.onBadHabitChecked(packageName, badHabit));
+                .forEach(subscriber -> subscriber.onBadHabitsUpdate(packageName, badHabit));
 
         if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
-            setPackagePinned(packageName, true);
+            updateStringSet(PINNED_BAD_HABIT_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
             pinnedSubscribers.stream()
                     .forEach(subscriber -> subscriber.onBadHabitPinned(packageName, true));
+        }
+    }
+
+    @Override
+    public Set<String> getPinnedGoodOptionPackages() {
+        return getPackages(PINNED_GOOD_OPTION_PACKAGES, new HashSet<>());
+    }
+
+    @Override
+    public Set<String> getGoodOptionPackages() {
+        return getPackages(GOOD_OPTION_PACKAGES, new HashSet<>());
+    }
+
+    @Override
+    public void setPackageGoodOption(String packageName, boolean goodOption) {
+        updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, goodOption);
+
+        checkedSubscribers.stream()
+                .forEach(subscriber -> subscriber.onGoodOptionsUpdate());
+
+        if (goodOption && !getPinnedBadHabitPackages().contains(packageName)) {
+            updateStringSet(PINNED_GOOD_OPTION_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
+
+            pinnedSubscribers.stream()
+                    .forEach(subscriber -> subscriber.onGoodOptionPinned(packageName, true));
         }
     }
 

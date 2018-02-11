@@ -105,4 +105,13 @@ public class PackageListManagerImpl implements
         publishPackageList();
     }
 
+    @Override
+    public void onGoodOptionPinned(String packageName, boolean pinned) {
+        pinnedPackages.add(packageInfoManager.get(packageName));
+        pinnedPackages.sort(ALPHABETIC);
+        // TODO Handle un-pinned case.
+
+        publishPackageList();
+    }
+
 }
