@@ -22,14 +22,18 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         implements PackageListManager.PackageListHandler, Prefs.CheckedSubscriber {
     private static final String TAG = PackageArrayAdapter.class.getName();
 
-    private final Prefs prefs;
     private final Activity activity;
+    private final CheckHandler checkHandler;
 
-    public PackageArrayAdapter(@NonNull Activity context, Prefs prefs) {
+    public interface CheckHandler {
+        void accept(PackageInfo packageInfo, boolean isChecked);
+    }
+
+    public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler) {
         super(context, R.layout.list_item_package);
 
-        this.prefs = prefs;
         this.activity = context;
+        this.checkHandler = checkHandler;
     }
 
     @Override
@@ -64,10 +68,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         CheckBox blockPackageCheckbox = convertView.findViewById(
                 R.id.checkbox_block_package);
         blockPackageCheckbox.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> {
-                    packageInfo.badHabit = isChecked;
-                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
-                });
+                (buttonView, isChecked) -> this.checkHandler.accept(packageInfo, isChecked));
 
         if (packageInfo.iconDrawable != null) {
             ((ImageView) convertView.findViewById(R.id.image_view_app_icon))

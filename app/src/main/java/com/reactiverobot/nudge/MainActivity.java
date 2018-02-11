@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private PackageInfoManager packageInfoManager;
 
     PackageArrayAdapter badHabitPackageAdapter;
+//    PackageArrayAdapter goodOptionPackageAdapter;
 
     @Override
     protected void onResume() {
@@ -50,7 +51,18 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        badHabitPackageAdapter = new PackageArrayAdapter(this, prefs);
+        badHabitPackageAdapter = new PackageArrayAdapter(
+                this,
+                (packageInfo, isChecked) -> {
+                    packageInfo.badHabit = isChecked;
+                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
+                });
+//        goodOptionPackageAdapter = new PackageArrayAdapter(
+//                this,
+//                (packageInfo, isChecked) -> {
+//                    packageInfo.goodOption = isChecked;
+//                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
+//                });
 
         ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);

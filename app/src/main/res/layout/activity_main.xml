@@ -114,22 +114,28 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <TextView
+                    <SearchView
+                        android:id="@+id/search_good_options"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="hi" />
+                        android:queryHint="Search Apps"
+                        android:layout_margin="16dp"
+                        android:elevation="2dp"
+                        android:background="@color/white"
+                        android:queryBackground="@color/white"
+                        android:submitBackground="@color/white"
+                        android:iconifiedByDefault="false"
+                        />
 
-                    <android.support.design.widget.FloatingActionButton
-                        android:id="@+id/floatingActionButton2"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginBottom="24dp"
-                        android:layout_marginEnd="24dp"
-                        android:clickable="true"
-                        android:src="@drawable/ic_action_add"
+                    <ListView
+                        android:id="@+id/list_view_good_options"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:srcCompat="@color/colorAccent" />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:divider="#00000000"/>
                 </LinearLayout>
 
             </FrameLayout>
