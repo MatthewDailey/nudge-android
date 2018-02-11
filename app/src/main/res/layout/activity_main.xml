@@ -114,6 +114,13 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
+                    <!-- To prevent auto-focus on SearchView -->
+                    <LinearLayout
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:layout_width="0px"
+                        android:layout_height="0px"/>
+
                     <SearchView
                         android:id="@+id/search_good_options"
                         android:layout_width="match_parent"

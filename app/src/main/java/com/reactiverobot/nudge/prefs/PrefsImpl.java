@@ -32,7 +32,7 @@ public class PrefsImpl implements Prefs {
     private static final String PINNED_BAD_HABIT_PACKAGES = "pinned_bad_habit_packages";
     private static final String BLOCKED_PACKAGES = "blocked_packages";
 
-    private static final String PINNED_GOOD_OPTION_PACKAGES = "pinned_bad_habit_packages";
+    private static final String PINNED_GOOD_OPTION_PACKAGES = "pinned_good_option_packages";
     private static final String GOOD_OPTION_PACKAGES = "good_option_packages";
 
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";

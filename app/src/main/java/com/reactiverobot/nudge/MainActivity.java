@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private PackageInfoManager packageInfoManager;
 
     PackageArrayAdapter badHabitPackageAdapter;
-//    PackageArrayAdapter goodOptionPackageAdapter;
+    PackageArrayAdapter goodOptionPackageAdapter;
 
     @Override
     protected void onResume() {
@@ -51,18 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
+        // BAD HABITS
         badHabitPackageAdapter = new PackageArrayAdapter(
                 this,
                 (packageInfo, isChecked) -> {
                     packageInfo.badHabit = isChecked;
                     prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
                 });
-//        goodOptionPackageAdapter = new PackageArrayAdapter(
-//                this,
-//                (packageInfo, isChecked) -> {
-//                    packageInfo.goodOption = isChecked;
-//                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
-//                });
 
         ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
         badHabitsList.setAdapter(badHabitPackageAdapter);
@@ -77,6 +72,30 @@ public class MainActivity extends AppCompatActivity {
 
         prefs.subscribeBadHabits(packageListManager);
         prefs.subscribeBadHabits(badHabitPackageAdapter);
+        //------
+
+        // GOOD OPTIONS
+        goodOptionPackageAdapter = new PackageArrayAdapter(
+                this,
+                (packageInfo, isChecked) -> {
+                    packageInfo.goodOption = isChecked;
+                    prefs.setPackageGoodOption(packageInfo.packageName, isChecked);
+                });
+        ListView goodOptionsList = findViewById(R.id.list_view_good_options);
+        goodOptionsList.setAdapter(goodOptionPackageAdapter);
+
+        PackageListManagerImpl packageListManagerGoodOptions = new PackageListManagerImpl(
+                getPackageManager(),
+                packageInfoManager,
+                prefs::getPinnedGoodOptionPackages);
+        packageListManagerGoodOptions.subscribe(goodOptionPackageAdapter);
+        packageListManagerGoodOptions.initialize();
+
+        packageInfoManager.subscribe(packageListManagerGoodOptions);
+
+        prefs.subscribeGoodOptions(packageListManagerGoodOptions);
+        prefs.subscribeGoodOptions(goodOptionPackageAdapter);
+        //------
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {

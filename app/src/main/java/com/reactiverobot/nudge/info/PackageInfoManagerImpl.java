@@ -48,10 +48,12 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
     }
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
-
-        // TODO: Also set goodOption on package info.
         if (prefs.getBadHabitPackages().contains(packageInfo.packageName)) {
             packageInfo.badHabit = true;
+        }
+
+        if (prefs.getGoodOptionPackages().contains(packageInfo.packageName)) {
+            packageInfo.goodOption = true;
         }
 
         try {
