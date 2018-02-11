@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.reactiverobot.nudge.SuggestChangeActivity;
+import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import java.util.Date;
@@ -82,7 +83,7 @@ public class CheckActiveAppJobService extends JobService {
             Log.d(TAG, "Other foreground - " + foregroundPackageName);
 
 
-            Set<String> blockedPackages = PrefsImpl.from(this).getBadHabitPackages();
+            Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
             if (blockedPackages.contains(foregroundPackageName)) {
                 startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
             }

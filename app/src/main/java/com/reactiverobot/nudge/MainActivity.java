@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void accept(PackageInfo packageInfo, boolean isChecked) {
                         packageInfo.badHabit = isChecked;
-                        prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
+                        prefs.setPackageSelected(PackageType.BAD_HABIT, packageInfo.packageName, isChecked);
                     }
 
                     @Override
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void accept(PackageInfo packageInfo, boolean isChecked) {
                         packageInfo.goodOption = isChecked;
-                        prefs.setPackageGoodOption(packageInfo.packageName, isChecked);
+                        prefs.setPackageSelected(PackageType.GOOD_OPTION, packageInfo.packageName, isChecked);
                     }
 
                     @Override

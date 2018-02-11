@@ -28,12 +28,8 @@ public class PrefsImpl implements Prefs {
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
     private static final String INDEXED_PACKAGES = "indexed_packages";
-
     private static final String PINNED_PACKAGES_PREFIX = "pinned_packages_";
-
-    private static final String BLOCKED_PACKAGES = "blocked_packages";
-    private static final String GOOD_OPTION_PACKAGES = "good_option_packages";
-
+    private static final String SELECTED_PACKAGES_PREFIX = "selected_package_";
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
 
     private final Context context;
@@ -55,14 +51,15 @@ public class PrefsImpl implements Prefs {
          return this.context.getSharedPreferences("nudge_prefs", Context.MODE_PRIVATE);
     }
 
+    @Override
     public void setCheckActiveEnabled(boolean enabled) {
         getPrefs().edit().putBoolean(CHECK_ACTIVE_ENABLED, enabled).commit();
     }
 
+    @Override
     public boolean getCheckActiveEnabled() {
         return getPrefs().getBoolean(CHECK_ACTIVE_ENABLED, false);
     }
-
 
     private Set<String> getPackages(String key, Set<String> defaultPackages) {
         Set<String> pinnedPackages = getPrefs().getStringSet(key, null);
@@ -75,10 +72,6 @@ public class PrefsImpl implements Prefs {
         return new HashSet<>(pinnedPackages);
     }
 
-    public Set<String> getBadHabitPackages() {
-        return getPackages(BLOCKED_PACKAGES, new HashSet<>());
-    }
-
     private void updateStringSet(String setKey, Set<String> originalSet, String toUpdate, boolean membership) {
         if (membership) {
             originalSet.add(toUpdate);
@@ -89,16 +82,17 @@ public class PrefsImpl implements Prefs {
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
 
-    synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
-        updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
+    @Override
+    synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean badHabit) {
+        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, badHabit);
 
-        packageTypeToCheckedSubscriber.get(PackageType.BAD_HABIT).stream()
+        packageTypeToCheckedSubscriber.get(packageType).stream()
                 .forEach(subscriber -> subscriber.onCheckedUpdate());
 
-        if (badHabit && !getPinnedPackages(PackageType.BAD_HABIT).contains(packageName)) {
-            updateStringSet(PINNED_PACKAGES_PREFIX + PackageType.BAD_HABIT.name(), getPinnedPackages(PackageType.BAD_HABIT), packageName, true);
+        if (badHabit && !getPinnedPackages(packageType).contains(packageName)) {
+            updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getPinnedPackages(packageType), packageName, true);
 
-            packageTypeToPinnedSubscribers.get(PackageType.BAD_HABIT).stream()
+            packageTypeToPinnedSubscribers.get(packageType).stream()
                     .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
     }
@@ -109,32 +103,18 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public Set<String> getGoodOptionPackages() {
-        return getPackages(GOOD_OPTION_PACKAGES, new HashSet<>());
+    public Set<String> getSelectedPackages(PackageType packageType) {
+        return getPackages(SELECTED_PACKAGES_PREFIX + packageType.name(), new HashSet<>());
     }
 
     @Override
-    public void setPackageGoodOption(String packageName, boolean goodOption) {
-        updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, goodOption);
-
-        packageTypeToCheckedSubscriber.get(PackageType.GOOD_OPTION).stream()
-                .forEach(subscriber -> subscriber.onCheckedUpdate());
-
-        if (goodOption && !getPinnedPackages(PackageType.GOOD_OPTION).contains(packageName)) {
-            updateStringSet(PINNED_PACKAGES_PREFIX + PackageType.GOOD_OPTION.name(), getPinnedPackages(PackageType.GOOD_OPTION), packageName, true);
-
-            packageTypeToPinnedSubscribers.get(PackageType.GOOD_OPTION).stream()
-                    .forEach(subscriber -> subscriber.onPinned(packageName, true));
-        }
-    }
-
     public Set<String> getIndexedPackages() {
         return new HashSet<>(getPrefs().getStringSet(INDEXED_PACKAGES, new HashSet<String>()));
     }
 
+    @Override
     synchronized public void setPackageIndexed(String packageName) {
         updateStringSet(INDEXED_PACKAGES, getIndexedPackages(), packageName, true);
-
     }
 
     @Override

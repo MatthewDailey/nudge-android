@@ -18,16 +18,11 @@ public interface Prefs {
 
     boolean getCheckActiveEnabled();
 
-    Set<String> getBadHabitPackages();
-
-    void setPackageBadHabit(String packageName, boolean badHabit);
-
-    // TODO: Combine these into a paramterized method call.
     Set<String> getPinnedPackages(PackageType packageType);
 
-    Set<String> getGoodOptionPackages();
+    Set<String> getSelectedPackages(PackageType packageType);
 
-    void setPackageGoodOption(String packageName, boolean goodOption);
+    void setPackageSelected(PackageType packageType, String packageName, boolean isSelected);
 
     Set<String> getIndexedPackages();
 
