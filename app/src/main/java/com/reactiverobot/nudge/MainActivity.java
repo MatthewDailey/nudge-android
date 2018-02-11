@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         PackageListManagerImpl packageListManager = new PackageListManagerImpl(
                 getPackageManager(),
                 packageInfoManager,
-                prefs::getPinnedBadHabitPackages);
+                () -> prefs.getPinnedPackages(PackageType.BAD_HABIT));
         packageListManager.subscribe(badHabitPackageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         PackageListManagerImpl packageListManagerGoodOptions = new PackageListManagerImpl(
                 getPackageManager(),
                 packageInfoManager,
-                prefs::getPinnedGoodOptionPackages);
+                () -> prefs.getPinnedPackages(PackageType.GOOD_OPTION));
         packageListManagerGoodOptions.subscribe(goodOptionPackageAdapter);
         packageListManagerGoodOptions.initialize();
 
