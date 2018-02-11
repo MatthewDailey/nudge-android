@@ -3,9 +3,13 @@ package com.reactiverobot.nudge.prefs;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.reactiverobot.nudge.info.PackageType;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -19,10 +23,10 @@ public class PrefsImpl implements Prefs {
         return defaultPinnedPackages;
     }
 
-    private final List<PinnedSubscriber> pinnedSubscribersGoodOptions = new ArrayList<>();
+    private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers;
+
     private final List<CheckedSubscriber> checkedSubscribersGoodOptions = new ArrayList<>();
 
-    private final List<PinnedSubscriber> pinnedSubscribersBadHabits = new ArrayList<>();
     private final List<CheckedSubscriber> checkedSubscribersBadHabits = new ArrayList<>();
 
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
@@ -45,6 +49,11 @@ public class PrefsImpl implements Prefs {
 
     private PrefsImpl(Context context) {
         this.context = context;
+
+        packageTypeToPinnedSubscribers = new HashMap<>();
+        for(PackageType packageType : PackageType.values()) {
+            packageTypeToPinnedSubscribers.put(packageType, new ArrayList<>());
+        }
     }
 
     private SharedPreferences getPrefs() {
@@ -98,7 +107,7 @@ public class PrefsImpl implements Prefs {
         if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
             updateStringSet(PINNED_BAD_HABIT_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
-            pinnedSubscribersBadHabits.stream()
+            packageTypeToPinnedSubscribers.get(PackageType.BAD_HABIT).stream()
                     .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
     }
@@ -123,7 +132,7 @@ public class PrefsImpl implements Prefs {
         if (goodOption && !getPinnedGoodOptionPackages().contains(packageName)) {
             updateStringSet(PINNED_GOOD_OPTION_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
-            pinnedSubscribersGoodOptions.stream()
+            packageTypeToPinnedSubscribers.get(PackageType.GOOD_OPTION).stream()
                     .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
     }
@@ -138,13 +147,8 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void subscribeGoodOptions(PinnedSubscriber subscriber) {
-        pinnedSubscribersGoodOptions.add(subscriber);
-    }
-
-    @Override
-    public void subscribeBadHabits(PinnedSubscriber subscriber) {
-        pinnedSubscribersBadHabits.add(subscriber);
+    public void addSubscriber(PinnedSubscriber subscriber, PackageType packageType) {
+        packageTypeToPinnedSubscribers.get(packageType).add(subscriber);
     }
 
     @Override

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageInfoManagerImpl;
 import com.reactiverobot.nudge.info.PackageListManagerImpl;
+import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
 
-        prefs.subscribeBadHabits(packageListManager);
+        prefs.addSubscriber(packageListManager, PackageType.BAD_HABIT);
         prefs.subscribeBadHabits(badHabitPackageAdapter);
         //------
 
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         packageInfoManager.subscribe(packageListManagerGoodOptions);
 
-        prefs.subscribeGoodOptions(packageListManagerGoodOptions);
+        prefs.addSubscriber(packageListManagerGoodOptions, PackageType.GOOD_OPTION);
         prefs.subscribeGoodOptions(goodOptionPackageAdapter);
         //------
 
