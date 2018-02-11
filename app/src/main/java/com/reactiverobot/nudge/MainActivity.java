@@ -30,9 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
     private PackageInfoManager packageInfoManager;
 
-    PackageArrayAdapter badHabitPackageAdapter;
-    PackageArrayAdapter goodOptionPackageAdapter;
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -52,67 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        // BAD HABITS
-        badHabitPackageAdapter = new PackageArrayAdapter(
-                this,
-                new PackageArrayAdapter.CheckHandler() {
-                    @Override
-                    public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.setSelected(PackageType.BAD_HABIT, isChecked);
-                        prefs.setPackageSelected(PackageType.BAD_HABIT, packageInfo.packageName, isChecked);
-                    }
-
-                    @Override
-                    public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.isSelected(PackageType.BAD_HABIT);
-                    }
-                });
-
-        ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
-        badHabitsList.setAdapter(badHabitPackageAdapter);
-
-        PackageListManagerImpl packageListManager = new PackageListManagerImpl(
-                getPackageManager(),
-                packageInfoManager,
-                () -> prefs.getPinnedPackages(PackageType.BAD_HABIT));
-        packageListManager.subscribe(badHabitPackageAdapter);
-        packageListManager.initialize();
-        packageInfoManager.subscribe(packageListManager);
-
-        prefs.addSubscriber(packageListManager, PackageType.BAD_HABIT);
-        prefs.addSubscriber(badHabitPackageAdapter, PackageType.BAD_HABIT);
-        //------
-
-        // GOOD OPTIONS
-        goodOptionPackageAdapter = new PackageArrayAdapter(
-                this,
-                new PackageArrayAdapter.CheckHandler() {
-                    @Override
-                    public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.setSelected(PackageType.GOOD_OPTION, isChecked);
-                        prefs.setPackageSelected(PackageType.GOOD_OPTION, packageInfo.packageName, isChecked);
-                    }
-
-                    @Override
-                    public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.isSelected(PackageType.GOOD_OPTION);
-                    }
-                });
-        ListView goodOptionsList = findViewById(R.id.list_view_good_options);
-        goodOptionsList.setAdapter(goodOptionPackageAdapter);
-
-        PackageListManagerImpl packageListManagerGoodOptions = new PackageListManagerImpl(
-                getPackageManager(),
-                packageInfoManager,
-                () -> prefs.getPinnedPackages(PackageType.GOOD_OPTION));
-        packageListManagerGoodOptions.subscribe(goodOptionPackageAdapter);
-        packageListManagerGoodOptions.initialize();
-
-        packageInfoManager.subscribe(packageListManagerGoodOptions);
-
-        prefs.addSubscriber(packageListManagerGoodOptions, PackageType.GOOD_OPTION);
-        prefs.addSubscriber(goodOptionPackageAdapter, PackageType.GOOD_OPTION);
-        //------
+        setupListPackageList(PackageType.BAD_HABIT, R.id.list_view_bad_habits);
+        setupListPackageList(PackageType.GOOD_OPTION, R.id.list_view_good_options);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
@@ -123,6 +61,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setupListPackageList(PackageType packageType, int listViewId) {
+        PackageArrayAdapter badHabitPackageAdapter = new PackageArrayAdapter(
+                this,
+                new PackageArrayAdapter.CheckHandler() {
+                    @Override
+                    public void accept(PackageInfo packageInfo, boolean isChecked) {
+                        packageInfo.setSelected(packageType, isChecked);
+                        prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
+                    }
+
+                    @Override
+                    public boolean isChecked(PackageInfo packageInfo) {
+                        return packageInfo.isSelected(packageType);
+                    }
+                });
+
+        ListView badHabitsList = findViewById(listViewId);
+        badHabitsList.setAdapter(badHabitPackageAdapter);
+
+        PackageListManagerImpl packageListManager = new PackageListManagerImpl(
+                getPackageManager(),
+                packageInfoManager,
+                () -> prefs.getPinnedPackages(packageType));
+        packageListManager.subscribe(badHabitPackageAdapter);
+        packageListManager.initialize();
+        packageInfoManager.subscribe(packageListManager);
+
+        prefs.addSubscriber(packageListManager, packageType);
+        prefs.addSubscriber(badHabitPackageAdapter, packageType);
     }
 
     private void setupTabsAndTitle() {
