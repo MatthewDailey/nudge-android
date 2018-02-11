@@ -120,7 +120,7 @@ public class PrefsImpl implements Prefs {
         checkedSubscribersGoodOptions.stream()
                 .forEach(subscriber -> subscriber.onCheckedUpdate());
 
-        if (goodOption && !getPinnedBadHabitPackages().contains(packageName)) {
+        if (goodOption && !getPinnedGoodOptionPackages().contains(packageName)) {
             updateStringSet(PINNED_GOOD_OPTION_PACKAGES, getPinnedBadHabitPackages(), packageName, true);
 
             pinnedSubscribersGoodOptions.stream()

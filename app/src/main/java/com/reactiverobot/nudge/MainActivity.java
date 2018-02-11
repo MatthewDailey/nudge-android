@@ -54,9 +54,17 @@ public class MainActivity extends AppCompatActivity {
         // BAD HABITS
         badHabitPackageAdapter = new PackageArrayAdapter(
                 this,
-                (packageInfo, isChecked) -> {
-                    packageInfo.badHabit = isChecked;
-                    prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
+                new PackageArrayAdapter.CheckHandler() {
+                    @Override
+                    public void accept(PackageInfo packageInfo, boolean isChecked) {
+                        packageInfo.badHabit = isChecked;
+                        prefs.setPackageBadHabit(packageInfo.packageName, isChecked);
+                    }
+
+                    @Override
+                    public boolean isChecked(PackageInfo packageInfo) {
+                        return packageInfo.badHabit;
+                    }
                 });
 
         ListView badHabitsList = findViewById(R.id.list_view_bad_habits);
@@ -77,9 +85,17 @@ public class MainActivity extends AppCompatActivity {
         // GOOD OPTIONS
         goodOptionPackageAdapter = new PackageArrayAdapter(
                 this,
-                (packageInfo, isChecked) -> {
-                    packageInfo.goodOption = isChecked;
-                    prefs.setPackageGoodOption(packageInfo.packageName, isChecked);
+                new PackageArrayAdapter.CheckHandler() {
+                    @Override
+                    public void accept(PackageInfo packageInfo, boolean isChecked) {
+                        packageInfo.goodOption = isChecked;
+                        prefs.setPackageGoodOption(packageInfo.packageName, isChecked);
+                    }
+
+                    @Override
+                    public boolean isChecked(PackageInfo packageInfo) {
+                        return packageInfo.goodOption;
+                    }
                 });
         ListView goodOptionsList = findViewById(R.id.list_view_good_options);
         goodOptionsList.setAdapter(goodOptionPackageAdapter);

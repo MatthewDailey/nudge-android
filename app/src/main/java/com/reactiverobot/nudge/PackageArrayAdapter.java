@@ -27,6 +27,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     public interface CheckHandler {
         void accept(PackageInfo packageInfo, boolean isChecked);
+        boolean isChecked(PackageInfo packageInfo);
     }
 
     public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler) {
@@ -89,7 +90,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                 .setText(packageInfo.packageName);
 
         ((CheckBox) convertView.findViewById(R.id.checkbox_block_package))
-            .setChecked(packageInfo.badHabit);
+            .setChecked(checkHandler.isChecked(packageInfo));
 
         return convertView;
     }
