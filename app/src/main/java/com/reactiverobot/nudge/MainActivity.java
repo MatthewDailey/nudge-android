@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         packageInfoManager.subscribe(packageListManager);
 
         prefs.addSubscriber(packageListManager, PackageType.BAD_HABIT);
-        prefs.subscribeBadHabits(badHabitPackageAdapter);
+        prefs.addSubscriber(badHabitPackageAdapter, PackageType.BAD_HABIT);
         //------
 
         // GOOD OPTIONS
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         packageInfoManager.subscribe(packageListManagerGoodOptions);
 
         prefs.addSubscriber(packageListManagerGoodOptions, PackageType.GOOD_OPTION);
-        prefs.subscribeGoodOptions(goodOptionPackageAdapter);
+        prefs.addSubscriber(goodOptionPackageAdapter, PackageType.GOOD_OPTION);
         //------
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);

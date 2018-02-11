@@ -23,11 +23,9 @@ public class PrefsImpl implements Prefs {
         return defaultPinnedPackages;
     }
 
-    private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers;
+    private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers = new HashMap<>();
 
-    private final List<CheckedSubscriber> checkedSubscribersGoodOptions = new ArrayList<>();
-
-    private final List<CheckedSubscriber> checkedSubscribersBadHabits = new ArrayList<>();
+    private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
     private static final Set<String> DEFAULT_BLOCKED_PACKAGES = getDefaultBlockedPackages();
 
@@ -50,9 +48,9 @@ public class PrefsImpl implements Prefs {
     private PrefsImpl(Context context) {
         this.context = context;
 
-        packageTypeToPinnedSubscribers = new HashMap<>();
-        for(PackageType packageType : PackageType.values()) {
+        for (PackageType packageType : PackageType.values()) {
             packageTypeToPinnedSubscribers.put(packageType, new ArrayList<>());
+            packageTypeToCheckedSubscriber.put(packageType, new ArrayList<>());
         }
     }
 
@@ -101,7 +99,7 @@ public class PrefsImpl implements Prefs {
     synchronized public void setPackageBadHabit(String packageName, boolean badHabit) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, badHabit);
 
-        checkedSubscribersBadHabits.stream()
+        packageTypeToCheckedSubscriber.get(PackageType.BAD_HABIT).stream()
                 .forEach(subscriber -> subscriber.onCheckedUpdate());
 
         if (badHabit && !getPinnedBadHabitPackages().contains(packageName)) {
@@ -126,7 +124,7 @@ public class PrefsImpl implements Prefs {
     public void setPackageGoodOption(String packageName, boolean goodOption) {
         updateStringSet(BLOCKED_PACKAGES, getBadHabitPackages(), packageName, goodOption);
 
-        checkedSubscribersGoodOptions.stream()
+        packageTypeToCheckedSubscriber.get(PackageType.GOOD_OPTION).stream()
                 .forEach(subscriber -> subscriber.onCheckedUpdate());
 
         if (goodOption && !getPinnedGoodOptionPackages().contains(packageName)) {
@@ -152,12 +150,7 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void subscribeGoodOptions(CheckedSubscriber subscriber) {
-        checkedSubscribersGoodOptions.add(subscriber);
-    }
-
-    @Override
-    public void subscribeBadHabits(CheckedSubscriber subscriber) {
-        checkedSubscribersBadHabits.add(subscriber);
+    public void addSubscriber(CheckedSubscriber subscriber, PackageType packageType) {
+        packageTypeToCheckedSubscriber.get(packageType).add(subscriber);
     }
 }

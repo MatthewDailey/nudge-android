@@ -1,6 +1,5 @@
 package com.reactiverobot.nudge.prefs;
 
-import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.info.PackageType;
 
 import java.util.Set;
@@ -38,6 +37,5 @@ public interface Prefs {
 
     void addSubscriber(PinnedSubscriber subscriber, PackageType packageType);
 
-    void subscribeGoodOptions(CheckedSubscriber subscriber);
-    void subscribeBadHabits(CheckedSubscriber subscriber);
+    void addSubscriber(CheckedSubscriber subscriber, PackageType packageType);
 }
