@@ -3,20 +3,32 @@ package com.reactiverobot.nudge;
 
 import android.graphics.drawable.Drawable;
 
+import com.reactiverobot.nudge.info.PackageType;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public final class PackageInfo {
     public enum Type {
         HEADING,
         PACKAGE,
     }
 
-    final public String packageName;
-    final public Type type;
+    public final String packageName;
+    public final Type type;
+    private final Map<PackageType, Boolean> selectedTypes = new HashMap<>();
 
     public String name;
     public String iconUrl;
     public Drawable iconDrawable;
-    public boolean badHabit;
-    public boolean goodOption;
+
+    public boolean isSelected(PackageType packageType) {
+        return selectedTypes.getOrDefault(packageType, false);
+    }
+
+    public void setSelected(PackageType packageType, boolean isSelected) {
+        selectedTypes.put(packageType, isSelected);
+    }
 
     public PackageInfo(String packageName) {
         this.packageName = packageName;

@@ -49,11 +49,11 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
 
     private void updatePackageInfo(final PackageInfo packageInfo) {
         if (prefs.getSelectedPackages(PackageType.BAD_HABIT).contains(packageInfo.packageName)) {
-            packageInfo.badHabit = true;
+            packageInfo.setSelected(PackageType.BAD_HABIT, true);
         }
 
         if (prefs.getSelectedPackages(PackageType.GOOD_OPTION).contains(packageInfo.packageName)) {
-            packageInfo.goodOption = true;
+            packageInfo.setSelected(PackageType.GOOD_OPTION, true);
         }
 
         try {

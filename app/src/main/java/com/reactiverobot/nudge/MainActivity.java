@@ -58,13 +58,13 @@ public class MainActivity extends AppCompatActivity {
                 new PackageArrayAdapter.CheckHandler() {
                     @Override
                     public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.badHabit = isChecked;
+                        packageInfo.setSelected(PackageType.BAD_HABIT, isChecked);
                         prefs.setPackageSelected(PackageType.BAD_HABIT, packageInfo.packageName, isChecked);
                     }
 
                     @Override
                     public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.badHabit;
+                        return packageInfo.isSelected(PackageType.BAD_HABIT);
                     }
                 });
 
@@ -89,13 +89,13 @@ public class MainActivity extends AppCompatActivity {
                 new PackageArrayAdapter.CheckHandler() {
                     @Override
                     public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.goodOption = isChecked;
+                        packageInfo.setSelected(PackageType.GOOD_OPTION, isChecked);
                         prefs.setPackageSelected(PackageType.GOOD_OPTION, packageInfo.packageName, isChecked);
                     }
 
                     @Override
                     public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.goodOption;
+                        return packageInfo.isSelected(PackageType.GOOD_OPTION);
                     }
                 });
         ListView goodOptionsList = findViewById(R.id.list_view_good_options);
