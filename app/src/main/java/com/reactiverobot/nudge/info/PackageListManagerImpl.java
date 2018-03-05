@@ -1,5 +1,6 @@
 package com.reactiverobot.nudge.info;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import com.reactiverobot.nudge.PackageInfo;
@@ -43,8 +44,13 @@ public class PackageListManagerImpl implements
                 .sorted(ALPHABETIC)
                 .collect(Collectors.toList());
 
-        allPackages = packageManager.getInstalledApplications(0)
+        int flags = PackageManager.GET_META_DATA |
+                PackageManager.GET_SHARED_LIBRARY_FILES |
+                PackageManager.MATCH_UNINSTALLED_PACKAGES;
+
+        allPackages = packageManager.getInstalledApplications(flags)
                 .stream()
+                .filter(applicationInfo -> (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
                 .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
                 .sorted(ALPHABETIC)
                 .collect(Collectors.toList());
