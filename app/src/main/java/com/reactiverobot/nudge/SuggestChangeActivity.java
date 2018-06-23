@@ -3,8 +3,10 @@ package com.reactiverobot.nudge;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +31,18 @@ public class SuggestChangeActivity extends Activity {
     @Inject
     Prefs prefs;
 
-    class SuggestedAppAdapter extends ArrayAdapter<String>  {
+    class SuggestedAppAdapter extends ArrayAdapter<String> implements PackageInfoManager.Subscriber {
 
-        public SuggestedAppAdapter(@NonNull Context context) {
+        private final Activity activity;
+
+        public SuggestedAppAdapter(@NonNull Activity context) {
             super(context, R.layout.button_launch_suggestion);
+            activity = context;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final String suggestedApp = getItem(position);
+            final String packageName = getItem(position);
 
             LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 
@@ -45,15 +50,27 @@ public class SuggestChangeActivity extends Activity {
                 convertView = layoutInflater.inflate(R.layout.button_launch_suggestion, null);
             }
 
-            PackageInfo packageInfo = packageInfoManager.get(suggestedApp);
+            PackageInfo packageInfo = packageInfoManager.get(packageName);
 
             if (packageInfo != null) {
                 Button openSuggestionButton = convertView.findViewById(R.id.button_open_suggestion);
+
                 openSuggestionButton.setText(packageInfo.name);
-                openSuggestionButton.setCompoundDrawables(packageInfo.iconDrawable, null, null, null);
+
+                if (packageInfo.iconDrawable != null) {
+                    packageInfo.iconDrawable.setBounds(0, 0, 100, 100);
+                    openSuggestionButton.setCompoundDrawables(packageInfo.iconDrawable, null, null, null);
+                }
+
+                openSuggestionButton.setOnClickListener(v -> launchApplicationAndClose(packageName));
             }
 
             return convertView;
+        }
+
+        @Override
+        public void update() {
+            this.activity.runOnUiThread(() -> notifyDataSetChanged());
         }
     }
 
@@ -76,7 +93,7 @@ public class SuggestChangeActivity extends Activity {
         ListView suggestedAppsView = findViewById(R.id.list_suggested_apps);
 
         SuggestedAppAdapter suggestedAppAdapter = new SuggestedAppAdapter(this);
-
+        packageInfoManager.subscribe(suggestedAppAdapter);
         suggestedAppAdapter.addAll(pinnedPackages);
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);

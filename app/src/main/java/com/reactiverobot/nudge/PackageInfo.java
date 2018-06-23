@@ -18,6 +18,18 @@ public final class PackageInfo {
     public final Type type;
     private final Map<PackageType, Boolean> selectedTypes = new HashMap<>();
 
+    @Override
+    public String toString() {
+        return "PackageInfo{" +
+                "packageName='" + packageName + '\'' +
+                ", type=" + type +
+                ", selectedTypes=" + selectedTypes +
+                ", name='" + name + '\'' +
+                ", iconUrl='" + iconUrl + '\'' +
+                ", iconDrawable=" + iconDrawable +
+                '}';
+    }
+
     public String name;
     public String iconUrl;
     public Drawable iconDrawable;

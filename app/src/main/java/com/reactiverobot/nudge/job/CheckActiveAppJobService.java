@@ -48,7 +48,6 @@ public class CheckActiveAppJobService extends JobService {
             List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(
                     UsageStatsManager.INTERVAL_DAILY,
                     date.getTime() - ONE_MIN_MILLIS, date.getTime());
-            Log.d("check", queryUsageStats.toString());
 
             return computeMostRecentPackageFromStats(queryUsageStats);
         } catch (Exception e) {
