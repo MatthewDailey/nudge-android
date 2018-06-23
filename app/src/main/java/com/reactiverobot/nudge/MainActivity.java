@@ -4,6 +4,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -49,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        setupListPackageList(PackageType.BAD_HABIT, R.id.list_view_bad_habits);
-        setupListPackageList(PackageType.GOOD_OPTION, R.id.list_view_good_options);
+        setupListPackageList(PackageType.BAD_HABIT, R.id.list_view_bad_habits, R.id.search_bad_habits);
+        setupListPackageList(PackageType.GOOD_OPTION, R.id.list_view_good_options, R.id.search_good_options);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setupListPackageList(PackageType packageType, int listViewId) {
+    private void setupListPackageList(PackageType packageType, int listViewId, int searchViewId) {
         PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
                 this,
                 new PackageArrayAdapter.CheckHandler() {
@@ -92,6 +93,20 @@ public class MainActivity extends AppCompatActivity {
 
         prefs.addSubscriber(packageListManager, packageType);
         prefs.addSubscriber(packageAdapter, packageType);
+
+        SearchView searchView = findViewById(searchViewId);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newQuery) {
+                packageListManager.setFilter(newQuery);
+                return true;
+            }
+        });
     }
 
     private void setupTabsAndTitle() {

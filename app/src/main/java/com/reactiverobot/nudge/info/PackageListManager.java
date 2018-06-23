@@ -15,4 +15,6 @@ public interface PackageListManager {
     void initialize();
 
     void subscribe(PackageListHandler handler);
+
+    void setFilter(String query);
 }

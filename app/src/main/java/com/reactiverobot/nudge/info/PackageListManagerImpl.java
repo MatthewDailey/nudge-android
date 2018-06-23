@@ -2,6 +2,7 @@ package com.reactiverobot.nudge.info;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -22,6 +23,8 @@ public class PackageListManagerImpl implements
 
     private List<PackageInfo> pinnedPackages = new ArrayList<>();
     private List<PackageInfo> allPackages = new ArrayList<>();
+
+    private String filter = null;
 
     private final PackageManager packageManager;
     private final PackageInfoManager packageInfoManager;
@@ -68,18 +71,39 @@ public class PackageListManagerImpl implements
 
         List<PackageInfo> packages = new ArrayList<>();
         packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
-        packages.addAll(pinnedPackages);
+        packages.addAll(filter(pinnedPackages));
         packages.add(new PackageInfo("All Apps", PackageInfo.Type.HEADING));
-        packages.addAll(allPackages);
+        packages.addAll(filter(allPackages));
 
         for (PackageListHandler handler : subscribers) {
             handler.accept(packages);
         }
     }
 
+    private List<PackageInfo> filter(List<PackageInfo> packages) {
+        if (filter != null) {
+            return packages.stream()
+                    .filter(packageInfo -> packageInfo.name != null && packageInfo.name.toLowerCase().contains(filter))
+                    .collect(Collectors.toList());
+        } else {
+            return packages;
+        }
+    }
+
     @Override
     public void subscribe(PackageListHandler handler) {
         subscribers.add(handler);
+    }
+
+    @Override
+    public void setFilter(String query) {
+        Log.d(this.getClass().getName(), "Query : " + query);
+        if (query.isEmpty()) {
+            this.filter = null;
+        } else {
+            this.filter = query.toLowerCase();
+        }
+        publishPackageList();
     }
 
     @Override
