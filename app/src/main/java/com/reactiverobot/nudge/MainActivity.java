@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
                 () -> prefs.getPinnedPackages(packageType));
         packageListManager.subscribe(packageAdapter);
         packageListManager.initialize();
-        packageInfoManager.subscribe(packageListManager);
 
         prefs.addSubscriber(packageListManager, packageType);
         prefs.addSubscriber(packageAdapter, packageType);

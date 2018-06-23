@@ -2,6 +2,7 @@ package com.reactiverobot.nudge.info;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -15,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class PackageListManagerImpl implements
         PackageListManager,
-        PackageInfoManager.Subscriber,
         Prefs.PinnedSubscriber {
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
@@ -40,24 +40,26 @@ public class PackageListManagerImpl implements
 
     @Override
     public void initialize() {
-        pinnedPackages = pinnedPackagesSupplier.get()
-                .stream()
-                .map(packageName -> packageInfoManager.get(packageName))
-                .sorted(ALPHABETIC)
-                .collect(Collectors.toList());
+        AsyncTask.execute(() -> {
+            pinnedPackages = pinnedPackagesSupplier.get()
+                    .stream()
+                    .map(packageName -> packageInfoManager.get(packageName))
+                    .sorted(ALPHABETIC)
+                    .collect(Collectors.toList());
 
-        int flags = PackageManager.GET_META_DATA |
-                PackageManager.GET_SHARED_LIBRARY_FILES |
-                PackageManager.MATCH_UNINSTALLED_PACKAGES;
+            int flags = PackageManager.GET_META_DATA |
+                    PackageManager.GET_SHARED_LIBRARY_FILES |
+                    PackageManager.MATCH_UNINSTALLED_PACKAGES;
 
-        allPackages = packageManager.getInstalledApplications(flags)
-                .stream()
-                .filter(applicationInfo -> (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
-                .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
-                .sorted(ALPHABETIC)
-                .collect(Collectors.toList());
+            allPackages = packageManager.getInstalledApplications(flags)
+                    .stream()
+                    .filter(applicationInfo -> (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
+                    .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
+                    .sorted(ALPHABETIC)
+                    .collect(Collectors.toList());
 
-        publishPackageList();
+            publishPackageList();
+        });
     }
 
     private void sortPackages() {
@@ -101,11 +103,6 @@ public class PackageListManagerImpl implements
         } else {
             this.filter = query.toLowerCase();
         }
-        publishPackageList();
-    }
-
-    @Override
-    public void update() {
         publishPackageList();
     }
 

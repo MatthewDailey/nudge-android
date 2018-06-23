@@ -20,8 +20,6 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
 
     private static final String TAG = PackageInfoManagerImpl.class.getName();
 
-    private final List<Subscriber> subscribers = new ArrayList<>();
-
     private ConcurrentHashMap<String, PackageInfo> packageInfoMap;
     private final PackageManager packageManager;
 
@@ -51,14 +49,4 @@ public class PackageInfoManagerImpl implements PackageInfoManager {
                 });
     }
 
-    @Override
-    public void subscribe(Subscriber subscriber) {
-        this.subscribers.add(subscriber);
-    }
-
-    private void updateSubscribers() {
-        for (Subscriber subscriber : subscribers) {
-            subscriber.update();
-        }
-    }
 }

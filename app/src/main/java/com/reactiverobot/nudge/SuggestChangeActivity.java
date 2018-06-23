@@ -1,12 +1,9 @@
 package com.reactiverobot.nudge;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +28,7 @@ public class SuggestChangeActivity extends Activity {
     @Inject
     Prefs prefs;
 
-    class SuggestedAppAdapter extends ArrayAdapter<String> implements PackageInfoManager.Subscriber {
+    class SuggestedAppAdapter extends ArrayAdapter<String> {
 
         private final Activity activity;
 
@@ -68,10 +65,6 @@ public class SuggestChangeActivity extends Activity {
             return convertView;
         }
 
-        @Override
-        public void update() {
-            this.activity.runOnUiThread(() -> notifyDataSetChanged());
-        }
     }
 
     private void launchApplicationAndClose(String packageName) {
@@ -93,7 +86,6 @@ public class SuggestChangeActivity extends Activity {
         ListView suggestedAppsView = findViewById(R.id.list_suggested_apps);
 
         SuggestedAppAdapter suggestedAppAdapter = new SuggestedAppAdapter(this);
-        packageInfoManager.subscribe(suggestedAppAdapter);
         suggestedAppAdapter.addAll(pinnedPackages);
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
