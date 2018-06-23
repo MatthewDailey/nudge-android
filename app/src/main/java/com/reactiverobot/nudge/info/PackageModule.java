@@ -11,7 +11,7 @@ import dagger.Provides;
 @Module
 public class PackageModule {
     @Provides
-    PackageInfoManager packageInfoManager(Context context, Prefs prefs) {
-        return new PackageInfoManagerImpl(context, prefs);
+    PackageInfoManager packageInfoManager(Context context) {
+        return new PackageInfoManagerImpl(context);
     }
 }

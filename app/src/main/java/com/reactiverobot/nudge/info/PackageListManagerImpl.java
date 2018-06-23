@@ -2,7 +2,6 @@ package com.reactiverobot.nudge.info;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -97,7 +96,6 @@ public class PackageListManagerImpl implements
 
     @Override
     public void setFilter(String query) {
-        Log.d(this.getClass().getName(), "Query : " + query);
         if (query.isEmpty()) {
             this.filter = null;
         } else {
