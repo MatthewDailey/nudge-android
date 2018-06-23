@@ -58,7 +58,14 @@ public class PackageListManagerImpl implements
         publishPackageList();
     }
 
+    private void sortPackages() {
+        pinnedPackages.sort(ALPHABETIC);
+        allPackages.sort(ALPHABETIC);
+    }
+
     private void publishPackageList() {
+        sortPackages();
+
         List<PackageInfo> packages = new ArrayList<>();
         packages.add(new PackageInfo("Pinned Apps", PackageInfo.Type.HEADING));
         packages.addAll(pinnedPackages);
@@ -77,18 +84,16 @@ public class PackageListManagerImpl implements
 
     @Override
     public void update() {
-        for (PackageListHandler handler : subscribers) {
-            handler.update();
-        }
+        publishPackageList();
     }
 
     private final Comparator<PackageInfo> ALPHABETIC = (o1, o2) -> {
         if (o1.name != null && o2.name != null) {
-            return o1.name.compareTo(o2.name);
+            return o1.name.toLowerCase().compareTo(o2.name.toLowerCase());
         }
 
         if (o1.name == null && o2.name == null) {
-            return o1.packageName.compareTo(o2.packageName);
+            return o1.packageName.toLowerCase().compareTo(o2.packageName.toLowerCase());
         }
 
         if (o1.name == null) {

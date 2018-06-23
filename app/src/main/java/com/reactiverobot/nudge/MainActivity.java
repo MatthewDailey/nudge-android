@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListPackageList(PackageType packageType, int listViewId) {
-        PackageArrayAdapter badHabitPackageAdapter = new PackageArrayAdapter(
+        PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
                 this,
                 new PackageArrayAdapter.CheckHandler() {
                     @Override
@@ -80,18 +80,18 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         ListView badHabitsList = findViewById(listViewId);
-        badHabitsList.setAdapter(badHabitPackageAdapter);
+        badHabitsList.setAdapter(packageAdapter);
 
         PackageListManagerImpl packageListManager = new PackageListManagerImpl(
                 getPackageManager(),
                 packageInfoManager,
                 () -> prefs.getPinnedPackages(packageType));
-        packageListManager.subscribe(badHabitPackageAdapter);
+        packageListManager.subscribe(packageAdapter);
         packageListManager.initialize();
         packageInfoManager.subscribe(packageListManager);
 
         prefs.addSubscriber(packageListManager, packageType);
-        prefs.addSubscriber(badHabitPackageAdapter, packageType);
+        prefs.addSubscriber(packageAdapter, packageType);
     }
 
     private void setupTabsAndTitle() {

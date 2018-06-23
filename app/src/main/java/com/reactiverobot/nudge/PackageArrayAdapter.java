@@ -104,11 +104,6 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     }
 
     @Override
-    public void update() {
-        this.activity.runOnUiThread(() -> notifyDataSetChanged());
-    }
-
-    @Override
     public void onCheckedUpdate() {
         this.activity.runOnUiThread(() -> notifyDataSetChanged());
     }

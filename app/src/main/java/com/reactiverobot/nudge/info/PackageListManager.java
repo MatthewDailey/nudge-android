@@ -8,10 +8,8 @@ import java.util.List;
 // Determines which elements are in the list.
 public interface PackageListManager {
     interface PackageListHandler {
-        // if the actual list changes (aka ne\w pinned package or query)
+        // if the actual list changes (aka new pinned package or query)
         void accept(List<PackageInfo> packageInfos);
-        // if contents changes (aka something pinned does from badHabit to un-badHabit)
-        void update();
     }
 
     void initialize();
