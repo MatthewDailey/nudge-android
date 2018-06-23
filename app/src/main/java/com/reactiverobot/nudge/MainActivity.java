@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
     Prefs prefs;
     @Inject
     CheckActiveAppJobScheduler jobScheduler;
+    @Inject
+    PackageInfoManager packageInfoManager;
 
     private static final String TAG = MainActivity.class.getName();
-
-    private PackageInfoManager packageInfoManager;
 
     @Override
     protected void onResume() {
@@ -45,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        packageInfoManager = new PackageInfoManagerImpl(this, prefs);
 
         setupTabsAndTitle();
 
