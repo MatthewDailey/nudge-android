@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.reactiverobot.nudge.SuggestChangeActivity;
+import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageType;
+import com.reactiverobot.nudge.prefs.Prefs;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import java.util.Date;

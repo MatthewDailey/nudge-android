@@ -10,7 +10,6 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
-import com.reactiverobot.nudge.info.PackageInfoManagerImpl;
 import com.reactiverobot.nudge.info.PackageListManagerImpl;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
