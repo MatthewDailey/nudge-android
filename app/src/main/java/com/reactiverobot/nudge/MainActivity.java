@@ -1,16 +1,19 @@
 package com.reactiverobot.nudge;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
@@ -19,8 +22,6 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
-
-import static com.reactiverobot.nudge.OnboardingActivity.REQUEST_USAGE_ACCESS;
 
 public class MainActivity extends AppCompatActivity {
 

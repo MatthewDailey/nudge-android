@@ -1,7 +1,6 @@
 package com.reactiverobot.nudge;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +17,6 @@ import com.reactiverobot.nudge.info.PackageListManager;
 import com.reactiverobot.nudge.info.PackageListManagerImpl;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
-import com.reactiverobot.nudge.prefs.PrefsImpl;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -128,10 +125,6 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         if (packageInfo.iconDrawable != null) {
             ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
                     .setImageDrawable(packageInfo.iconDrawable);
-        } else if (packageInfo.iconUrl != null) {
-            Picasso.with(getContext())
-                    .load(packageInfo.iconUrl)
-                    .into((ImageView) convertView.findViewById(R.id.image_view_app_icon));
         } else {
             ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
                     .setImageDrawable(null);
