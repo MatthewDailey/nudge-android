@@ -37,7 +37,7 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        setupListPackageList(getPackageType(), R.id.list_all_packages, R.id.search_packages);
+        PackageArrayAdapter.attach(this, getPackageType(), packageInfoManager, prefs, R.id.list_all_packages, R.id.search_packages);
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -83,49 +83,5 @@ public class SelectPackagesActivity extends AppCompatActivity {
             default:
                 return "Select Packages";
         }
-    }
-
-    private void setupListPackageList(PackageType packageType, int listViewId, int searchViewId) {
-        PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
-                this,
-                new PackageArrayAdapter.CheckHandler() {
-                    @Override
-                    public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.setSelected(packageType, isChecked);
-                        prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
-                    }
-
-                    @Override
-                    public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.isSelected(packageType);
-                    }
-                });
-
-        ListView badHabitsList = findViewById(listViewId);
-        badHabitsList.setAdapter(packageAdapter);
-
-        PackageListManagerImpl packageListManager = new PackageListManagerImpl(
-                getPackageManager(),
-                packageInfoManager,
-                () -> prefs.getPinnedPackages(packageType));
-        packageListManager.subscribe(packageAdapter);
-        packageListManager.initialize();
-
-        prefs.addSubscriber(packageListManager, packageType);
-        prefs.addSubscriber(packageAdapter, packageType);
-
-        SearchView searchView = findViewById(searchViewId);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newQuery) {
-                packageListManager.setFilter(newQuery);
-                return true;
-            }
-        });
     }
 }
