@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 
+import com.google.firebase.perf.metrics.AddTrace;
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -40,26 +41,29 @@ public class PackageListManagerImpl implements
 
     @Override
     public void initialize() {
-        AsyncTask.execute(() -> {
-            pinnedPackages = pinnedPackagesSupplier.get()
-                    .stream()
-                    .map(packageName -> packageInfoManager.get(packageName))
-                    .sorted(ALPHABETIC)
-                    .collect(Collectors.toList());
+        AsyncTask.execute(() -> loadAndSortPackages());
+    }
 
-            int flags = PackageManager.GET_META_DATA |
-                    PackageManager.GET_SHARED_LIBRARY_FILES |
-                    PackageManager.MATCH_UNINSTALLED_PACKAGES;
+    @AddTrace(name = "packageListInitialization")
+    private void loadAndSortPackages() {
+        pinnedPackages = pinnedPackagesSupplier.get()
+                .stream()
+                .map(packageName -> packageInfoManager.get(packageName))
+                .sorted(ALPHABETIC)
+                .collect(Collectors.toList());
 
-            allPackages = packageManager.getInstalledApplications(flags)
-                    .stream()
-                    .filter(applicationInfo -> (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
-                    .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
-                    .sorted(ALPHABETIC)
-                    .collect(Collectors.toList());
+        int flags = PackageManager.GET_META_DATA |
+                PackageManager.GET_SHARED_LIBRARY_FILES |
+                PackageManager.MATCH_UNINSTALLED_PACKAGES;
 
-            publishPackageList();
-        });
+        allPackages = packageManager.getInstalledApplications(flags)
+                .stream()
+                .filter(applicationInfo -> (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1)
+                .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
+                .sorted(ALPHABETIC)
+                .collect(Collectors.toList());
+
+        publishPackageList();
     }
 
     private void sortPackages() {
