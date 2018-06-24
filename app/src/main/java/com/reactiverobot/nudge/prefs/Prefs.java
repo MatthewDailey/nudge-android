@@ -31,4 +31,6 @@ public interface Prefs {
     boolean hasCompletedOnboarding();
 
     void completeOnboarding();
+
+    boolean isUsageAccessGranted();
 }

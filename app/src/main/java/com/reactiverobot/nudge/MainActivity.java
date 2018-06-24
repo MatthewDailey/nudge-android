@@ -1,17 +1,17 @@
 package com.reactiverobot.nudge;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
-import com.reactiverobot.nudge.info.PackageListManagerImpl;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -19,6 +19,8 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+
+import static com.reactiverobot.nudge.OnboardingActivity.REQUEST_USAGE_ACCESS;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +38,26 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
-        enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
+        if (prefs.isUsageAccessGranted()) {
+            enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
+        } else {
+            enableServiceSwitch.setChecked(false);
+        }
+    }
+
+    private void showOpenSettingsAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Before you can enable Nudge, you need to grant it App Usage Access.")
+                .setTitle("App Usage Access is required");
+
+        builder.setPositiveButton("Open Settings",
+                (dialog, id) -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+
+        builder.create().show();
     }
 
     @Override
@@ -58,10 +79,15 @@ public class MainActivity extends AppCompatActivity {
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
-            if (isEnabled) {
-                jobScheduler.scheduleJob();
+            if (prefs.isUsageAccessGranted()) {
+                if (isEnabled) {
+                    jobScheduler.scheduleJob();
+                } else {
+                    jobScheduler.cancelJob();
+                }
             } else {
-                jobScheduler.cancelJob();
+                enableServiceSwitch.setChecked(false);
+                showOpenSettingsAlertDialog();
             }
         });
 

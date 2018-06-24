@@ -33,28 +33,11 @@ public class OnboardingActivity extends AppCompatActivity {
     public static final int REQUEST_SELECT_BAD_HABITS = 1;
     public static final int REQUEST_SELECT_BETTER_OPTIONS = 2;
 
-    private boolean isUsageAccessGranted() {
-        try {
-            PackageManager packageManager = getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
-            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-            int mode = 0;
-            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.KITKAT) {
-                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                        applicationInfo.uid, applicationInfo.packageName);
-            }
-            return (mode == AppOpsManager.MODE_ALLOWED);
-
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_USAGE_ACCESS) {
             // Make sure the request was successful
-            if (isUsageAccessGranted()) {
+            if (prefs.isUsageAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         }
@@ -97,7 +80,7 @@ public class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.button_get_started).setOnClickListener(v -> {
             changeToScene(R.layout.activity_onboarding_2);
 
-            if (isUsageAccessGranted()) {
+            if (prefs.isUsageAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         });
