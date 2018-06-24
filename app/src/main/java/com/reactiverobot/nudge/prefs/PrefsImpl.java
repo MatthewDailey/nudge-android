@@ -30,6 +30,7 @@ public class PrefsImpl implements Prefs {
     private static final String PINNED_PACKAGES_PREFIX = "pinned_packages_";
     private static final String SELECTED_PACKAGES_PREFIX = "selected_package_";
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
+    private static final String ONBOARDING_COMPLETE = "onboarding_complete";
 
     private final Context context;
 
@@ -118,11 +119,11 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public boolean hasCompletedOnboarding() {
-        return false;
+        return getPrefs().getBoolean(ONBOARDING_COMPLETE, false);
     }
 
     @Override
     public void completeOnboarding() {
-        // TODO
+        getPrefs().edit().putBoolean(ONBOARDING_COMPLETE, true).commit();
     }
 }

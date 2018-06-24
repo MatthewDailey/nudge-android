@@ -94,39 +94,30 @@ public class OnboardingActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_onboarding_1);
 
-        final ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.onboarding_contraint_layout);
+        findViewById(R.id.button_get_started).setOnClickListener(v -> {
+            changeToScene(R.layout.activity_onboarding_2);
 
-        findViewById(R.id.button_get_started).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeToScene(R.layout.activity_onboarding_2);
-
-                if (isUsageAccessGranted()) {
-                    changeToScene(R.layout.activity_onboarding_3);
-                }
+            if (isUsageAccessGranted()) {
+                changeToScene(R.layout.activity_onboarding_3);
             }
         });
 
-        findViewById(R.id.button_open_settings).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-                startActivityForResult(intent, REQUEST_USAGE_ACCESS);
-            }
+        findViewById(R.id.button_open_settings).setOnClickListener(v -> {
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivityForResult(intent, REQUEST_USAGE_ACCESS);
         });
 
-        findViewById(R.id.button_bad_habits).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchSelectPackagesActivity(PackageType.BAD_HABIT, REQUEST_SELECT_BAD_HABITS);
-            }
-        });
+        findViewById(R.id.button_bad_habits)
+                .setOnClickListener(v -> launchSelectPackagesActivity(PackageType.BAD_HABIT, REQUEST_SELECT_BAD_HABITS));
 
-        findViewById(R.id.button_better_options).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchSelectPackagesActivity(PackageType.GOOD_OPTION, REQUEST_SELECT_BETTER_OPTIONS);
-            }
+        findViewById(R.id.button_better_options)
+                .setOnClickListener(v -> launchSelectPackagesActivity(PackageType.GOOD_OPTION, REQUEST_SELECT_BETTER_OPTIONS));
+
+        findViewById(R.id.button_enable).setOnClickListener(v -> {
+            prefs.completeOnboarding();
+            prefs.setCheckActiveEnabled(true);
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
         });
     }
 
