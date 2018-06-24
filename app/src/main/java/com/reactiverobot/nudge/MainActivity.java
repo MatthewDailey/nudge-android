@@ -1,5 +1,6 @@
 package com.reactiverobot.nudge;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
+
+        if (!prefs.hasCompletedOnboarding()) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

@@ -27,7 +27,6 @@ public class PrefsImpl implements Prefs {
 
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
-    private static final String INDEXED_PACKAGES = "indexed_packages";
     private static final String PINNED_PACKAGES_PREFIX = "pinned_packages_";
     private static final String SELECTED_PACKAGES_PREFIX = "selected_package_";
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
@@ -108,16 +107,6 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public Set<String> getIndexedPackages() {
-        return new HashSet<>(getPrefs().getStringSet(INDEXED_PACKAGES, new HashSet<String>()));
-    }
-
-    @Override
-    synchronized public void setPackageIndexed(String packageName) {
-        updateStringSet(INDEXED_PACKAGES, getIndexedPackages(), packageName, true);
-    }
-
-    @Override
     public void addSubscriber(PinnedSubscriber subscriber, PackageType packageType) {
         packageTypeToPinnedSubscribers.get(packageType).add(subscriber);
     }
@@ -125,5 +114,15 @@ public class PrefsImpl implements Prefs {
     @Override
     public void addSubscriber(CheckedSubscriber subscriber, PackageType packageType) {
         packageTypeToCheckedSubscriber.get(packageType).add(subscriber);
+    }
+
+    @Override
+    public boolean hasCompletedOnboarding() {
+        return false;
+    }
+
+    @Override
+    public void completeOnboarding() {
+        // TODO
     }
 }

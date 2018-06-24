@@ -16,23 +16,36 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
 public class PackageInfoManagerImpl implements PackageInfoManager {
 
     private static final String TAG = PackageInfoManagerImpl.class.getName();
 
     private ConcurrentHashMap<String, PackageInfo> packageInfoMap;
     private final PackageManager packageManager;
+    private final Prefs prefs;
 
-    public PackageInfoManagerImpl(Context context) {
+    public PackageInfoManagerImpl(Context context, Prefs prefs) {
         this.packageManager = context.getPackageManager();
+        this.prefs = prefs;
         this.packageInfoMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public @NonNull PackageInfo get(String packageName) {
+    public @NonNull
+    PackageInfo get(String packageName) {
         return this.packageInfoMap.computeIfAbsent(packageName,
                 (packageNameKey) -> {
                     PackageInfo packageInfo = new PackageInfo(packageNameKey);
+
+                    if (prefs.getSelectedPackages(PackageType.BAD_HABIT).contains(packageInfo.packageName)) {
+                        packageInfo.setSelected(PackageType.BAD_HABIT, true);
+                    }
+
+                    if (prefs.getSelectedPackages(PackageType.GOOD_OPTION).contains(packageInfo.packageName)) {
+                        packageInfo.setSelected(PackageType.GOOD_OPTION, true);
+                    }
 
                     try {
                         Drawable appIcon = packageManager.getApplicationIcon(packageInfo.packageName);

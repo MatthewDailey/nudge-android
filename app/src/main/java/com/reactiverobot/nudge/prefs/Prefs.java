@@ -24,11 +24,11 @@ public interface Prefs {
 
     void setPackageSelected(PackageType packageType, String packageName, boolean isSelected);
 
-    Set<String> getIndexedPackages();
-
-    void setPackageIndexed(String packageName);
-
     void addSubscriber(PinnedSubscriber subscriber, PackageType packageType);
 
     void addSubscriber(CheckedSubscriber subscriber, PackageType packageType);
+
+    boolean hasCompletedOnboarding();
+
+    void completeOnboarding();
 }
