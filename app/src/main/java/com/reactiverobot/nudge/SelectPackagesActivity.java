@@ -2,7 +2,11 @@ package com.reactiverobot.nudge;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Switch;
@@ -33,7 +37,52 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        setupListPackageList(PackageType.BAD_HABIT, R.id.list_all_packages, R.id.search_packages);
+        setupListPackageList(getPackageType(), R.id.list_all_packages, R.id.search_packages);
+
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setTitle(getToolbarTitle());
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    @NonNull
+    private PackageType getPackageType() {
+        return PackageType.valueOf(getIntent().getStringExtra("packageType"));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_select_packages, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_done_select_packages) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private String getToolbarTitle() {
+        switch (getPackageType()) {
+            case BAD_HABIT:
+                return "Select Bad Habits";
+            case GOOD_OPTION:
+                return "Select Better Options";
+            default:
+                return "Select Packages";
+        }
     }
 
     private void setupListPackageList(PackageType packageType, int listViewId, int searchViewId) {

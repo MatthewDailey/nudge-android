@@ -34,7 +34,12 @@
             android:label="SuggestionActivity"
             android:theme="@android:style/Theme.Material.Light.Dialog.NoActionBar">
         </activity>
-        <activity android:name=".SelectPackagesActivity" />
+        <activity android:name=".SelectPackagesActivity"
+            android:parentActivityName=".OnboardingActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".OnboardingActivity" />
+        </activity>
         <activity
             android:name=".OnboardingActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
