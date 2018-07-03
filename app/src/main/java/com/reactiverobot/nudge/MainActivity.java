@@ -12,6 +12,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
+import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     CheckActiveAppJobScheduler jobScheduler;
     @Inject
     PackageInfoManager packageInfoManager;
+    @Inject
+    PackageListManagerSupplier packageListManagerSupplier;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -74,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        PackageArrayAdapter.attach(this, PackageType.BAD_HABIT, packageInfoManager, prefs, R.id.list_view_bad_habits, R.id.search_bad_habits);
-        PackageArrayAdapter.attach(this, PackageType.GOOD_OPTION, packageInfoManager, prefs, R.id.list_view_good_options, R.id.search_good_options);
+        PackageArrayAdapter.attach(this, PackageType.BAD_HABIT, packageListManagerSupplier, prefs, R.id.list_view_bad_habits, R.id.search_bad_habits);
+        PackageArrayAdapter.attach(this, PackageType.GOOD_OPTION, packageListManagerSupplier, prefs, R.id.list_view_good_options, R.id.search_good_options);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {

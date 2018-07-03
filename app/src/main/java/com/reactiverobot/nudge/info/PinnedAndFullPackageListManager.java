@@ -1,5 +1,6 @@
 package com.reactiverobot.nudge.info;
 
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -14,9 +15,28 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PackageListManagerImpl implements
-        PackageListManager,
-        Prefs.PinnedSubscriber {
+public class PinnedAndFullPackageListManager implements PackageListManager {
+
+    public static class Supply implements PackageListManagerSupplier {
+
+        private final Context context;
+        private final PackageInfoManager packageInfoManager;
+        private final Prefs prefs;
+
+        public Supply(Context context, PackageInfoManager packageInfoManager, Prefs prefs) {
+            this.context = context;
+            this.packageInfoManager = packageInfoManager;
+            this.prefs = prefs;
+        }
+
+        @Override
+        public PackageListManager get(PackageType packageType) {
+            return  new PinnedAndFullPackageListManager(
+                    context.getPackageManager(),
+                    packageInfoManager,
+                    () -> prefs.getPinnedPackages(packageType));
+        }
+    }
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
@@ -30,9 +50,9 @@ public class PackageListManagerImpl implements
 
     private final Supplier<Set<String>> pinnedPackagesSupplier;
 
-    public PackageListManagerImpl(PackageManager packageManager,
-                                  PackageInfoManager packageInfoManager,
-                                  Supplier<Set<String>> pinnedPackagesSupplier) {
+    public PinnedAndFullPackageListManager(PackageManager packageManager,
+                                           PackageInfoManager packageInfoManager,
+                                           Supplier<Set<String>> pinnedPackagesSupplier) {
         this.packageManager = packageManager;
         this.packageInfoManager = packageInfoManager;
         this.pinnedPackagesSupplier = pinnedPackagesSupplier;

@@ -1,20 +1,15 @@
 package com.reactiverobot.nudge;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.Switch;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
-import com.reactiverobot.nudge.info.PackageListManagerImpl;
+import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
-import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import javax.inject.Inject;
@@ -27,7 +22,7 @@ public class SelectPackagesActivity extends AppCompatActivity {
     @Inject
     Prefs prefs;
     @Inject
-    PackageInfoManager packageInfoManager;
+    PackageListManagerSupplier packageListManagerSupplier;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -37,7 +32,7 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        PackageArrayAdapter.attach(this, getPackageType(), packageInfoManager, prefs, R.id.list_all_packages, R.id.search_packages);
+        PackageArrayAdapter.attach(this, getPackageType(), packageListManagerSupplier, prefs, R.id.list_all_packages, R.id.search_packages);
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);

@@ -1,7 +1,6 @@
 package com.reactiverobot.nudge;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +14,10 @@ import android.widget.TextView;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManager;
-import com.reactiverobot.nudge.info.PackageListManagerImpl;
+import com.reactiverobot.nudge.info.PackageListManagerSupplier;
+import com.reactiverobot.nudge.info.PinnedAndFullPackageListManager;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
-import com.reactiverobot.nudge.prefs.PrefsImpl;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     public static void attach(Activity activity,
                               PackageType packageType,
-                              PackageInfoManager packageInfoManager,
+                              PackageListManagerSupplier packageListManagerSupplier,
                               Prefs prefs,
                               int listViewId,
                               int searchViewId) {
@@ -59,10 +58,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         ListView badHabitsList = activity.findViewById(listViewId);
         badHabitsList.setAdapter(packageAdapter);
 
-        PackageListManagerImpl packageListManager = new PackageListManagerImpl(
-                activity.getPackageManager(),
-                packageInfoManager,
-                () -> prefs.getPinnedPackages(packageType));
+        PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
         packageListManager.subscribe(packageAdapter);
         packageListManager.initialize();
 
