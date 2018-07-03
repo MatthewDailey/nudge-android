@@ -126,26 +126,6 @@ public class PinnedAndFullPackageListManager implements PackageListManager {
         publishPackageList();
     }
 
-    private final Comparator<PackageInfo> ALPHABETIC = (o1, o2) -> {
-        if (o1.name != null && o2.name != null) {
-            return o1.name.toLowerCase().compareTo(o2.name.toLowerCase());
-        }
-
-        if (o1.name == null && o2.name == null) {
-            return o1.packageName.toLowerCase().compareTo(o2.packageName.toLowerCase());
-        }
-
-        if (o1.name == null) {
-            return -1;
-        }
-
-        if (o2.name == null) {
-            return -1;
-        }
-
-        return 0;
-    };
-
     @Override
     public void onPinned(String packageName, boolean pinned) {
         pinnedPackages.add(packageInfoManager.get(packageName));

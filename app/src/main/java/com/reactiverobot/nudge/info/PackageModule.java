@@ -17,6 +17,6 @@ public class PackageModule {
 
     @Provides
     PackageListManagerSupplier packageListManagerSupplier(Context context, PackageInfoManager packageInfoManager, Prefs prefs) {
-        return new PinnedAndFullPackageListManager.Supply(context, packageInfoManager, prefs);
+        return new PinnedPackageListManager.Supply(packageInfoManager, prefs);
     }
 }
