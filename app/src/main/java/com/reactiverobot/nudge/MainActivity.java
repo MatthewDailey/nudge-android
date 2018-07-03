@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -102,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.fab_select_package).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showOpenSettingsAlertDialog();
+            }
+        });
     }
 
     private void setupTabsAndTitle() {
