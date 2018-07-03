@@ -77,8 +77,9 @@ public class MainActivity extends AppCompatActivity {
 
         setupTabsAndTitle();
 
-        PackageArrayAdapter.attach(this, PackageType.BAD_HABIT, packageListManagerSupplier, prefs, R.id.list_view_bad_habits, R.id.search_bad_habits);
-        PackageArrayAdapter.attach(this, PackageType.GOOD_OPTION, packageListManagerSupplier, prefs, R.id.list_view_good_options, R.id.search_good_options);
+        PackageArrayAdapter.Builder builder = PackageArrayAdapter.builder(packageListManagerSupplier, prefs);
+        builder.searchViewId(R.id.search_bad_habits).attach(this, R.id.list_view_bad_habits, PackageType.BAD_HABIT);
+        builder.searchViewId(R.id.search_good_options).attach(this, R.id.list_view_good_options, PackageType.GOOD_OPTION);
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {

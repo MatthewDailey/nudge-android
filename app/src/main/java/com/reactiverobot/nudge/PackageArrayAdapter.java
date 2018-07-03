@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
-import com.reactiverobot.nudge.info.PinnedAndFullPackageListManager;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
 import com.squareup.picasso.Picasso;
@@ -34,50 +33,68 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         boolean isChecked(PackageInfo packageInfo);
     }
 
-    public static void attach(Activity activity,
-                              PackageType packageType,
-                              PackageListManagerSupplier packageListManagerSupplier,
-                              Prefs prefs,
-                              int listViewId,
-                              int searchViewId) {
-        PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
-                activity,
-                new PackageArrayAdapter.CheckHandler() {
+    public static class Builder {
+        private final PackageListManagerSupplier packageListManagerSupplier;
+        private final Prefs prefs;
+
+        private Integer searchViewId = null;
+
+        public Builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
+            this.packageListManagerSupplier = packageListManagerSupplier;
+            this.prefs = prefs;
+        }
+
+        public Builder searchViewId(int searchViewId) {
+            this.searchViewId = searchViewId;
+            return this;
+        }
+
+        public void attach(Activity activity, int listViewId, PackageType packageType) {
+            PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
+                    activity,
+                    new PackageArrayAdapter.CheckHandler() {
+                        @Override
+                        public void accept(PackageInfo packageInfo, boolean isChecked) {
+                            packageInfo.setSelected(packageType, isChecked);
+                            prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
+                        }
+
+                        @Override
+                        public boolean isChecked(PackageInfo packageInfo) {
+                            return packageInfo.isSelected(packageType);
+                        }
+                    });
+
+            ListView packageList = activity.findViewById(listViewId);
+            packageList.setAdapter(packageAdapter);
+
+            PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
+            packageListManager.subscribe(packageAdapter);
+            packageListManager.initialize();
+
+            prefs.addSubscriber(packageListManager, packageType);
+            prefs.addSubscriber(packageAdapter, packageType);
+
+            if (this.searchViewId != null) {
+                SearchView searchView = activity.findViewById(searchViewId);
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
-                    public void accept(PackageInfo packageInfo, boolean isChecked) {
-                        packageInfo.setSelected(packageType, isChecked);
-                        prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
                     }
 
                     @Override
-                    public boolean isChecked(PackageInfo packageInfo) {
-                        return packageInfo.isSelected(packageType);
+                    public boolean onQueryTextChange(String newQuery) {
+                        packageListManager.setFilter(newQuery);
+                        return true;
                     }
                 });
-
-        ListView badHabitsList = activity.findViewById(listViewId);
-        badHabitsList.setAdapter(packageAdapter);
-
-        PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
-        packageListManager.subscribe(packageAdapter);
-        packageListManager.initialize();
-
-        prefs.addSubscriber(packageListManager, packageType);
-        prefs.addSubscriber(packageAdapter, packageType);
-
-        SearchView searchView = activity.findViewById(searchViewId);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return true;
             }
+        }
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newQuery) {
-                packageListManager.setFilter(newQuery);
-                return true;
-            }
-        });
+    public static Builder builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
+        return new Builder(packageListManagerSupplier, prefs);
     }
 
     public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler) {

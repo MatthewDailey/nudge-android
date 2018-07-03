@@ -32,7 +32,9 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        PackageArrayAdapter.attach(this, getPackageType(), packageListManagerSupplier, prefs, R.id.list_all_packages, R.id.search_packages);
+        PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
+                .searchViewId(R.id.search_packages)
+                .attach(this, R.id.list_all_packages, getPackageType());
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
