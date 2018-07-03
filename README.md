@@ -5,7 +5,8 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 
 ## TODO
 
-- [ ] Re build search
-- [ ] Deterministic sort (re-sort on every update, but debounce?)
-- [ ] Use selected good options as actual good options.
+- [ ] Implement selecting a single app activity
+- [ ] Allow un-pinning via long-press
+- [ ] Show better list of all apps (not just user installed)
 - [ ] Improve parsing of foreground app.
+- [ ] Block websites as well
