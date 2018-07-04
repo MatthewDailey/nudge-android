@@ -38,6 +38,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         private final Prefs prefs;
 
         private SearchView searchView = null;
+        private Runnable onLoadPackagesComplete = null;
 
         public Builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
             this.packageListManagerSupplier = packageListManagerSupplier;
@@ -46,6 +47,11 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         public Builder searchView(SearchView searchView) {
             this.searchView = searchView;
+            return this;
+        }
+
+        public Builder onLoadPackagesComplete(Runnable onLoadPackagesComplete) {
+            this.onLoadPackagesComplete = onLoadPackagesComplete;
             return this;
         }
 
@@ -71,7 +77,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             packageList.setAdapter(packageAdapter);
 
             packageListManager.subscribe(packageAdapter);
-            packageListManager.initialize();
+            packageListManager.initialize(this.onLoadPackagesComplete);
 
             prefs.addSubscriber(packageListManager, packageType);
             prefs.addSubscriber(packageAdapter, packageType);

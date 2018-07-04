@@ -3,6 +3,7 @@ package com.reactiverobot.nudge.info;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -46,13 +47,17 @@ public class PinnedPackageListManager implements PackageListManager {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(@Nullable Runnable onComplete) {
         AsyncTask.execute(() -> {
             pinnedPackages = pinnedPackagesSupplier.get()
                     .stream()
                     .map(packageName -> packageInfoManager.get(packageName))
                     .sorted(ALPHABETIC)
                     .collect(Collectors.toList());
+
+            if (onComplete != null) {
+                onComplete.run();
+            }
 
             publishPackageList();
         });

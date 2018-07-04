@@ -1,6 +1,8 @@
 package com.reactiverobot.nudge.info;
 
 
+import android.support.annotation.Nullable;
+
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -14,7 +16,7 @@ public interface  PackageListManager extends Prefs.PinnedSubscriber {
         void accept(List<PackageInfo> packageInfos);
     }
 
-    void initialize();
+    void initialize(@Nullable Runnable onComplete);
 
     void subscribe(PackageListHandler handler);
 

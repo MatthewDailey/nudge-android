@@ -6,8 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.SearchView;
 
+import com.reactiverobot.nudge.info.FullPackageListManager;
+import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -21,7 +24,7 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
     @Inject
     Prefs prefs;
     @Inject
-    PackageListManagerSupplier packageListManagerSupplier;
+    PackageInfoManager packageInfoManager;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -33,7 +36,10 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_one_package);
 
-        packageArrayAdapter = PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
+        packageArrayAdapter = PackageArrayAdapter.builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
+                .onLoadPackagesComplete(() -> {
+                    runOnUiThread(() -> findViewById(R.id.progressBar).setVisibility(View.GONE));
+                })
             .attach(this, R.id.list_view_choose_one_package, getPackageType());
 
         Toolbar myToolbar = findViewById(R.id.toolbar);
