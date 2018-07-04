@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     int[] colorIntArray = {R.color.colorPrimary, R.color.colorPrimary};
-    int[] iconIntArray = {android.R.drawable.ic_input_add, android.R.drawable.ic_input_add};
+    int[] iconIntArray = {R.drawable.ic_action_add, R.drawable.ic_action_add};
 
     protected void animateFab(final int position) {
         FloatingActionButton fab = findViewById(R.id.fab_select_package);
