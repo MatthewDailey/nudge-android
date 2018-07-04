@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
@@ -15,8 +16,7 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 
-
-public class SelectPackagesActivity extends AppCompatActivity {
+public class ChooseOnePackageActivity extends AppCompatActivity {
 
     @Inject
     Prefs prefs;
@@ -25,17 +25,18 @@ public class SelectPackagesActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
 
+    private PackageArrayAdapter packageArrayAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_packages);
+        setContentView(R.layout.activity_choose_one_package);
 
-        PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
-                .searchView(findViewById(R.id.search_packages))
-                .attach(this, R.id.list_all_packages, getPackageType());
+        packageArrayAdapter = PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
+            .attach(this, R.id.list_view_choose_one_package, getPackageType());
 
-        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle(getToolbarTitle());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -54,7 +55,10 @@ public class SelectPackagesActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_select_packages, menu);
+        getMenuInflater().inflate(R.menu.menu_choose_one_package, menu);
+
+        packageArrayAdapter.withSearchView((SearchView) menu.findItem(R.id.search).getActionView());
+
         return true;
     }
 
@@ -73,11 +77,12 @@ public class SelectPackagesActivity extends AppCompatActivity {
     private String getToolbarTitle() {
         switch (getPackageType()) {
             case BAD_HABIT:
-                return "Select Bad Habits";
+                return "Select Bad Habit";
             case GOOD_OPTION:
-                return "Select Better Options";
+                return "Select Better Option";
             default:
-                return "Select Packages";
+                return "Select Package";
         }
     }
 }
+

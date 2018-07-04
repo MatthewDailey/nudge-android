@@ -1,5 +1,6 @@
 package com.reactiverobot.nudge.di;
 
+import com.reactiverobot.nudge.ChooseOnePackageActivity;
 import com.reactiverobot.nudge.MainActivity;
 import com.reactiverobot.nudge.OnboardingActivity;
 import com.reactiverobot.nudge.SelectPackagesActivity;
@@ -28,4 +29,6 @@ abstract class AppModule {
     @ContributesAndroidInjector
     abstract CheckActiveAppJobService contributeCheckActiveAppJobService();
 
+    @ContributesAndroidInjector
+    abstract ChooseOnePackageActivity contributeChooseOnePackageActivity();
 }

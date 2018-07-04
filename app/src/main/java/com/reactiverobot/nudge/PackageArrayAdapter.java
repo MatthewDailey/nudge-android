@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
@@ -27,6 +26,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     private final Activity activity;
     private final CheckHandler checkHandler;
+    private final PackageListManager packageListManager;
 
     public interface CheckHandler {
         void accept(PackageInfo packageInfo, boolean isChecked);
@@ -37,19 +37,21 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         private final PackageListManagerSupplier packageListManagerSupplier;
         private final Prefs prefs;
 
-        private Integer searchViewId = null;
+        private SearchView searchView = null;
 
         public Builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
             this.packageListManagerSupplier = packageListManagerSupplier;
             this.prefs = prefs;
         }
 
-        public Builder searchViewId(int searchViewId) {
-            this.searchViewId = searchViewId;
+        public Builder searchView(SearchView searchView) {
+            this.searchView = searchView;
             return this;
         }
 
-        public void attach(Activity activity, int listViewId, PackageType packageType) {
+        public PackageArrayAdapter attach(Activity activity, int listViewId, PackageType packageType) {
+            PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
+
             PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
                     activity,
                     new PackageArrayAdapter.CheckHandler() {
@@ -63,33 +65,22 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                         public boolean isChecked(PackageInfo packageInfo) {
                             return packageInfo.isSelected(packageType);
                         }
-                    });
+                    }, packageListManager);
 
             ListView packageList = activity.findViewById(listViewId);
             packageList.setAdapter(packageAdapter);
 
-            PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
             packageListManager.subscribe(packageAdapter);
             packageListManager.initialize();
 
             prefs.addSubscriber(packageListManager, packageType);
             prefs.addSubscriber(packageAdapter, packageType);
 
-            if (this.searchViewId != null) {
-                SearchView searchView = activity.findViewById(searchViewId);
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newQuery) {
-                        packageListManager.setFilter(newQuery);
-                        return true;
-                    }
-                });
+            if (this.searchView != null) {
+                packageAdapter.withSearchView(searchView);
             }
+
+            return packageAdapter;
         }
     }
 
@@ -97,11 +88,29 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         return new Builder(packageListManagerSupplier, prefs);
     }
 
-    public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler) {
+    public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler, PackageListManager packageListManager) {
         super(context, R.layout.list_item_package);
 
         this.activity = context;
         this.checkHandler = checkHandler;
+        this.packageListManager = packageListManager;
+    }
+
+    public PackageArrayAdapter withSearchView(SearchView searchView) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newQuery) {
+                packageListManager.setFilter(newQuery);
+                return true;
+            }
+        });
+
+        return this;
     }
 
     @Override

@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
 
+    private PackageType currentFocusPackageType = PackageType.BAD_HABIT;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -106,9 +108,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.fab_select_package).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showOpenSettingsAlertDialog();
+                onClickFab();
             }
         });
+    }
+
+    private void onClickFab() {
+        Intent intent = new Intent(this, ChooseOnePackageActivity.class);
+        intent.putExtra("packageType", currentFocusPackageType.name());
+        startActivity(intent);
     }
 
     private void setupTabsAndTitle() {
@@ -133,8 +141,10 @@ public class MainActivity extends AppCompatActivity {
 
         host.setOnTabChangedListener(s -> {
             if (s == "Tab One") {
+                currentFocusPackageType = PackageType.BAD_HABIT;
                 animateFab(0);
             } else {
+                currentFocusPackageType = PackageType.GOOD_OPTION;
                 animateFab(1);
             }
         });
