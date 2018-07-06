@@ -37,11 +37,16 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_one_package);
 
-        packageArrayAdapter = PackageArrayAdapter.builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
+        packageArrayAdapter = PackageArrayAdapter
+                .builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
                 .onLoadPackagesComplete(() -> {
                     runOnUiThread(() -> findViewById(R.id.progressBar).setVisibility(View.GONE));
                 })
-            .attach(this, getPackageType());
+                .onClick(packageInfo -> {
+                    prefs.setPackageSelected(getPackageType(), packageInfo.packageName, true);
+                    finish();
+                })
+                .attach(this, getPackageType());
 
         ListView listView = findViewById(R.id.list_view_choose_one_package);
         listView.setAdapter(packageArrayAdapter);

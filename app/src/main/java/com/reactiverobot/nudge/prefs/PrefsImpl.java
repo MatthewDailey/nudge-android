@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.reactiverobot.nudge.info.PackageType;
 
@@ -17,6 +18,8 @@ import java.util.Set;
 
 
 public class PrefsImpl implements Prefs {
+
+    private static final String TAG = Prefs.class.getName();
 
     // TODO: Fix defaults for both sections.
     private static Set<String> getDefaultBlockedPackages() {
@@ -89,8 +92,12 @@ public class PrefsImpl implements Prefs {
     synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean badHabit) {
         updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, badHabit);
 
+        Log.d(TAG, "Selected " + packageName + " : " + badHabit + " self: " + this);
         packageTypeToCheckedSubscriber.get(packageType).stream()
-                .forEach(subscriber -> subscriber.onCheckedUpdate());
+                .forEach(subscriber -> {
+                    Log.d(TAG, "pinging subscriber");
+                    subscriber.onCheckedUpdate();
+                });
 
         if (badHabit && !getPinnedPackages(packageType).contains(packageName)) {
             updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getPinnedPackages(packageType), packageName, true);

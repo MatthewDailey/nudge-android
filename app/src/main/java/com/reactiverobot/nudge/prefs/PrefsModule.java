@@ -8,7 +8,12 @@ import dagger.Provides;
 @Module
 public class PrefsModule {
 
+    private static Prefs prefs = null;
+
     @Provides Prefs prefs(Context context) {
-        return PrefsImpl.from(context);
+        if (prefs == null) {
+            prefs = PrefsImpl.from(context);
+        }
+        return prefs;
     }
 }
