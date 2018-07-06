@@ -19,6 +19,7 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         implements PackageListManager.PackageListHandler, Prefs.CheckedSubscriber {
