@@ -8,6 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import com.reactiverobot.nudge.info.FullPackageListManager;
+import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
@@ -22,7 +24,7 @@ public class SelectPackagesActivity extends AppCompatActivity {
     @Inject
     Prefs prefs;
     @Inject
-    PackageListManagerSupplier packageListManagerSupplier;
+    PackageInfoManager packageInfoManager;
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -32,7 +34,8 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
+        PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter
+                .builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
                 .searchView(findViewById(R.id.search_packages))
                 .attach(this, getPackageType());
 
