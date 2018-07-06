@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import com.reactiverobot.nudge.info.FullPackageListManager;
@@ -37,6 +38,12 @@ public class SelectPackagesActivity extends AppCompatActivity {
         PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter
                 .builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
                 .searchView(findViewById(R.id.search_packages))
+                .onLoadPackagesComplete(() -> {
+                    runOnUiThread(() -> {
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                        findViewById(R.id.search_packages).setVisibility(View.VISIBLE);
+                    });
+                })
                 .attach(this, getPackageType());
 
         ListView listView = findViewById(R.id.list_all_packages);
