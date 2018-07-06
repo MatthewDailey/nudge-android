@@ -15,6 +15,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -86,8 +87,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_no_search);
 
         PackageArrayAdapter.Builder builder = PackageArrayAdapter.builder(packageListManagerSupplier, prefs);
-        builder.attach(this, R.id.list_view_bad_habits, PackageType.BAD_HABIT);
-        builder.attach(this, R.id.list_view_good_options, PackageType.GOOD_OPTION);
+        ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
+        ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
 
         setupTabsAndTitle();
 

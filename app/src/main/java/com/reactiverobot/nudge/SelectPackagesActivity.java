@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
@@ -31,9 +32,12 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
+        PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter.builder(packageListManagerSupplier, prefs)
                 .searchView(findViewById(R.id.search_packages))
-                .attach(this, R.id.list_all_packages, getPackageType());
+                .attach(this, getPackageType());
+
+        ListView listView = findViewById(R.id.list_all_packages);
+        listView.setAdapter(packageArrayAdapter);
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);

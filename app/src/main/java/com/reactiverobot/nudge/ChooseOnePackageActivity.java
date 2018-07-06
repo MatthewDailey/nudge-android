@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.reactiverobot.nudge.info.FullPackageListManager;
@@ -40,7 +41,10 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
                 .onLoadPackagesComplete(() -> {
                     runOnUiThread(() -> findViewById(R.id.progressBar).setVisibility(View.GONE));
                 })
-            .attach(this, R.id.list_view_choose_one_package, getPackageType());
+            .attach(this, getPackageType());
+
+        ListView listView = findViewById(R.id.list_view_choose_one_package);
+        listView.setAdapter(packageArrayAdapter);
 
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);

@@ -56,7 +56,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             return this;
         }
 
-        public PackageArrayAdapter attach(Activity activity, int listViewId, PackageType packageType) {
+        public PackageArrayAdapter attach(Activity activity, PackageType packageType) {
             PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
 
             PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
@@ -73,9 +73,6 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                             return packageInfo.isSelected(packageType);
                         }
                     }, packageListManager);
-
-            ListView packageList = activity.findViewById(listViewId);
-            packageList.setAdapter(packageAdapter);
 
             packageListManager.subscribe(packageAdapter);
             packageListManager.initialize(this.onLoadPackagesComplete);
