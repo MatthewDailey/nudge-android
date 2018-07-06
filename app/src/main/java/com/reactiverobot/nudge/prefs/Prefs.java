@@ -24,9 +24,9 @@ public interface Prefs {
 
     void setPackageSelected(PackageType packageType, String packageName, boolean isSelected);
 
-    void addSubscriber(PinnedSubscriber subscriber, PackageType packageType);
+    void unpinPackage(PackageType packageType, String packageName);
 
-    void addSubscriber(CheckedSubscriber subscriber, PackageType packageType);
+    void addSubscriber(PinnedSubscriber subscriber, PackageType packageType);
 
     boolean hasCompletedOnboarding();
 

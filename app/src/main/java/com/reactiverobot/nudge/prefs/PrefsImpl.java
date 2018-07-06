@@ -89,22 +89,27 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean badHabit) {
-        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, badHabit);
+    synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean selected) {
+        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, selected);
 
-        Log.d(TAG, "Selected " + packageName + " : " + badHabit + " self: " + this);
         packageTypeToCheckedSubscriber.get(packageType).stream()
-                .forEach(subscriber -> {
-                    Log.d(TAG, "pinging subscriber");
-                    subscriber.onCheckedUpdate();
-                });
+                .forEach(subscriber -> subscriber.onCheckedUpdate());
 
-        if (badHabit && !getPinnedPackages(packageType).contains(packageName)) {
+        if (selected && !getPinnedPackages(packageType).contains(packageName)) {
             updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getPinnedPackages(packageType), packageName, true);
 
             packageTypeToPinnedSubscribers.get(packageType).stream()
                     .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
+    }
+
+    @Override
+    synchronized public void unpinPackage(PackageType packageType, String packageName) {
+        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, false);
+        updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, false);
+
+        packageTypeToPinnedSubscribers.get(packageType).stream()
+                .forEach(subscriber -> subscriber.onPinned(packageName, false));
     }
 
     @Override
@@ -120,11 +125,6 @@ public class PrefsImpl implements Prefs {
     @Override
     public void addSubscriber(PinnedSubscriber subscriber, PackageType packageType) {
         packageTypeToPinnedSubscribers.get(packageType).add(subscriber);
-    }
-
-    @Override
-    public void addSubscriber(CheckedSubscriber subscriber, PackageType packageType) {
-        packageTypeToCheckedSubscriber.get(packageType).add(subscriber);
     }
 
     @Override

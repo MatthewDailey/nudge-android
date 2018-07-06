@@ -28,14 +28,16 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     private static final String TAG = PackageArrayAdapter.class.getName();
 
     private final Activity activity;
+    @NonNull private final PackageType packageType;
     private final CheckHandler checkHandler;
     private final PackageListManager packageListManager;
 
     @Nullable private final PackageInfoHandler clickHandler;
     @Nullable private final PackageInfoHandler longPressHandler;
 
+
     public interface PackageInfoHandler {
-        void handle(PackageInfo packageInfo);
+        void handle(PackageType addapterPackageType, PackageInfo packageInfo);
     }
 
     public interface CheckHandler {
@@ -100,6 +102,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             };
             PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
                     activity,
+                    packageType,
                     shouldIncludeCheckbox ? checkHandler : null,
                     packageListManager,
                     clickHandler,
@@ -123,6 +126,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     }
 
     public PackageArrayAdapter(@NonNull Activity context,
+                               @NonNull PackageType packageType,
                                @Nullable CheckHandler checkHandler,
                                @NonNull PackageListManager packageListManager,
                                @Nullable PackageInfoHandler clickHandler,
@@ -130,6 +134,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         super(context, R.layout.list_item_package);
 
         this.activity = context;
+        this.packageType = packageType;
         this.checkHandler = checkHandler;
         this.packageListManager = packageListManager;
         this.clickHandler = clickHandler;
@@ -214,13 +219,13 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         if (this.clickHandler != null) {
             convertView.setOnClickListener(view -> {
                 Log.d(TAG, "CLICKED");
-                this.clickHandler.handle(packageInfo);
+                this.clickHandler.handle(packageType, packageInfo);
             });
         }
 
         if (this.longPressHandler != null) {
             convertView.setOnLongClickListener(view -> {
-                this.longPressHandler.handle(packageInfo);
+                this.longPressHandler.handle(packageType, packageInfo);
                 return true;
             });
         }

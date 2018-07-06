@@ -87,9 +87,12 @@ public class PinnedPackageListManager implements PackageListManager {
 
     @Override
     public void onPinned(String packageName, boolean pinned) {
-        pinnedPackages.add(packageInfoManager.get(packageName));
-        pinnedPackages.sort(ALPHABETIC);
-        // TODO Handle un-pinned case.
+        if (pinned) {
+            pinnedPackages.add(packageInfoManager.get(packageName));
+            pinnedPackages.sort(ALPHABETIC);
+        } else {
+            pinnedPackages.remove(packageInfoManager.get(packageName));
+        }
 
         publishPackageList();
     }

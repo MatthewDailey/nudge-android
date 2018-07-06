@@ -42,8 +42,8 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
                 .onLoadPackagesComplete(() -> {
                     runOnUiThread(() -> findViewById(R.id.progressBar).setVisibility(View.GONE));
                 })
-                .onClick(packageInfo -> {
-                    prefs.setPackageSelected(getPackageType(), packageInfo.packageName, true);
+                .onClick((packageType, packageInfo) -> {
+                    prefs.setPackageSelected(packageType, packageInfo.packageName, true);
                     finish();
                 })
                 .attach(this, getPackageType());

@@ -88,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
 
         PackageArrayAdapter.Builder builder = PackageArrayAdapter
                 .builder(packageListManagerSupplier, prefs)
+                .onLongPress((packageType, packageInfo) -> {
+                    Log.d(TAG, "LONG PRESS");
+                    prefs.unpinPackage(packageType, packageInfo.packageName);
+                })
                 .withCheckbox();
         ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
         ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
