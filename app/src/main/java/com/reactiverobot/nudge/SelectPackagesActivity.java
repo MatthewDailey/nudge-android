@@ -38,6 +38,7 @@ public class SelectPackagesActivity extends AppCompatActivity {
         PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter
                 .builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
                 .searchView(findViewById(R.id.search_packages))
+                .withCheckbox()
                 .onLoadPackagesComplete(() -> {
                     runOnUiThread(() -> {
                         findViewById(R.id.progressBar).setVisibility(View.GONE);

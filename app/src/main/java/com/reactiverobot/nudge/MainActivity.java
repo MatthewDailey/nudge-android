@@ -86,7 +86,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_no_search);
 
-        PackageArrayAdapter.Builder builder = PackageArrayAdapter.builder(packageListManagerSupplier, prefs);
+        PackageArrayAdapter.Builder builder = PackageArrayAdapter
+                .builder(packageListManagerSupplier, prefs)
+                .withCheckbox();
         ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
         ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
 

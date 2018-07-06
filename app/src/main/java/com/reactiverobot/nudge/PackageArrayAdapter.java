@@ -2,6 +2,7 @@ package com.reactiverobot.nudge;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         private SearchView searchView = null;
         private Runnable onLoadPackagesComplete = null;
+        private boolean shouldIncludeCheckbox = false;
 
         public Builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
             this.packageListManagerSupplier = packageListManagerSupplier;
@@ -56,23 +58,30 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             return this;
         }
 
+        public Builder withCheckbox() {
+            this.shouldIncludeCheckbox = true;
+            return this;
+        }
+
         public PackageArrayAdapter attach(Activity activity, PackageType packageType) {
             PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
 
+            CheckHandler checkHandler = new CheckHandler() {
+                @Override
+                public void accept(PackageInfo packageInfo, boolean isChecked) {
+                    packageInfo.setSelected(packageType, isChecked);
+                    prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
+                }
+
+                @Override
+                public boolean isChecked(PackageInfo packageInfo) {
+                    return packageInfo.isSelected(packageType);
+                }
+            };
             PackageArrayAdapter packageAdapter = new PackageArrayAdapter(
                     activity,
-                    new PackageArrayAdapter.CheckHandler() {
-                        @Override
-                        public void accept(PackageInfo packageInfo, boolean isChecked) {
-                            packageInfo.setSelected(packageType, isChecked);
-                            prefs.setPackageSelected(packageType, packageInfo.packageName, isChecked);
-                        }
-
-                        @Override
-                        public boolean isChecked(PackageInfo packageInfo) {
-                            return packageInfo.isSelected(packageType);
-                        }
-                    }, packageListManager);
+                    shouldIncludeCheckbox ? checkHandler : null,
+                    packageListManager);
 
             packageListManager.subscribe(packageAdapter);
             packageListManager.initialize(this.onLoadPackagesComplete);
@@ -92,7 +101,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         return new Builder(packageListManagerSupplier, prefs);
     }
 
-    public PackageArrayAdapter(@NonNull Activity context, CheckHandler checkHandler, PackageListManager packageListManager) {
+    public PackageArrayAdapter(@NonNull Activity context, @Nullable CheckHandler checkHandler, @NonNull PackageListManager packageListManager) {
         super(context, R.layout.list_item_package);
 
         this.activity = context;
@@ -148,8 +157,14 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         CheckBox blockPackageCheckbox = convertView.findViewById(
                 R.id.checkbox_block_package);
-        blockPackageCheckbox.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> this.checkHandler.accept(packageInfo, isChecked));
+        if (this.checkHandler != null) {
+            blockPackageCheckbox.setOnCheckedChangeListener(
+                    (buttonView, isChecked) -> this.checkHandler.accept(packageInfo, isChecked));
+            ((CheckBox) convertView.findViewById(R.id.checkbox_block_package))
+                    .setChecked(checkHandler.isChecked(packageInfo));
+        } else {
+            blockPackageCheckbox.setVisibility(View.GONE);
+        }
 
         if (packageInfo.iconDrawable != null) {
             ((ImageView) convertView.findViewById(R.id.image_view_app_icon))
@@ -168,9 +183,6 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         ((TextView) convertView.findViewById(R.id.text_view_package_name))
                 .setText(packageInfo.packageName);
-
-        ((CheckBox) convertView.findViewById(R.id.checkbox_block_package))
-            .setChecked(checkHandler.isChecked(packageInfo));
 
         return convertView;
     }
