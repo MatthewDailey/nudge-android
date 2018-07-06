@@ -5,8 +5,9 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 
 ## TODO
 
-- [ ] Implement selecting a single app activity
+- [ ] Stream-line choosing package list manager
 - [ ] Allow un-pinning via long-press
 - [ ] Show better list of all apps (not just user installed)
+- [ ] Improve icon
 - [ ] Improve parsing of foreground app.
 - [ ] Block websites as well
