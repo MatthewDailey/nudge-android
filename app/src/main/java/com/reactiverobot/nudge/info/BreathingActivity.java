@@ -1,5 +1,7 @@
 package com.reactiverobot.nudge.info;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,6 +37,11 @@ public class BreathingActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                ObjectAnimator rotation = ObjectAnimator.ofFloat(block, "rotation", 0f, 90f);
+                rotation.setDuration(4000);
+                AnimatorSet animatorSet = new AnimatorSet();
+                animatorSet.play(rotation);
+                animatorSet.start();
                 block.startAnimation(scaleIn);
             }
 
