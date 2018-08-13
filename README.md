@@ -5,9 +5,6 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 
 ## TODO
 
-- [ ] dialog to unpin
-- [ ] DRY out *PackageListManagers
-- [ ] Show better list of all apps (not just user installed)
 - [ ] Improve parsing of foreground app.
 - [ ] Block websites as well
 
