@@ -4,13 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/text_breathe_instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:alpha="1"
+        android:fontFamily="@font/roboto_thin"
+        android:text="IN"
+        android:textAlignment="center"
+        android:textColor="@color/grey_6"
+        android:textSize="40sp" />
+
     <FrameLayout
         android:id="@+id/block"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:background="@color/colorSecondaryDark"
-        android:layout_gravity="center">
-
-    </FrameLayout>
+        android:layout_gravity="center"/>
 
 </FrameLayout>
