@@ -1,5 +1,7 @@
 package com.reactiverobot.nudge.info;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
@@ -13,7 +15,15 @@ import com.reactiverobot.nudge.R;
 public class BreathingActivity extends AppCompatActivity {
 
     public static final int SCALE_FACTOR = 10;
-    int currentLayout = R.layout.activity_breathing;
+
+    private void afterAnimator(AnimatorSet animatorSet, Runnable after) {
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                after.run();
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,49 +33,31 @@ public class BreathingActivity extends AppCompatActivity {
 
         View block = findViewById(R.id.block);
 
-        ScaleAnimation scaleOut = new ScaleAnimation(1, SCALE_FACTOR, 1, SCALE_FACTOR, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleOut.setDuration(4000);
+        AnimatorSet scaleOutAnimator = new AnimatorSet();
+        scaleOutAnimator.playTogether(
+                ObjectAnimator.ofFloat(block, "scaleX", SCALE_FACTOR),
+                ObjectAnimator.ofFloat(block, "scaleY", SCALE_FACTOR));
+        scaleOutAnimator.setDuration(4000);
+        scaleOutAnimator.start();
 
-        ScaleAnimation scaleIn = new ScaleAnimation(SCALE_FACTOR, 1, SCALE_FACTOR, 1,  Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleIn.setDuration(4000);
+        AnimatorSet scaleInAnimator = new AnimatorSet();
+        scaleInAnimator.playTogether(
+                ObjectAnimator.ofFloat(block, "scaleX", 1),
+                ObjectAnimator.ofFloat(block, "scaleY", 1));
+        scaleInAnimator.setDuration(4000);
 
-        scaleOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(block, "rotation", 0f, 90f);
+        rotation.setDuration(2000);
 
-            }
+        AnimatorSet outerRotation = new AnimatorSet();
+        outerRotation.play(rotation);
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                ObjectAnimator rotation = ObjectAnimator.ofFloat(block, "rotation", 0f, 90f);
-                rotation.setDuration(4000);
-                AnimatorSet animatorSet = new AnimatorSet();
-                animatorSet.play(rotation);
-                animatorSet.start();
-                block.startAnimation(scaleIn);
-            }
+        AnimatorSet innerRotation = new AnimatorSet();
+        innerRotation.play(rotation);
 
-            @Override
-            public void onAnimationRepeat(Animation animation) { }
-        });
-
-        scaleIn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                block.startAnimation(scaleOut);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        block.startAnimation(scaleOut);
+        afterAnimator(scaleOutAnimator, () -> outerRotation.start());
+        afterAnimator(outerRotation, () -> scaleInAnimator.start());
+        afterAnimator(scaleInAnimator, () -> innerRotation.start());
+        afterAnimator(innerRotation, () -> scaleOutAnimator.start());
     }
 }
