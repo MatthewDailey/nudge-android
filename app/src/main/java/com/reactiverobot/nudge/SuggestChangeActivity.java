@@ -52,7 +52,11 @@ public class SuggestChangeActivity extends Activity {
             if (packageInfo != null) {
                 Button openSuggestionButton = convertView.findViewById(R.id.button_open_suggestion);
 
-                openSuggestionButton.setText(packageInfo.name);
+                if (packageName.equals("com.reactiverobot.nudge")) {
+                    openSuggestionButton.setText("Take a Breathe");
+                } else {
+                    openSuggestionButton.setText(packageInfo.name);
+                }
 
                 if (packageInfo.iconDrawable != null) {
                     packageInfo.iconDrawable.setBounds(0, 0, 100, 100);
@@ -68,9 +72,15 @@ public class SuggestChangeActivity extends Activity {
     }
 
     private void launchApplicationAndClose(String packageName) {
-        Intent i = getPackageManager().getLaunchIntentForPackage(packageName);
-        startActivity(i);
+        Intent i;
 
+        if (packageName.equals("com.reactiverobot.nudge")) {
+            i = new Intent(this, BreatheActivity.class);
+        } else {
+            i = getPackageManager().getLaunchIntentForPackage(packageName);
+        }
+
+        startActivity(i);
         finish();
     }
 
@@ -87,6 +97,8 @@ public class SuggestChangeActivity extends Activity {
 
         SuggestedAppAdapter suggestedAppAdapter = new SuggestedAppAdapter(this);
         suggestedAppAdapter.addAll(pinnedPackages);
+
+        suggestedAppAdapter.add("com.reactiverobot.nudge");
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
     }
