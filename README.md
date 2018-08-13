@@ -6,7 +6,6 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 ## TODO
 
 - [ ] dialog to unpin
-- [ ] unselect when un-pinning
 - [ ] DRY out *PackageListManagers
 - [ ] Show better list of all apps (not just user installed)
 - [ ] Improve parsing of foreground app.

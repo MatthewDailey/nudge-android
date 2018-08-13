@@ -235,7 +235,6 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     @Override
     public void accept(List<PackageInfo> packageInfos) {
-        Log.d(TAG, "accipting packages");
         this.activity.runOnUiThread(() -> {
             clear();
             addAll(packageInfos);

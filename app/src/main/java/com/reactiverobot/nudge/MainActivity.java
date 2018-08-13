@@ -74,6 +74,22 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    private void showUnpinDialog(PackageType packageType, PackageInfo packageInfo) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("This package will no longer appear in this list. " +
+                "You can always add it back with the '+' button.")
+                .setTitle("Remove '" + packageInfo.name + "'?");
+
+        builder.setPositiveButton("Remove",
+                (dialog, id) -> prefs.unpinPackage(packageType, packageInfo.packageName));
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+
+        builder.create().show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -88,10 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
         PackageArrayAdapter.Builder builder = PackageArrayAdapter
                 .builder(packageListManagerSupplier, prefs)
-                .onLongPress((packageType, packageInfo) -> {
-                    Log.d(TAG, "LONG PRESS");
-                    prefs.unpinPackage(packageType, packageInfo.packageName);
-                })
+                .onLongPress((packageType, packageInfo) -> showUnpinDialog(packageType, packageInfo))
                 .withCheckbox();
         ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
         ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
