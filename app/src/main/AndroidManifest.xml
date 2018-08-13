@@ -23,13 +23,16 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop">
-        </activity>
-        <activity
-            android:name=".info.BreathingActivity"
-            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".BreatheActivity"
+            android:label="Breathe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -37,14 +40,17 @@
         <activity
             android:name=".SuggestChangeActivity"
             android:label="SuggestionActivity"
+            android:launchMode="singleTop"
             android:theme="@android:style/Theme.Material.Light.Dialog.NoActionBar">
         </activity>
+
         <activity android:name=".SelectPackagesActivity"
             android:parentActivityName=".OnboardingActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".OnboardingActivity" />
         </activity>
+
         <activity android:name=".ChooseOnePackageActivity"
             android:label="ChooseOne"
             android:parentActivityName=".MainActivity" >
@@ -52,6 +58,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
         <activity
             android:name=".OnboardingActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

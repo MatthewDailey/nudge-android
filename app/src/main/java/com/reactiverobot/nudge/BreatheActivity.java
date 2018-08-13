@@ -1,4 +1,4 @@
-package com.reactiverobot.nudge.info;
+package com.reactiverobot.nudge;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -9,9 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.reactiverobot.nudge.R;
-
-public class BreathingActivity extends AppCompatActivity {
+public class BreatheActivity extends AppCompatActivity {
 
     public static final int SCALE_FACTOR = 10;
 
