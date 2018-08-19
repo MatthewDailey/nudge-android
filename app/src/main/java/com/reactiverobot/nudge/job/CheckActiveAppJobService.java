@@ -87,7 +87,9 @@ public class CheckActiveAppJobService extends JobService {
 
             Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
             if (blockedPackages.contains(foregroundPackageName)) {
-                startActivity(new Intent(getApplicationContext(), SuggestChangeActivity.class));
+                Intent intent = new Intent(getApplicationContext(), SuggestChangeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         }
 
