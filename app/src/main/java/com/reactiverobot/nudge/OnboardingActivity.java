@@ -38,7 +38,7 @@ public class OnboardingActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_USAGE_ACCESS) {
             // Make sure the request was successful
-            if (prefs.isUsageAccessGranted()) {
+            if (prefs.isAccessibilityAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         }
@@ -81,13 +81,13 @@ public class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.button_get_started).setOnClickListener(v -> {
             changeToScene(R.layout.activity_onboarding_2);
 
-            if (prefs.isUsageAccessGranted()) {
+            if (prefs.isAccessibilityAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         });
 
         findViewById(R.id.button_open_settings).setOnClickListener(v -> {
-            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             startActivityForResult(intent, REQUEST_USAGE_ACCESS);
         });
 
