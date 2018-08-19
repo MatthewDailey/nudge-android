@@ -53,7 +53,7 @@ public class SuggestChangeActivity extends Activity {
                 Button openSuggestionButton = convertView.findViewById(R.id.button_open_suggestion);
 
                 if (packageName.equals("com.reactiverobot.nudge")) {
-                    openSuggestionButton.setText("Take a Breathe");
+                    openSuggestionButton.setText("Take a Breath");
                 } else {
                     openSuggestionButton.setText(packageInfo.name);
                 }
