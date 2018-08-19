@@ -2,10 +2,15 @@ package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.Intent;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
+import com.reactiverobot.nudge.prefs.PrefsImpl;
+
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -19,7 +24,19 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event.getPackageName().equals("com.reactiverobot.nudge")) {
+            Log.d(TAG, "Saw self, doing nothing." );
+            return;
+        }
+
         Log.d(TAG, "Got event " + event + " prefs: " + prefs.getCheckActiveEnabled());
+
+        Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
+        if (blockedPackages.contains(event.getPackageName())) {
+            Intent intent = new Intent(getApplicationContext(), SuggestChangeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -35,25 +52,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         AccessibilityServiceInfo info = getServiceInfo();
 
-        // Set the type of events that this service wants to listen to.  Others
-        // won't be passed to this service.
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-
         info.packageNames = null;
-        // Set the type of feedback your service will provide.
-//        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
-
-        // Default services are invoked only if no package-specific ones are present
-        // for the type of AccessibilityEvent generated.  This service *is*
-        // application-specific, so the flag isn't necessary.  If this was a
-        // general-purpose service, it would be worth considering setting the
-        // DEFAULT flag.
-
         info.flags = AccessibilityServiceInfo.DEFAULT;
 
-//        info.notificationTimeout = 100;
         this.setServiceInfo(info);
     }
 }

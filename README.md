@@ -6,6 +6,7 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 ## TODO
 
 - [ ] Improve parsing of foreground app.
+- [ ] close background app when backing out of selection app (https://stackoverflow.com/questions/9563404/kill-another-process-application-programmatically)
 - [ ] Block websites as well
 
 
