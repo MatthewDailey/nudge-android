@@ -6,7 +6,6 @@ import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.OnboardingActivity;
 import com.reactiverobot.nudge.SelectPackagesActivity;
 import com.reactiverobot.nudge.SuggestChangeActivity;
-import com.reactiverobot.nudge.job.CheckActiveAppJobService;
 import com.reactiverobot.nudge.prefs.PrefsModule;
 
 import dagger.Module;
@@ -26,9 +25,6 @@ abstract class AppModule {
 
     @ContributesAndroidInjector
     abstract SelectPackagesActivity contributesSelectPackagesActivity();
-
-    @ContributesAndroidInjector
-    abstract CheckActiveAppJobService contributeCheckActiveAppJobService();
 
     @ContributesAndroidInjector
     abstract ChooseOnePackageActivity contributeChooseOnePackageActivity();

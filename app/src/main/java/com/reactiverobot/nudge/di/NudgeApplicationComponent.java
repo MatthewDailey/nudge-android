@@ -3,8 +3,6 @@ package com.reactiverobot.nudge.di;
 import android.content.Context;
 
 import com.reactiverobot.nudge.info.PackageModule;
-import com.reactiverobot.nudge.job.CheckActiveAppModule;
-import com.reactiverobot.nudge.prefs.Prefs;
 import com.reactiverobot.nudge.prefs.PrefsModule;
 
 import dagger.BindsInstance;
@@ -13,7 +11,6 @@ import dagger.Component;
 @Component(modules = {
         AppModule.class,
         PrefsModule.class,
-        CheckActiveAppModule.class,
         PackageModule.class,
 })
 public interface NudgeApplicationComponent {

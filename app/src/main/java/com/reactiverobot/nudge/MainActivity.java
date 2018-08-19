@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
-import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import javax.inject.Inject;
@@ -31,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     Prefs prefs;
-    @Inject
-    CheckActiveAppJobScheduler jobScheduler;
     @Inject
     PackageInfoManager packageInfoManager;
     @Inject
