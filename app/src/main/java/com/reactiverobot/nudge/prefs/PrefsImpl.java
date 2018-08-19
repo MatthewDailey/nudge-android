@@ -60,6 +60,7 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public void setCheckActiveEnabled(boolean enabled) {
+        Log.d(TAG, "Setting checkActiveEnabled : " + enabled);
         getPrefs().edit().putBoolean(CHECK_ACTIVE_ENABLED, enabled).commit();
     }
 

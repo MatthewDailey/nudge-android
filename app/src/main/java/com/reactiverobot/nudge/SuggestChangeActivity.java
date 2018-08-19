@@ -106,20 +106,16 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppAdapter.add("com.reactiverobot.nudge");
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (isFinishing()) {
-            Log.d(TAG, "onDestroy - isFinishing");
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View closeView =  layoutInflater.inflate(R.layout.button_exit_suggestions, null);
+        Button close = closeView.findViewById(R.id.button_exit_suggestions);
+        close.setOnClickListener(view -> {
             Intent startMain = new Intent(Intent.ACTION_MAIN);
             startMain.addCategory(Intent.CATEGORY_HOME);
             startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(startMain);
-        } else {
-            Log.d(TAG, "onDestroy - other");
-        }
+        });
+        suggestedAppsView.addFooterView(closeView);
     }
 }
