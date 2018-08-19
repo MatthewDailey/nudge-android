@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
-        if (prefs.isUsageAccessGranted()) {
+        if (prefs.isAccessibilityAccessGranted()) {
             enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
         } else {
             enableServiceSwitch.setChecked(false);
@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
     private void showOpenSettingsAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Before you can enable Nudge, you need to grant it App Usage Access.")
-                .setTitle("App Usage Access is required");
+        builder.setMessage("Before you can enable Nudge, you need to grant it Accessibility Access.")
+                .setTitle("Accessibility Access is required");
 
         builder.setPositiveButton("Open Settings",
-                (dialog, id) -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
+                (dialog, id) -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
         builder.setNegativeButton("Cancel", (dialog, id) -> {
             // User cancelled the dialog
         });
@@ -108,12 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
-            if (prefs.isUsageAccessGranted()) {
-                if (isEnabled) {
-                    jobScheduler.scheduleJob();
-                } else {
-                    jobScheduler.cancelJob();
-                }
+            if (prefs.isAccessibilityAccessGranted()) {
+                prefs.setCheckActiveEnabled(isEnabled);
             } else {
                 enableServiceSwitch.setChecked(false);
                 showOpenSettingsAlertDialog();

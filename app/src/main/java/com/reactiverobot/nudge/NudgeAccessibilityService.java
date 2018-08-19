@@ -29,9 +29,13 @@ public class NudgeAccessibilityService extends AccessibilityService {
             return;
         }
 
-        Log.d(TAG, "Got event " + event + " prefs: " + prefs.getCheckActiveEnabled());
+        if (!prefs.getCheckActiveEnabled()) {
+            Log.d(TAG, "Check is not enabled.");
+            return;
+        }
 
         Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
+
         if (blockedPackages.contains(event.getPackageName())) {
             Intent intent = new Intent(getApplicationContext(), SuggestChangeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

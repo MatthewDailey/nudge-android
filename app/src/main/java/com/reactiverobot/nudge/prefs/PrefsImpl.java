@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 
 import com.reactiverobot.nudge.info.PackageType;
 
@@ -153,5 +154,11 @@ public class PrefsImpl implements Prefs {
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    @Override
+    public boolean isAccessibilityAccessGranted() {
+        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        return am.isEnabled();
     }
 }
