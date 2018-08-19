@@ -28,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".BreatheActivity"
             android:label="Breathe">
@@ -66,6 +67,15 @@
             android:label="@string/title_activity_onboarding"
             android:theme="@style/FullscreenTheme">
         </activity>
+
+        <service
+            android:name=".NudgeAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+        >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="preloaded_fonts"

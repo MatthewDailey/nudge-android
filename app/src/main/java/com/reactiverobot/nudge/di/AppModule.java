@@ -2,6 +2,7 @@ package com.reactiverobot.nudge.di;
 
 import com.reactiverobot.nudge.ChooseOnePackageActivity;
 import com.reactiverobot.nudge.MainActivity;
+import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.OnboardingActivity;
 import com.reactiverobot.nudge.SelectPackagesActivity;
 import com.reactiverobot.nudge.SuggestChangeActivity;
@@ -31,4 +32,7 @@ abstract class AppModule {
 
     @ContributesAndroidInjector
     abstract ChooseOnePackageActivity contributeChooseOnePackageActivity();
+
+    @ContributesAndroidInjector
+    abstract NudgeAccessibilityService contribuesNudgeAcccessibilityService();
 }
