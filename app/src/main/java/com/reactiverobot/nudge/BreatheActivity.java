@@ -53,7 +53,6 @@ public class BreatheActivity extends AppCompatActivity {
         setContentView(R.layout.activity_breathing);
 
         View block = findViewById(R.id.block);
-        TextView breatheInstructions = findViewById(R.id.text_breathe_instruction);
 
         AnimatorSet scaleOutAnimator = new AnimatorSet();
         scaleOutAnimator.playTogether(
