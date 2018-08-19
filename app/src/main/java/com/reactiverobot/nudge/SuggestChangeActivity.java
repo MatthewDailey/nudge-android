@@ -1,9 +1,11 @@
 package com.reactiverobot.nudge;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,10 @@ import dagger.android.AndroidInjection;
 
 public class SuggestChangeActivity extends Activity {
 
+    private final static String TAG = SuggestChangeActivity.class.getName();
+
+    public final static String EXTRA_APP_BEING_BLOCKED = "extra_app_being_blocked";
+
     @Inject
     PackageInfoManager packageInfoManager;
     @Inject
@@ -30,11 +36,8 @@ public class SuggestChangeActivity extends Activity {
 
     class SuggestedAppAdapter extends ArrayAdapter<String> {
 
-        private final Activity activity;
-
         public SuggestedAppAdapter(@NonNull Activity context) {
             super(context, R.layout.button_launch_suggestion);
-            activity = context;
         }
 
         @Override
@@ -86,6 +89,8 @@ public class SuggestChangeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
@@ -101,5 +106,20 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppAdapter.add("com.reactiverobot.nudge");
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            Log.d(TAG, "onDestroy - isFinishing");
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+        } else {
+            Log.d(TAG, "onDestroy - other");
+        }
     }
 }

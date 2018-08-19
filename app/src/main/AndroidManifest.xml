@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.reactiverobot.nudge">
 
     <uses-permission
-        android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
+        android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -16,9 +14,6 @@
         android:roundIcon="@mipmap/ic_launcher_fish_border_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".job.CheckActiveAppJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name=".MainActivity"

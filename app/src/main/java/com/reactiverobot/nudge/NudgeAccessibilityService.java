@@ -11,6 +11,7 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import com.reactiverobot.nudge.prefs.PrefsImpl;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
 
@@ -18,13 +19,19 @@ import dagger.android.AndroidInjection;
 
 public class NudgeAccessibilityService extends AccessibilityService {
     private final static String TAG = NudgeAccessibilityService.class.getName();
+    private final static int DEBOUNCE_MS = 500;
+
 
     @Inject
     Prefs prefs;
 
+    private final AtomicLong nextAllowedLaunch = new AtomicLong(0);
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (event.getPackageName().equals("com.reactiverobot.nudge")) {
+        String eventPackageName = event.getPackageName().toString();
+
+        if (eventPackageName.equals("com.reactiverobot.nudge")) {
             Log.d(TAG, "Saw self, doing nothing." );
             return;
         }
@@ -34,13 +41,37 @@ public class NudgeAccessibilityService extends AccessibilityService {
             return;
         }
 
+        Log.d(TAG, "Saw package : " + eventPackageName);
+
         Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
 
-        if (blockedPackages.contains(event.getPackageName())) {
-            Intent intent = new Intent(getApplicationContext(), SuggestChangeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        if (blockedPackages.contains(eventPackageName)) {
+            launchSuggestChangeActivity(eventPackageName);
         }
+    }
+
+    private synchronized void launchSuggestChangeActivity(String eventPackageName) {
+        long currentTime = System.currentTimeMillis();
+
+        long allowedTime = nextAllowedLaunch.getAndUpdate((allowedNextTime) -> {
+            if (currentTime < allowedNextTime) {
+                return allowedNextTime;
+            }
+
+            return currentTime + DEBOUNCE_MS;
+        });
+
+        if (currentTime < allowedTime) {
+            Log.d(TAG, "Debouncing launching SuggestChangeActivity");
+            return;
+        }
+
+        Log.d(TAG, "Launching SuggestChangeActivity");
+
+        Intent intent = new Intent(getApplicationContext(), SuggestChangeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(SuggestChangeActivity.EXTRA_APP_BEING_BLOCKED, eventPackageName);
+        startActivity(intent);
     }
 
     @Override
