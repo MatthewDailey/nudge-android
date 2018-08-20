@@ -29,8 +29,13 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        String eventPackageName = event.getPackageName().toString();
+        CharSequence packageName = event.getPackageName();
+        if (packageName == null) {
+            Log.d(TAG, "Saw event with no package name, doing nothing");
+            return;
+        }
 
+        String eventPackageName = packageName.toString();
         if (eventPackageName.equals("com.reactiverobot.nudge")) {
             Log.d(TAG, "Saw self, doing nothing." );
             return;

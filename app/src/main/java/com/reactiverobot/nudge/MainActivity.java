@@ -165,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         shrink.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
             }
 
             @Override
