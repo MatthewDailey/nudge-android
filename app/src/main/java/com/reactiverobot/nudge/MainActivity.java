@@ -1,6 +1,7 @@
 package com.reactiverobot.nudge;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -113,12 +114,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.fab_select_package).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickFab();
-            }
-        });
+        findViewById(R.id.fab_select_package).setOnClickListener(view -> onClickFab());
     }
 
     private void onClickFab() {
@@ -150,18 +146,15 @@ public class MainActivity extends AppCompatActivity {
         host.setOnTabChangedListener(s -> {
             if (s == "Tab One") {
                 currentFocusPackageType = PackageType.BAD_HABIT;
-                animateFab(0);
+                animateFab();
             } else {
                 currentFocusPackageType = PackageType.GOOD_OPTION;
-                animateFab(1);
+                animateFab();
             }
         });
     }
 
-    int[] colorIntArray = {R.color.colorPrimary, R.color.colorPrimary};
-    int[] iconIntArray = {R.drawable.ic_action_add, R.drawable.ic_action_add};
-
-    protected void animateFab(final int position) {
+    protected void animateFab() {
         FloatingActionButton fab = findViewById(R.id.fab_select_package);
 
         fab.clearAnimation();
@@ -178,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 // Change FAB color and icon
-                fab.setBackgroundTintList(getResources().getColorStateList(colorIntArray[position]));
-                fab.setImageDrawable(getResources().getDrawable(iconIntArray[position], null));
+                fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_add, null));
 
                 // Scale up animation
                 ScaleAnimation expand =  new ScaleAnimation(0.2f, 1f, 0.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
