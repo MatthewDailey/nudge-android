@@ -111,6 +111,7 @@ public class SuggestChangeActivity extends Activity {
         View closeView =  layoutInflater.inflate(R.layout.button_exit_suggestions, null);
         Button close = closeView.findViewById(R.id.button_exit_suggestions);
         close.setOnClickListener(view -> {
+            finish();
             Intent startMain = new Intent(Intent.ACTION_MAIN);
             startMain.addCategory(Intent.CATEGORY_HOME);
             startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
