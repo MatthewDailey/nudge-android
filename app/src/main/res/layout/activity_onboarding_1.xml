@@ -15,7 +15,7 @@
         android:layout_marginStart="64dp"
         android:layout_marginTop="32dp"
         android:layout_height="240dp"
-        android:src="@drawable/title_and_fish_border"
+        android:src="@drawable/title_and_fish"
         app:layout_constraintBottom_toTopOf="@id/text_landing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
