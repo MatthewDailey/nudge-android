@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.reactiverobot.nudge.info.PackageType;
 
 import java.util.ArrayList;
@@ -86,6 +87,8 @@ public class PrefsImpl implements Prefs {
         } else {
             originalSet.remove(toUpdate);
         }
+
+        FirebaseAnalytics.getInstance(context).setUserProperty(setKey, String.valueOf(originalSet.size()));
 
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
