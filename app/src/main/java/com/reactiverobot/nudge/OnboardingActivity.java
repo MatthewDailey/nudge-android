@@ -14,6 +14,7 @@ import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.View;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -76,6 +77,9 @@ public class OnboardingActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
+        FirebaseAnalytics.getInstance(this)
+                .logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, new Bundle());
+
         setContentView(R.layout.activity_onboarding_1);
 
         findViewById(R.id.button_get_started).setOnClickListener(v -> {
@@ -102,6 +106,9 @@ public class OnboardingActivity extends AppCompatActivity {
             prefs.setCheckActiveEnabled(true);
             startActivity(new Intent(this, MainActivity.class));
             finish();
+
+            FirebaseAnalytics.getInstance(this)
+                    .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, new Bundle());
         });
     }
 

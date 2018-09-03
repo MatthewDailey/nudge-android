@@ -33,6 +33,8 @@ dependencies {
     implementation 'com.google.dagger:dagger-android-support:2.14.1' // if you use the support libraries
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.14.1'
 
+    implementation 'com.google.firebase:firebase-core:16.0.3'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
