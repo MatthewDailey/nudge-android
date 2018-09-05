@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageType;
@@ -83,8 +84,15 @@ public class SuggestChangeActivity extends Activity {
             i = getPackageManager().getLaunchIntentForPackage(packageName);
         }
 
-        startActivity(i);
-        finish();
+        if (i != null) {
+            startActivity(i);
+            finish();
+        } else {
+            Toast.makeText(
+                    this,
+                    "Unable to launch app " + packageName + ", app is not responding.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
