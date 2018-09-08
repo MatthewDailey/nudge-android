@@ -36,10 +36,6 @@ public interface  PackageListManager extends Prefs.PinnedSubscriber {
             return -1;
         }
 
-        if (o2.name == null) {
-            return -1;
-        }
-
-        return 0;
+        return 1;
     };
 }
