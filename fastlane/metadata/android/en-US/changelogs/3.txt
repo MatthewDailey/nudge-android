@@ -1,0 +1,1 @@
+Fixed bug while attempting to pick an app.
