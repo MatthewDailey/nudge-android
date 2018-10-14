@@ -15,6 +15,15 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_marginTop="-6dp"
+        />
+
     <!-- To prevent auto-focus on SearchView -->
     <LinearLayout
         android:focusable="true"
@@ -24,6 +33,7 @@
 
     <SearchView
         android:id="@+id/search_packages"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:queryHint="Search Apps"

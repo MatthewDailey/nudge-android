@@ -1,8 +1,10 @@
 package com.reactiverobot.nudge.info;
 
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.google.firebase.perf.metrics.AddTrace;
 import com.reactiverobot.nudge.PackageInfo;
@@ -15,9 +17,28 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PackageListManagerImpl implements
-        PackageListManager,
-        Prefs.PinnedSubscriber {
+public class PinnedAndFullPackageListManager implements PackageListManager {
+
+    public static class Supply implements PackageListManagerSupplier {
+
+        private final Context context;
+        private final PackageInfoManager packageInfoManager;
+        private final Prefs prefs;
+
+        public Supply(Context context, PackageInfoManager packageInfoManager, Prefs prefs) {
+            this.context = context;
+            this.packageInfoManager = packageInfoManager;
+            this.prefs = prefs;
+        }
+
+        @Override
+        public PackageListManager get(PackageType packageType) {
+            return new PinnedAndFullPackageListManager(
+                    context.getPackageManager(),
+                    packageInfoManager,
+                    () -> prefs.getPinnedPackages(packageType));
+        }
+    }
 
     private List<PackageListHandler> subscribers = new ArrayList<>();
 
@@ -31,21 +52,17 @@ public class PackageListManagerImpl implements
 
     private final Supplier<Set<String>> pinnedPackagesSupplier;
 
-    public PackageListManagerImpl(PackageManager packageManager,
-                                  PackageInfoManager packageInfoManager,
-                                  Supplier<Set<String>> pinnedPackagesSupplier) {
+    public PinnedAndFullPackageListManager(PackageManager packageManager,
+                                           PackageInfoManager packageInfoManager,
+                                           Supplier<Set<String>> pinnedPackagesSupplier) {
         this.packageManager = packageManager;
         this.packageInfoManager = packageInfoManager;
         this.pinnedPackagesSupplier = pinnedPackagesSupplier;
     }
 
-    @Override
-    public void initialize() {
-        AsyncTask.execute(() -> loadAndSortPackages());
-    }
-
     @AddTrace(name = "packageListInitialization")
-    private void loadAndSortPackages() {
+    @Override
+    public void initialize(@Nullable Runnable onComplete) {
         pinnedPackages = pinnedPackagesSupplier.get()
                 .stream()
                 .map(packageName -> packageInfoManager.get(packageName))
@@ -62,6 +79,11 @@ public class PackageListManagerImpl implements
                 .map(applicationInfo -> packageInfoManager.get(applicationInfo.packageName))
                 .sorted(ALPHABETIC)
                 .collect(Collectors.toList());
+
+
+        if (onComplete != null) {
+            onComplete.run();
+        }
 
         publishPackageList();
     }
@@ -109,26 +131,6 @@ public class PackageListManagerImpl implements
         }
         publishPackageList();
     }
-
-    private final Comparator<PackageInfo> ALPHABETIC = (o1, o2) -> {
-        if (o1.name != null && o2.name != null) {
-            return o1.name.toLowerCase().compareTo(o2.name.toLowerCase());
-        }
-
-        if (o1.name == null && o2.name == null) {
-            return o1.packageName.toLowerCase().compareTo(o2.packageName.toLowerCase());
-        }
-
-        if (o1.name == null) {
-            return -1;
-        }
-
-        if (o2.name == null) {
-            return -1;
-        }
-
-        return 0;
-    };
 
     @Override
     public void onPinned(String packageName, boolean pinned) {

@@ -3,8 +3,10 @@
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#6FCF97</color>
     <color name="colorSecondaryDark">#27AE60</color>
+    <color name="colorTertiary">#56CCF2</color>
     <color name="colorAccent">#6fcf97</color>
     <color name="black">#000000</color>
+    <color name="grey_6">#666666</color>
     <color name="white">#FFFFFF</color>
 
     <color name="black_overlay">#66000000</color>

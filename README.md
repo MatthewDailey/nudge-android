@@ -5,7 +5,25 @@ apps like Facebook and Instagram and lets you redirect it to a more positive use
 
 ## TODO
 
-- [ ] Re build search
-- [ ] Deterministic sort (re-sort on every update, but debounce?)
-- [ ] Use selected good options as actual good options.
-- [ ] Improve parsing of foreground app.
+- [ ] set up app store listing
+- [ ] Block websites as well
+- [ ] continuous deployment to app store
+
+
+## Ownership
+
+PackageArrayAdapter
+- allow configuring:
+    - type of package list
+    - package action and UI for package list
+    - onLoad complete trigger for UI
+
+<*>Activity
+- configuration of package array adapter
+
+PackageInfoManager
+- cache package -> (name, icon)
+
+PackageListManager
+- Multiple types,
+- List elements representing packages

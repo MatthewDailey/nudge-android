@@ -1,20 +1,18 @@
 package com.reactiverobot.nudge;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.Switch;
 
+import com.reactiverobot.nudge.info.FullPackageListManager;
 import com.reactiverobot.nudge.info.PackageInfoManager;
-import com.reactiverobot.nudge.info.PackageListManagerImpl;
+import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
-import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import javax.inject.Inject;
@@ -37,7 +35,20 @@ public class SelectPackagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_packages);
 
-        PackageArrayAdapter.attach(this, getPackageType(), packageInfoManager, prefs, R.id.list_all_packages, R.id.search_packages);
+        PackageArrayAdapter packageArrayAdapter = PackageArrayAdapter
+                .builder(new FullPackageListManager.Supply(getPackageManager(), packageInfoManager), prefs)
+                .searchView(findViewById(R.id.search_packages))
+                .withCheckbox()
+                .onLoadPackagesComplete(() -> {
+                    runOnUiThread(() -> {
+                        findViewById(R.id.progressBar).setVisibility(View.GONE);
+                        findViewById(R.id.search_packages).setVisibility(View.VISIBLE);
+                    });
+                })
+                .attach(this, getPackageType());
+
+        ListView listView = findViewById(R.id.list_all_packages);
+        listView.setAdapter(packageArrayAdapter);
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);

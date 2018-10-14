@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.reactiverobot.nudge.info.PackageType;
 
 import java.util.ArrayList;
@@ -17,6 +20,8 @@ import java.util.Set;
 
 
 public class PrefsImpl implements Prefs {
+
+    private static final String TAG = Prefs.class.getName();
 
     // TODO: Fix defaults for both sections.
     private static Set<String> getDefaultBlockedPackages() {
@@ -56,6 +61,7 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public void setCheckActiveEnabled(boolean enabled) {
+        Log.d(TAG, "Setting checkActiveEnabled : " + enabled);
         getPrefs().edit().putBoolean(CHECK_ACTIVE_ENABLED, enabled).commit();
     }
 
@@ -82,22 +88,33 @@ public class PrefsImpl implements Prefs {
             originalSet.remove(toUpdate);
         }
 
+        FirebaseAnalytics.getInstance(context).setUserProperty(setKey, String.valueOf(originalSet.size()));
+
         getPrefs().edit().putStringSet(setKey, originalSet).commit();
     }
 
     @Override
-    synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean badHabit) {
-        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, badHabit);
+    synchronized public void setPackageSelected(PackageType packageType, String packageName, boolean selected) {
+        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, selected);
 
         packageTypeToCheckedSubscriber.get(packageType).stream()
                 .forEach(subscriber -> subscriber.onCheckedUpdate());
 
-        if (badHabit && !getPinnedPackages(packageType).contains(packageName)) {
+        if (selected && !getPinnedPackages(packageType).contains(packageName)) {
             updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getPinnedPackages(packageType), packageName, true);
 
             packageTypeToPinnedSubscribers.get(packageType).stream()
                     .forEach(subscriber -> subscriber.onPinned(packageName, true));
         }
+    }
+
+    @Override
+    synchronized public void unpinPackage(PackageType packageType, String packageName) {
+        updateStringSet(SELECTED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, false);
+        updateStringSet(PINNED_PACKAGES_PREFIX + packageType.name(), getSelectedPackages(packageType), packageName, false);
+
+        packageTypeToPinnedSubscribers.get(packageType).stream()
+                .forEach(subscriber -> subscriber.onPinned(packageName, false));
     }
 
     @Override
@@ -116,11 +133,6 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void addSubscriber(CheckedSubscriber subscriber, PackageType packageType) {
-        packageTypeToCheckedSubscriber.get(packageType).add(subscriber);
-    }
-
-    @Override
     public boolean hasCompletedOnboarding() {
         return getPrefs().getBoolean(ONBOARDING_COMPLETE, false);
     }
@@ -131,20 +143,8 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public boolean isUsageAccessGranted() {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            int mode = 0;
-            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.KITKAT) {
-                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                        applicationInfo.uid, applicationInfo.packageName);
-            }
-            return (mode == AppOpsManager.MODE_ALLOWED);
-
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
+    public boolean isAccessibilityAccessGranted() {
+        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        return am.isEnabled();
     }
 }

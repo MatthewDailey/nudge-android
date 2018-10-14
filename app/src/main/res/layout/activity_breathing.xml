@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/constraint_layout_breathing"
+    android:background="@drawable/background_gradient"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/text_breathe_instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:alpha="0.75"
+        android:fontFamily="@font/roboto_thin"
+        android:text="IN"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40sp" />
+
+    <FrameLayout
+        android:id="@+id/block"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@color/white"
+        android:alpha="0.75"
+        android:layout_gravity="center"/>
+
+</FrameLayout>

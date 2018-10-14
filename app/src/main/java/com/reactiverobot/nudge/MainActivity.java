@@ -1,22 +1,25 @@
 package com.reactiverobot.nudge;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.reactiverobot.nudge.info.PackageInfoManager;
+import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
-import com.reactiverobot.nudge.job.CheckActiveAppJobScheduler;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import javax.inject.Inject;
@@ -28,18 +31,20 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     Prefs prefs;
     @Inject
-    CheckActiveAppJobScheduler jobScheduler;
-    @Inject
     PackageInfoManager packageInfoManager;
+    @Inject
+    PackageListManagerSupplier packageListManagerSupplier;
 
     private static final String TAG = MainActivity.class.getName();
+
+    private PackageType currentFocusPackageType = PackageType.BAD_HABIT;
 
     @Override
     protected void onResume() {
         super.onResume();
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
-        if (prefs.isUsageAccessGranted()) {
+        if (prefs.isAccessibilityAccessGranted()) {
             enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
         } else {
             enableServiceSwitch.setChecked(false);
@@ -49,11 +54,27 @@ public class MainActivity extends AppCompatActivity {
     private void showOpenSettingsAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Before you can enable Nudge, you need to grant it App Usage Access.")
-                .setTitle("App Usage Access is required");
+        builder.setMessage("Before you can enable Nudge, you need to grant it Accessibility Access.")
+                .setTitle("Accessibility Access is required");
 
         builder.setPositiveButton("Open Settings",
-                (dialog, id) -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
+                (dialog, id) -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+
+        builder.create().show();
+    }
+
+    private void showUnpinDialog(PackageType packageType, PackageInfo packageInfo) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("This package will no longer appear in this list. " +
+                "You can always add it back with the '+' button.")
+                .setTitle("Remove '" + packageInfo.name + "'?");
+
+        builder.setPositiveButton("Remove",
+                (dialog, id) -> prefs.unpinPackage(packageType, packageInfo.packageName));
         builder.setNegativeButton("Cancel", (dialog, id) -> {
             // User cancelled the dialog
         });
@@ -71,27 +92,34 @@ public class MainActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_no_search);
+
+        PackageArrayAdapter.Builder builder = PackageArrayAdapter
+                .builder(packageListManagerSupplier, prefs)
+                .onLongPress((packageType, packageInfo) -> showUnpinDialog(packageType, packageInfo))
+                .withCheckbox();
+        ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
+        ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
 
         setupTabsAndTitle();
 
-        PackageArrayAdapter.attach(this, PackageType.BAD_HABIT, packageInfoManager, prefs, R.id.list_view_bad_habits, R.id.search_bad_habits);
-        PackageArrayAdapter.attach(this, PackageType.GOOD_OPTION, packageInfoManager, prefs, R.id.list_view_good_options, R.id.search_good_options);
-
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
         enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
-            if (prefs.isUsageAccessGranted()) {
-                if (isEnabled) {
-                    jobScheduler.scheduleJob();
-                } else {
-                    jobScheduler.cancelJob();
-                }
+            if (prefs.isAccessibilityAccessGranted()) {
+                prefs.setCheckActiveEnabled(isEnabled);
             } else {
                 enableServiceSwitch.setChecked(false);
                 showOpenSettingsAlertDialog();
             }
         });
 
+        findViewById(R.id.fab_select_package).setOnClickListener(view -> onClickFab());
+    }
+
+    private void onClickFab() {
+        Intent intent = new Intent(this, ChooseOnePackageActivity.class);
+        intent.putExtra("packageType", currentFocusPackageType.name());
+        startActivity(intent);
     }
 
     private void setupTabsAndTitle() {
@@ -113,5 +141,49 @@ public class MainActivity extends AppCompatActivity {
         TextView titleView = findViewById(R.id.title_text_view);
         Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
         titleView.setTypeface(typeFace);
+
+        host.setOnTabChangedListener(s -> {
+            if (s == "Tab One") {
+                currentFocusPackageType = PackageType.BAD_HABIT;
+                animateFab();
+            } else {
+                currentFocusPackageType = PackageType.GOOD_OPTION;
+                animateFab();
+            }
+        });
+    }
+
+    protected void animateFab() {
+        FloatingActionButton fab = findViewById(R.id.fab_select_package);
+
+        fab.clearAnimation();
+        // Scale down animation
+        ScaleAnimation shrink =  new ScaleAnimation(1f, 0.2f, 1f, 0.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        shrink.setDuration(150);     // animation duration in milliseconds
+        shrink.setInterpolator(new DecelerateInterpolator());
+        shrink.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Change FAB color and icon
+                fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_add, null));
+
+                // Scale up animation
+                ScaleAnimation expand =  new ScaleAnimation(0.2f, 1f, 0.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                expand.setDuration(100);     // animation duration in milliseconds
+                expand.setInterpolator(new AccelerateInterpolator());
+                fab.startAnimation(expand);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        fab.startAnimation(shrink);
     }
 }

@@ -1,15 +1,18 @@
 package com.reactiverobot.nudge;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageType;
@@ -23,6 +26,10 @@ import dagger.android.AndroidInjection;
 
 public class SuggestChangeActivity extends Activity {
 
+    private final static String TAG = SuggestChangeActivity.class.getName();
+
+    public final static String EXTRA_APP_BEING_BLOCKED = "extra_app_being_blocked";
+
     @Inject
     PackageInfoManager packageInfoManager;
     @Inject
@@ -30,11 +37,8 @@ public class SuggestChangeActivity extends Activity {
 
     class SuggestedAppAdapter extends ArrayAdapter<String> {
 
-        private final Activity activity;
-
         public SuggestedAppAdapter(@NonNull Activity context) {
             super(context, R.layout.button_launch_suggestion);
-            activity = context;
         }
 
         @Override
@@ -52,7 +56,11 @@ public class SuggestChangeActivity extends Activity {
             if (packageInfo != null) {
                 Button openSuggestionButton = convertView.findViewById(R.id.button_open_suggestion);
 
-                openSuggestionButton.setText(packageInfo.name);
+                if (packageName.equals("com.reactiverobot.nudge")) {
+                    openSuggestionButton.setText("Take a Breath");
+                } else {
+                    openSuggestionButton.setText(packageInfo.name);
+                }
 
                 if (packageInfo.iconDrawable != null) {
                     packageInfo.iconDrawable.setBounds(0, 0, 100, 100);
@@ -68,14 +76,29 @@ public class SuggestChangeActivity extends Activity {
     }
 
     private void launchApplicationAndClose(String packageName) {
-        Intent i = getPackageManager().getLaunchIntentForPackage(packageName);
-        startActivity(i);
+        Intent i;
 
-        finish();
+        if (packageName.equals("com.reactiverobot.nudge")) {
+            i = new Intent(this, BreatheActivity.class);
+        } else {
+            i = getPackageManager().getLaunchIntentForPackage(packageName);
+        }
+
+        if (i != null) {
+            startActivity(i);
+            finish();
+        } else {
+            Toast.makeText(
+                    this,
+                    "Unable to launch app " + packageName + ", app is not responding.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
@@ -88,6 +111,20 @@ public class SuggestChangeActivity extends Activity {
         SuggestedAppAdapter suggestedAppAdapter = new SuggestedAppAdapter(this);
         suggestedAppAdapter.addAll(pinnedPackages);
 
+        suggestedAppAdapter.add("com.reactiverobot.nudge");
+
         suggestedAppsView.setAdapter(suggestedAppAdapter);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View closeView =  layoutInflater.inflate(R.layout.button_exit_suggestions, null);
+        Button close = closeView.findViewById(R.id.button_exit_suggestions);
+        close.setOnClickListener(view -> {
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+            finish();
+        });
+        suggestedAppsView.addFooterView(closeView);
     }
 }

@@ -10,9 +10,11 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.View;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -37,7 +39,7 @@ public class OnboardingActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_USAGE_ACCESS) {
             // Make sure the request was successful
-            if (prefs.isUsageAccessGranted()) {
+            if (prefs.isAccessibilityAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         }
@@ -75,18 +77,21 @@ public class OnboardingActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
+        FirebaseAnalytics.getInstance(this)
+                .logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, new Bundle());
+
         setContentView(R.layout.activity_onboarding_1);
 
         findViewById(R.id.button_get_started).setOnClickListener(v -> {
             changeToScene(R.layout.activity_onboarding_2);
 
-            if (prefs.isUsageAccessGranted()) {
+            if (prefs.isAccessibilityAccessGranted()) {
                 changeToScene(R.layout.activity_onboarding_3);
             }
         });
 
         findViewById(R.id.button_open_settings).setOnClickListener(v -> {
-            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             startActivityForResult(intent, REQUEST_USAGE_ACCESS);
         });
 
@@ -101,6 +106,9 @@ public class OnboardingActivity extends AppCompatActivity {
             prefs.setCheckActiveEnabled(true);
             startActivity(new Intent(this, MainActivity.class));
             finish();
+
+            FirebaseAnalytics.getInstance(this)
+                    .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, new Bundle());
         });
     }
 
