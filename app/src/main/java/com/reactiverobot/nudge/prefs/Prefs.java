@@ -33,4 +33,6 @@ public interface Prefs {
     void completeOnboarding();
 
     boolean isAccessibilityAccessGranted();
+
+    void openPlayStore();
 }
