@@ -6,11 +6,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
-import com.reactiverobot.nudge.prefs.PrefsImpl;
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
@@ -48,9 +45,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         Log.d(TAG, "Saw package : " + eventPackageName);
 
-        Set<String> blockedPackages = PrefsImpl.from(this).getSelectedPackages(PackageType.BAD_HABIT);
-
-        if (blockedPackages.contains(eventPackageName)) {
+        if (prefs.isPackageBlocked(eventPackageName)) {
             launchSuggestChangeActivity(eventPackageName);
         }
     }

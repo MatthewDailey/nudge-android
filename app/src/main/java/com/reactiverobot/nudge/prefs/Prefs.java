@@ -39,4 +39,6 @@ public interface Prefs {
     void setHasRatedApp(boolean hasRatedApp);
 
     void openPlayStore();
+
+    boolean isPackageBlocked(String packageName);
 }

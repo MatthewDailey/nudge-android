@@ -185,4 +185,11 @@ public class PrefsImpl implements Prefs {
                     Uri.parse("http://play.google.com/store/apps/details?id=" + context.getPackageName())));
         }
     }
+
+    @Override
+    public boolean isPackageBlocked(String packageName) {
+        Set<String> blockedPackages = getSelectedPackages(PackageType.BAD_HABIT);
+
+        return blockedPackages.contains(packageName);
+    }
 }
