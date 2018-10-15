@@ -10,3 +10,4 @@
 .idea
 app/release
 fastlane/report.xml
+app/google-services.json
