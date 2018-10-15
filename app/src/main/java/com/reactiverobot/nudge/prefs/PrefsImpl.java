@@ -1,5 +1,7 @@
 package com.reactiverobot.nudge.prefs;
 
+import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.info.PackageType;
 
 import java.util.ArrayList;
@@ -144,7 +147,11 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public boolean isAccessibilityAccessGranted() {
-        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        return am.isEnabled();
+        final AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
+        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+                .stream()
+                .map((service) -> nudgeServiceName.equals(service.getId()))
+                .reduce(false, (a, b) -> a || b);
     }
 }
