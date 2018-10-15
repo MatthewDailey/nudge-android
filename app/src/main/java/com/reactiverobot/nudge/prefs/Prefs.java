@@ -34,5 +34,9 @@ public interface Prefs {
 
     boolean isAccessibilityAccessGranted();
 
+    boolean hasRatedApp();
+
+    void setHasRatedApp(boolean hasRatedApp);
+
     void openPlayStore();
 }

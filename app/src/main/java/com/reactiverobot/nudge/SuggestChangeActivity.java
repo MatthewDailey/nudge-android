@@ -80,6 +80,7 @@ public class SuggestChangeActivity extends Activity {
     private void launchApplicationAndClose(String packageName) {
         if (packageName.equals("com.reactiverobot.nudge.playstore")) {
             prefs.openPlayStore();
+            prefs.setHasRatedApp(true);
             finish();
             return;
         }
@@ -120,7 +121,10 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppAdapter.addAll(pinnedPackages);
 
         suggestedAppAdapter.add("com.reactiverobot.nudge");
-        suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
+        if (!prefs.hasRatedApp()) {
+            suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
+        }
+
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
 

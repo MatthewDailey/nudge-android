@@ -45,6 +45,7 @@ public class PrefsImpl implements Prefs {
     private static final String SELECTED_PACKAGES_PREFIX = "selected_package_";
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
     private static final String ONBOARDING_COMPLETE = "onboarding_complete";
+    private static final String HAS_RATED_APP = "has_rated_app";
 
     private final Context context;
 
@@ -156,6 +157,16 @@ public class PrefsImpl implements Prefs {
                 .stream()
                 .map((service) -> nudgeServiceName.equals(service.getId()))
                 .reduce(false, (a, b) -> a || b);
+    }
+
+    @Override
+    public boolean hasRatedApp() {
+        return getPrefs().getBoolean(HAS_RATED_APP, false);
+    }
+
+    @Override
+    public void setHasRatedApp(boolean hasRatedApp) {
+        getPrefs().edit().putBoolean(HAS_RATED_APP, hasRatedApp).commit();
     }
 
     @Override
