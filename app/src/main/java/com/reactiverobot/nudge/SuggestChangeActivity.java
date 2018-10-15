@@ -58,6 +58,8 @@ public class SuggestChangeActivity extends Activity {
 
                 if (packageName.equals("com.reactiverobot.nudge")) {
                     openSuggestionButton.setText("Take a Breath");
+                } else if (packageName.equals("com.reactiverobot.nudge.playstore")) {
+                    openSuggestionButton.setText("Rate Nudge 😍");
                 } else {
                     openSuggestionButton.setText(packageInfo.name);
                 }
@@ -76,6 +78,12 @@ public class SuggestChangeActivity extends Activity {
     }
 
     private void launchApplicationAndClose(String packageName) {
+        if (packageName.equals("com.reactiverobot.nudge.playstore")) {
+            prefs.openPlayStore();
+            finish();
+            return;
+        }
+
         Intent i;
 
         if (packageName.equals("com.reactiverobot.nudge")) {
@@ -112,6 +120,7 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppAdapter.addAll(pinnedPackages);
 
         suggestedAppAdapter.add("com.reactiverobot.nudge");
+        suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
 
