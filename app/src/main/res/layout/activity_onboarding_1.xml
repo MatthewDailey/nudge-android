@@ -171,19 +171,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nudge helps you spend less time in addicting apps."
+                android:text="Nudge blocks addicting apps so you can reclaim your time."
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="14sp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="8dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="These apps are your “Bad Habits”."
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <View
                 android:layout_width="match_parent"
@@ -199,7 +189,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="SELECT BAD HABITS"
+                    android:text="CHOOSE APPS TO BLOCK"
                     android:textAppearance="@style/TextAppearance.AppCompat"
                     android:textColor="@color/colorSecondaryDark"
                     android:theme="@style/PrimaryFlatButton" />
@@ -241,7 +231,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bad Habits selected!"
+                android:text="Blocked apps chosen!"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         </LinearLayout>
@@ -268,7 +258,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="When you’re in an addicting app, Nudge will suggest you switch to a “Better Option”."
+                android:text="When you’re in an addicting app, Nudge will suggest you switch to a better option."
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="14sp" />
 
@@ -286,7 +276,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="CHOOSE BETTER OPTIONS"
+                    android:text="CHOOSE APPS TO SUGGEST"
                     android:textAppearance="@style/TextAppearance.AppCompat"
                     android:textColor="@color/colorSecondaryDark"
                     android:theme="@style/PrimaryFlatButton" />
@@ -328,7 +318,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Better Options chosen!"
+                android:text="Suggested apps chosen!"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         </LinearLayout>

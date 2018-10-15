@@ -92,9 +92,9 @@ public class ChooseOnePackageActivity extends AppCompatActivity {
     private String getToolbarTitle() {
         switch (getPackageType()) {
             case BAD_HABIT:
-                return "Select Bad Habit";
+                return "Select App to Block";
             case GOOD_OPTION:
-                return "Select Better Option";
+                return "Select App to Suggest";
             default:
                 return "Select Package";
         }

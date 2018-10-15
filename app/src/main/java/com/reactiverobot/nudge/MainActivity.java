@@ -129,13 +129,13 @@ public class MainActivity extends AppCompatActivity {
         //Tab 1
         TabHost.TabSpec spec = host.newTabSpec("Tab One");
         spec.setContent(R.id.tab1);
-        spec.setIndicator("BAD HABITS");
+        spec.setIndicator("BLOCKED");
         host.addTab(spec);
 
         //Tab 2
         spec = host.newTabSpec("Tab Two");
         spec.setContent(R.id.tab2);
-        spec.setIndicator("GOOD OPTIONS");
+        spec.setIndicator("SUGGESTED");
         host.addTab(spec);
 
         TextView titleView = findViewById(R.id.title_text_view);
