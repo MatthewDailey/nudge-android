@@ -41,4 +41,6 @@ public interface Prefs {
     void openPlayStore();
 
     boolean isPackageBlocked(String packageName);
+
+    void setTemporarilyUnblocked(String packageName, boolean isBlocked);
 }

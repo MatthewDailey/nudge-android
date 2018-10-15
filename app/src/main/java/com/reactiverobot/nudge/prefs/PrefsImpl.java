@@ -18,6 +18,8 @@ import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.info.PackageType;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +66,10 @@ public class PrefsImpl implements Prefs {
 
     private SharedPreferences getPrefs() {
          return this.context.getSharedPreferences("nudge_prefs", Context.MODE_PRIVATE);
+    }
+
+    private SharedPreferences getTemporaryUnblockPrefs() {
+        return this.context.getSharedPreferences("nudge_temp_unblock", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -190,6 +196,24 @@ public class PrefsImpl implements Prefs {
     public boolean isPackageBlocked(String packageName) {
         Set<String> blockedPackages = getSelectedPackages(PackageType.BAD_HABIT);
 
+        long unblockedUntil = getTemporaryUnblockPrefs().getLong(packageName, 0);
+
+        Date currentTime = Calendar.getInstance().getTime();
+        if (unblockedUntil > currentTime.getTime()) {
+            return false;
+        }
+
         return blockedPackages.contains(packageName);
     }
+
+    @Override
+    public void setTemporarilyUnblocked(String packageName, boolean isBlocked) {
+        if (isBlocked) {
+            Date currentTime = Calendar.getInstance().getTime();
+            getTemporaryUnblockPrefs().edit().putLong(packageName, currentTime.getTime() + (60 * 1000)).commit();
+        } else {
+            getTemporaryUnblockPrefs().edit().remove(packageName).commit();
+        }
+    }
+
 }
