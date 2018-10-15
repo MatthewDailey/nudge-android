@@ -30,9 +30,11 @@ PackageListManager
 
 # Deploy Process
 
+`fastlane android deploy`
+
 Nudge is deployed via [Fastlane](https://docs.fastlane.tools/getting-started/android/setup/). To set this up,
 you need to have some information from 1password set up locally:
 
-1. `~/reactiverobot-keystore` needs
-2. `~/.gradle/gradle.properties` needs to include several variables (see [this article](https://stackoverflow.com/questions/18328730/how-to-create-a-release-signed-apk-file-using-gradle))
-including a reference to the local keystore above.
+1. `~/keystore-nudge`
+2. `~/.gradle/gradle.properties` needs to include several variables to access `keystore-nudge`(see [this article](https://stackoverflow.com/questions/18328730/how-to-create-a-release-signed-apk-file-using-gradle))
+3. `~/reactiverobot-android-deploy.json` - Service account creds for fastlane use to deploy
