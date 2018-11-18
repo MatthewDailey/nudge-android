@@ -42,5 +42,5 @@ public interface Prefs {
 
     boolean isPackageBlocked(String packageName);
 
-    void setTemporarilyUnblocked(String packageName, boolean isBlocked);
+    void setTemporarilyUnblocked(String packageName, boolean isUnblocked);
 }

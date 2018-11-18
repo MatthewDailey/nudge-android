@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Open",
                 (dialog, id) -> {
+                    prefs.setTemporarilyUnblocked(packageInfo.packageName, true);
                     Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
                     startActivity(launchIntent);
                 });
