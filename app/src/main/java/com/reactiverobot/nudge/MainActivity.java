@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Open",
                 (dialog, id) -> {
+                    // TODO: set timer to check in on current app and potentially block.
                     prefs.setTemporarilyUnblocked(packageInfo.packageName, true);
                     Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
                     startActivity(launchIntent);
