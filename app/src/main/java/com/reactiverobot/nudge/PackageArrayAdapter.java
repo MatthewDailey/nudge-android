@@ -87,6 +87,11 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
             return this;
         }
 
+        public Builder onShowBriefly(PackageInfoHandler handler) {
+            this.displayBrieflyHandler = handler;
+            return this;
+        }
+
         public PackageArrayAdapter attach(Activity activity, PackageType packageType) {
             PackageListManager packageListManager = packageListManagerSupplier.get(packageType);
 

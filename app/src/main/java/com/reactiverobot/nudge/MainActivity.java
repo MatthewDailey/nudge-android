@@ -82,6 +82,24 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    private void showOpenBrieflyDialog(PackageType packageType, PackageInfo packageInfo) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("This will open and unblock " + packageInfo.name + " for 60 seconds.")
+                .setTitle("Open '" + packageInfo.name + "'?");
+
+        builder.setPositiveButton("Open",
+                (dialog, id) -> {
+                    Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
+                    startActivity(launchIntent);
+                });
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+
+        builder.create().show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -97,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         PackageArrayAdapter.Builder builder = PackageArrayAdapter
                 .builder(packageListManagerSupplier, prefs)
                 .onLongPress((packageType, packageInfo) -> showUnpinDialog(packageType, packageInfo))
+                .onShowBriefly((packageType, packageInfo) -> showOpenBrieflyDialog(packageType, packageInfo))
                 .withCheckbox();
         ((ListView) findViewById(R.id.list_view_bad_habits)).setAdapter(builder.attach(this, PackageType.BAD_HABIT));
         ((ListView) findViewById(R.id.list_view_good_options)).setAdapter(builder.attach(this, PackageType.GOOD_OPTION));
