@@ -207,8 +207,8 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
-    public void setTemporarilyUnblocked(String packageName, boolean isBlocked) {
-        if (isBlocked) {
+    public void setTemporarilyUnblocked(String packageName, boolean isUnblocked) {
+        if (isUnblocked) {
             Date currentTime = Calendar.getInstance().getTime();
             getTemporaryUnblockPrefs().edit().putLong(packageName, currentTime.getTime() + (60 * 1000)).commit();
         } else {
