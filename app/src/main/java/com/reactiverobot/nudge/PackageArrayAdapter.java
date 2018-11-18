@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -19,8 +21,6 @@ import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 
 public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         implements PackageListManager.PackageListHandler {
@@ -33,6 +33,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
     @Nullable private final PackageInfoHandler clickHandler;
     @Nullable private final PackageInfoHandler longPressHandler;
+    @Nullable private final PackageInfoHandler displayBrieflyHandler;
 
 
     public interface PackageInfoHandler {
@@ -54,6 +55,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         private PackageInfoHandler longPressHandler = null;
         private PackageInfoHandler clickHandler = null;
+        private PackageInfoHandler displayBrieflyHandler = null;
 
         public Builder(PackageListManagerSupplier packageListManagerSupplier, Prefs prefs) {
             this.packageListManagerSupplier = packageListManagerSupplier;
@@ -103,6 +105,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                     activity,
                     packageType,
                     shouldIncludeCheckbox ? checkHandler : null,
+                    displayBrieflyHandler,
                     packageListManager,
                     clickHandler,
                     longPressHandler);
@@ -127,6 +130,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
     public PackageArrayAdapter(@NonNull Activity context,
                                @NonNull PackageType packageType,
                                @Nullable CheckHandler checkHandler,
+                               @Nullable PackageInfoHandler displayBrieflyHandler,
                                @NonNull PackageListManager packageListManager,
                                @Nullable PackageInfoHandler clickHandler,
                                @Nullable PackageInfoHandler longPressHandler) {
@@ -135,6 +139,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         this.activity = context;
         this.packageType = packageType;
         this.checkHandler = checkHandler;
+        this.displayBrieflyHandler = displayBrieflyHandler;
         this.packageListManager = packageListManager;
         this.clickHandler = clickHandler;
         this.longPressHandler = longPressHandler;
@@ -195,6 +200,13 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                     .setChecked(checkHandler.isChecked(packageInfo));
         } else {
             blockPackageCheckbox.setVisibility(View.GONE);
+        }
+
+        ImageButton clockButton = convertView.findViewById(R.id.button_briefly_show);
+        if (this.displayBrieflyHandler != null) {
+            clockButton.setOnClickListener((view) -> this.displayBrieflyHandler.handle(packageType, packageInfo));
+        } else {
+            clockButton.setVisibility(View.GONE);
         }
 
         if (packageInfo.iconDrawable != null) {
