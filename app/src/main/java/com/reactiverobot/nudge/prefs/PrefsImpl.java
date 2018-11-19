@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class PrefsImpl implements Prefs {
 
-    public static final int TEMP_UNBLOCK_SEC = 6;
+    public static final int TEMP_UNBLOCK_SEC = 60;
 
     private static final String TAG = Prefs.class.getName();
 
