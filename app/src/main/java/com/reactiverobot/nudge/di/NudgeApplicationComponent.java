@@ -2,6 +2,7 @@ package com.reactiverobot.nudge.di;
 
 import android.content.Context;
 
+import com.reactiverobot.nudge.checker.PackageCheckerModule;
 import com.reactiverobot.nudge.info.PackageModule;
 import com.reactiverobot.nudge.prefs.PrefsModule;
 
@@ -12,6 +13,7 @@ import dagger.Component;
         AppModule.class,
         PrefsModule.class,
         PackageModule.class,
+        PackageCheckerModule.class,
 })
 public interface NudgeApplicationComponent {
     void inject(NudgeApplication application);
