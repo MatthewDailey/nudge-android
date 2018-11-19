@@ -29,18 +29,11 @@ import java.util.Set;
 
 public class PrefsImpl implements Prefs {
 
+    public static final int TEMP_UNBLOCK_SEC = 6;
+
     private static final String TAG = Prefs.class.getName();
 
-    // TODO: Fix defaults for both sections.
-    private static Set<String> getDefaultBlockedPackages() {
-        Set<String> defaultPinnedPackages = new HashSet<>();
-        defaultPinnedPackages.add("com.facebook.katana");
-        defaultPinnedPackages.add( "com.instagram.android");
-        return defaultPinnedPackages;
-    }
-
     private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers = new HashMap<>();
-
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
     private static final String PINNED_PACKAGES_PREFIX = "pinned_packages_";
@@ -210,10 +203,21 @@ public class PrefsImpl implements Prefs {
     }
 
     @Override
+    public boolean isTemporarilyUnblocked(String packageName) {
+        Set<String> blockedPackages = getSelectedPackages(PackageType.BAD_HABIT);
+
+        long unblockedUntil = getTemporaryUnblockPrefs().getLong(packageName, 0);
+
+        Date currentTime = Calendar.getInstance().getTime();
+
+        return blockedPackages.contains(packageName) && unblockedUntil > currentTime.getTime();
+    }
+
+    @Override
     public void setTemporarilyUnblocked(String packageName, boolean isUnblocked) {
         if (isUnblocked) {
             Date currentTime = Calendar.getInstance().getTime();
-            getTemporaryUnblockPrefs().edit().putLong(packageName, currentTime.getTime() + (60 * 1000)).commit();
+            getTemporaryUnblockPrefs().edit().putLong(packageName, currentTime.getTime() + (TEMP_UNBLOCK_SEC * 1000)).commit();
         } else {
             getTemporaryUnblockPrefs().edit().remove(packageName).commit();
         }

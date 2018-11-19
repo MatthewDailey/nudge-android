@@ -2,15 +2,24 @@ package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.os.Handler;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.prefs.Prefs;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+
+import static android.view.accessibility.AccessibilityNodeInfo.FOCUS_ACCESSIBILITY;
+import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class NudgeAccessibilityService extends AccessibilityService {
     private final static String TAG = NudgeAccessibilityService.class.getName();
@@ -19,6 +28,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
     Prefs prefs;
     @Inject
     ActivePackageChecker packageChecker;
+
+    AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -29,8 +40,20 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
 
         String eventPackageName = packageName.toString();
+        lastEventPackage.set(eventPackageName);
+
         Log.d(TAG, "Saw package : " + eventPackageName);
-        packageChecker.launchSuggestActivityIfBlocked(eventPackageName);
+
+        if (prefs.isTemporarilyUnblocked(eventPackageName)) {
+            new Handler().postDelayed(() -> {
+                Log.d("handler", "Calling handler " + eventPackageName);
+                if (eventPackageName.equals(lastEventPackage.get())) {
+                    packageChecker.launchSuggestActivityIfBlocked(eventPackageName);
+                }
+            }, (TEMP_UNBLOCK_SEC + 1) * 1000);
+        } else {
+            packageChecker.launchSuggestActivityIfBlocked(eventPackageName);
+        }
     }
 
     @Override

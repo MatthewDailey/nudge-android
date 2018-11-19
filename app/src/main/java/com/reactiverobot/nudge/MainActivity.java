@@ -9,6 +9,7 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -27,6 +28,8 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+
+import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -94,10 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Open",
                 (dialog, id) -> {
-                    new Handler().postAtTime(() -> {
-                        String activePackage = packageChecker.getCurrentActivePackage();
-                        packageChecker.launchSuggestActivityIfBlocked(activePackage);
-                    }, 200);
+                    Log.d("handler", "opening temp");
                     prefs.setTemporarilyUnblocked(packageInfo.packageName, true);
                     Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
                     startActivity(launchIntent);
