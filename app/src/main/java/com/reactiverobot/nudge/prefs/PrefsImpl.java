@@ -161,7 +161,10 @@ public class PrefsImpl implements Prefs {
         final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
         return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
                 .stream()
-                .map((service) -> nudgeServiceName.equals(service.getId()))
+                .map((service) -> {
+                    Log.d("DEVUG", service.getId());
+                    return nudgeServiceName.equals(service.getId());
+                })
                 .reduce(false, (a, b) -> a || b);
     }
 

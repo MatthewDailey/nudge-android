@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +18,7 @@ import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     Prefs prefs;
+    @Inject
+    ActivePackageChecker packageChecker;
     @Inject
     PackageInfoManager packageInfoManager;
     @Inject
@@ -90,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Open",
                 (dialog, id) -> {
-                    // TODO: set timer to check in on current app and potentially block.
+                    new Handler().postAtTime(() -> {
+                        String activePackage = packageChecker.getCurrentActivePackage();
+                        packageChecker.launchSuggestActivityIfBlocked(activePackage);
+                    }, 200);
                     prefs.setTemporarilyUnblocked(packageInfo.packageName, true);
                     Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
                     startActivity(launchIntent);
