@@ -2,6 +2,7 @@ package com.reactiverobot.nudge;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
@@ -173,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationView navigationView = findViewById(R.id.navigation_main);
         navigationView.setNavigationItemSelectedListener(
             menuItem -> {
-                menuItem.setChecked(true);
                 drawer.closeDrawers();
 
                 switch (menuItem.getItemId()) {
@@ -214,11 +214,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startSendFeedbackActivity() {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setType("text/html");
-        intent.putExtra(Intent.EXTRA_EMAIL, "matt@reactiverobot.com");
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback about Nudge App");
-        startActivity(Intent.createChooser(intent, "Send Email"));
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:matt@reactiverobot.com?subject=" + Uri.encode("Feedback about Nudge App")));
+        startActivity(Intent.createChooser(emailIntent, "Send Email"));
     }
 
     protected void animateFab() {
