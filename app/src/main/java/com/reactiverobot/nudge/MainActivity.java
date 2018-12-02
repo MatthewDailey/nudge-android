@@ -181,7 +181,8 @@ public class MainActivity extends AppCompatActivity {
                         prefs.openPlayStore();
                         return true;
                     case R.id.nav_share:
-                        // TODO: Share dialog
+                        startShareAppIntent();
+                        return true;
                     case R.id.nav_feedback:
                         // TODO: Email to matt@reactiverobot.com
                     case R.id.nav_about:
@@ -200,6 +201,15 @@ public class MainActivity extends AppCompatActivity {
                 animateFab();
             }
         });
+    }
+
+    private void startShareAppIntent() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                "Hey check out Nudge to block distracting apps at: https://play.google.com/store/apps/details?id=com.reactiverobot.nudge");
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
     }
 
     protected void animateFab() {
