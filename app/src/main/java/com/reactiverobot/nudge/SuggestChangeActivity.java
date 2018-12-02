@@ -125,7 +125,6 @@ public class SuggestChangeActivity extends Activity {
             suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
         }
 
-
         suggestedAppsView.setAdapter(suggestedAppAdapter);
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);

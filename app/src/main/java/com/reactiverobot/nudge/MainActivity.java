@@ -2,9 +2,7 @@ package com.reactiverobot.nudge;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,7 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -22,7 +20,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TabHost;
-import android.widget.TextView;
 
 import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.info.PackageInfoManager;
@@ -33,8 +30,6 @@ import com.reactiverobot.nudge.prefs.Prefs;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
-
-import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -174,6 +169,27 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ImageButton drawerButton = findViewById(R.id.button_drawer);
         drawerButton.setOnClickListener((view) -> drawer.openDrawer(GravityCompat.START));
+
+        NavigationView navigationView = findViewById(R.id.navigation_main);
+        navigationView.setNavigationItemSelectedListener(
+            menuItem -> {
+                menuItem.setChecked(true);
+                drawer.closeDrawers();
+
+                switch (menuItem.getItemId()) {
+                    case R.id.nav_rate:
+                        prefs.openPlayStore();
+                        return true;
+                    case R.id.nav_share:
+                        // TODO: Share dialog
+                    case R.id.nav_feedback:
+                        // TODO: Email to matt@reactiverobot.com
+                    case R.id.nav_about:
+                        // TODO: Open simple about activity
+                    default:
+                        return true;
+                }
+            });
 
         host.setOnTabChangedListener(s -> {
             if (s == "Tab One") {
