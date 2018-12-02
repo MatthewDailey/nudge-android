@@ -186,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.nav_feedback:
                         startSendFeedbackActivity();
                         return true;
-                    case R.id.nav_about:
-                        // TODO: Open simple about activity
+//                    case R.id.nav_about:
+//                        // TODO: Open simple about activity
                     default:
                         return true;
                 }
