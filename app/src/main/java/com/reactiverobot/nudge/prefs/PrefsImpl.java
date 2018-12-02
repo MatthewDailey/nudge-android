@@ -150,51 +150,51 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public boolean isAccessibilityAccessGranted() {
-        int accessibilityEnabled = 0;
-        final String service = "com.reactiverobot.nudge/" + NudgeAccessibilityService.class.getCanonicalName();
-        try {
-            accessibilityEnabled = Settings.Secure.getInt(
-                    context.getApplicationContext().getContentResolver(),
-                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
-            Log.v("DEVUG", "accessibilityEnabled = " + accessibilityEnabled);
-        } catch (Settings.SettingNotFoundException e) {
-            Log.e(TAG, "Error finding setting, default accessibility to not found: "
-                    + e.getMessage());
-        }
-        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+//        int accessibilityEnabled = 0;
+//        final String service = "com.reactiverobot.nudge/" + NudgeAccessibilityService.class.getCanonicalName();
+//        try {
+//            accessibilityEnabled = Settings.Secure.getInt(
+//                    context.getApplicationContext().getContentResolver(),
+//                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+//            Log.v("DEVUG", "accessibilityEnabled = " + accessibilityEnabled);
+//        } catch (Settings.SettingNotFoundException e) {
+//            Log.e(TAG, "Error finding setting, default accessibility to not found: "
+//                    + e.getMessage());
+//        }
+//        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+//
+//        if (accessibilityEnabled == 1) {
+//            Log.v(TAG, "***ACCESSIBILITY IS ENABLED*** -----------------");
+//            String settingValue = Settings.Secure.getString(
+//                    context.getApplicationContext().getContentResolver(),
+//                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+//            if (settingValue != null) {
+//                mStringColonSplitter.setString(settingValue);
+//                while (mStringColonSplitter.hasNext()) {
+//                    String accessibilityService = mStringColonSplitter.next();
+//
+//                    Log.v(TAG, "-------------- > accessibilityService :: " + accessibilityService + " " + service);
+//                    if (accessibilityService.equalsIgnoreCase(service)) {
+//                        Log.v(TAG, "We've found the correct setting - accessibility is switched on!");
+//                        return true;
+//                    }
+//                }
+//            }
+//        } else {
+//            Log.v(TAG, "***ACCESSIBILITY IS DISABLED***");
+//        }
+//
+//        return false;
 
-        if (accessibilityEnabled == 1) {
-            Log.v(TAG, "***ACCESSIBILITY IS ENABLED*** -----------------");
-            String settingValue = Settings.Secure.getString(
-                    context.getApplicationContext().getContentResolver(),
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null) {
-                mStringColonSplitter.setString(settingValue);
-                while (mStringColonSplitter.hasNext()) {
-                    String accessibilityService = mStringColonSplitter.next();
-
-                    Log.v(TAG, "-------------- > accessibilityService :: " + accessibilityService + " " + service);
-                    if (accessibilityService.equalsIgnoreCase(service)) {
-                        Log.v(TAG, "We've found the correct setting - accessibility is switched on!");
-                        return true;
-                    }
-                }
-            }
-        } else {
-            Log.v(TAG, "***ACCESSIBILITY IS DISABLED***");
-        }
-
-        return false;
-
-//        final AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-//        final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
-//        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-//                .stream()
-//                .map((service) -> {
-//                    Log.d("DEVUG", service.getId());
-//                    return nudgeServiceName.equals(service.getId());
-//                })
-//                .reduce(false, (a, b) -> a || b);
+        final AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
+        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+                .stream()
+                .map((service) -> {
+                    Log.d("DEVUG", service.getId());
+                    return nudgeServiceName.equals(service.getId());
+                })
+                .reduce(false, (a, b) -> a || b);
     }
 
     @Override
