@@ -166,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator("SUGGESTED");
         host.addTab(spec);
 
-        TextView titleView = findViewById(R.id.title_text_view);
-        Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
-        titleView.setTypeface(typeFace);
+//        TextView titleView = findViewById(R.id.title_text_view);
+//        Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
+//        titleView.setTypeface(typeFace);
 
         host.setOnTabChangedListener(s -> {
             if (s == "Tab One") {

@@ -1,153 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Use DrawerLayout as root container for activity -->
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
+    <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/title_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="56dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="nudge"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Switch
-                android:id="@+id/switch_enable_service"
-                android:layout_width="100dp"
-                android:layout_height="28dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
-                android:text="Enabled"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.Toolbar>
-
-    <TabHost
-        android:id="@+id/tabs_main"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/white"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="104dp">
-
-        <LinearLayout
+        android:layout_height="match_parent" >
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TabWidget
-                android:id="@android:id/tabs"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/my_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-            <FrameLayout
-                android:id="@android:id/tabcontent"
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/title_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="nudge"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="24dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Switch
+                        android:id="@+id/switch_enable_service"
+                        android:layout_width="100dp"
+                        android:layout_height="28dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Enabled"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.Toolbar>
+
+            <TabHost
+                android:id="@+id/tabs_main"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="fill_parent"
+                android:background="@color/white"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="104dp">
 
                 <LinearLayout
-                    android:id="@+id/tab1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <!-- To prevent auto-focus on SearchView -->
-                    <LinearLayout
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:layout_width="0px"
-                        android:layout_height="0px"/>
-
-                    <SearchView
-                        android:id="@+id/search_bad_habits"
+                    <TabWidget
+                        android:id="@android:id/tabs"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:queryHint="Search Apps"
-                        android:layout_margin="16dp"
-                        android:elevation="2dp"
-                        android:background="@color/white"
-                        android:queryBackground="@color/white"
-                        android:submitBackground="@color/white"
-                        android:iconifiedByDefault="false"
-                    />
+                        android:layout_height="wrap_content" />
 
-                    <ListView
-                        android:id="@+id/list_view_bad_habits"
+                    <FrameLayout
+                        android:id="@android:id/tabcontent"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:divider="#00000000"/>
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:id="@+id/tab1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <!-- To prevent auto-focus on SearchView -->
+                            <LinearLayout
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:layout_width="0px"
+                                android:layout_height="0px"/>
+
+                            <SearchView
+                                android:id="@+id/search_bad_habits"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:queryHint="Search Apps"
+                                android:layout_margin="16dp"
+                                android:elevation="2dp"
+                                android:background="@color/white"
+                                android:queryBackground="@color/white"
+                                android:submitBackground="@color/white"
+                                android:iconifiedByDefault="false"
+                                />
+
+                            <ListView
+                                android:id="@+id/list_view_bad_habits"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                android:divider="#00000000"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/tab2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <!-- To prevent auto-focus on SearchView -->
+                            <LinearLayout
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:layout_width="0px"
+                                android:layout_height="0px"/>
+
+                            <SearchView
+                                android:id="@+id/search_good_options"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:queryHint="Search Apps"
+                                android:layout_margin="16dp"
+                                android:elevation="2dp"
+                                android:background="@color/white"
+                                android:queryBackground="@color/white"
+                                android:submitBackground="@color/white"
+                                android:iconifiedByDefault="false"
+                                />
+
+                            <ListView
+                                android:id="@+id/list_view_good_options"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                android:divider="#00000000"/>
+                        </LinearLayout>
+
+                    </FrameLayout>
                 </LinearLayout>
+            </TabHost>
 
-                <LinearLayout
-                    android:id="@+id/tab2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
 
-                    <!-- To prevent auto-focus on SearchView -->
-                    <LinearLayout
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:layout_width="0px"
-                        android:layout_height="0px"/>
-
-                    <SearchView
-                        android:id="@+id/search_good_options"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:queryHint="Search Apps"
-                        android:layout_margin="16dp"
-                        android:elevation="2dp"
-                        android:background="@color/white"
-                        android:queryBackground="@color/white"
-                        android:submitBackground="@color/white"
-                        android:iconifiedByDefault="false"
-                        />
-
-                    <ListView
-                        android:id="@+id/list_view_good_options"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:divider="#00000000"/>
-                </LinearLayout>
-
-            </FrameLayout>
         </LinearLayout>
-    </TabHost>
+    </FrameLayout>
 
+    <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/menu_drawer" />
 
-</LinearLayout>
+</android.support.v4.widget.DrawerLayout>
+
