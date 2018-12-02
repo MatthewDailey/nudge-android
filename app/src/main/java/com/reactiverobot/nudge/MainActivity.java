@@ -7,13 +7,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TabHost;
@@ -166,9 +171,13 @@ public class MainActivity extends AppCompatActivity {
         spec.setIndicator("SUGGESTED");
         host.addTab(spec);
 
-//        TextView titleView = findViewById(R.id.title_text_view);
-//        Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
-//        titleView.setTypeface(typeFace);
+        TextView titleView = findViewById(R.id.title_text_view);
+        Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
+        titleView.setTypeface(typeFace);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ImageButton drawerButton = findViewById(R.id.button_drawer);
+        drawerButton.setOnClickListener((view) -> drawer.openDrawer(GravityCompat.START));
 
         host.setOnTabChangedListener(s -> {
             if (s == "Tab One") {
