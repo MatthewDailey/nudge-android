@@ -208,7 +208,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
         }
 
         ImageButton clockButton = convertView.findViewById(R.id.button_briefly_show);
-        if (this.displayBrieflyHandler != null) {
+        if (this.displayBrieflyHandler != null && PackageType.BAD_HABIT.equals(packageType)) {
             clockButton.setOnClickListener((view) -> this.displayBrieflyHandler.handle(packageType, packageInfo));
         } else {
             clockButton.setVisibility(View.GONE);
