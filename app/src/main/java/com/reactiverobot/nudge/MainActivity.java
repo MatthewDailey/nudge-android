@@ -184,7 +184,8 @@ public class MainActivity extends AppCompatActivity {
                         startShareAppIntent();
                         return true;
                     case R.id.nav_feedback:
-                        // TODO: Email to matt@reactiverobot.com
+                        startSendFeedbackActivity();
+                        return true;
                     case R.id.nav_about:
                         // TODO: Open simple about activity
                     default:
@@ -210,6 +211,14 @@ public class MainActivity extends AppCompatActivity {
                 "Hey check out Nudge to block distracting apps at: https://play.google.com/store/apps/details?id=com.reactiverobot.nudge");
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
+    }
+
+    private void startSendFeedbackActivity() {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setType("text/html");
+        intent.putExtra(Intent.EXTRA_EMAIL, "matt@reactiverobot.com");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback about Nudge App");
+        startActivity(Intent.createChooser(intent, "Send Email"));
     }
 
     protected void animateFab() {
