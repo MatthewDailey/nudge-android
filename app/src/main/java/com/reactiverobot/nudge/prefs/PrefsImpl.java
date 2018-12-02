@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
@@ -30,6 +32,7 @@ import java.util.Set;
 public class PrefsImpl implements Prefs {
 
     public static final int TEMP_UNBLOCK_SEC = 60;
+    private static final String TAG = "DEVUG";
 
     private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers = new HashMap<>();
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
@@ -147,15 +150,51 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public boolean isAccessibilityAccessGranted() {
-        final AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
-        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-                .stream()
-                .map((service) -> {
-                    Log.d("DEVUG", service.getId());
-                    return nudgeServiceName.equals(service.getId());
-                })
-                .reduce(false, (a, b) -> a || b);
+        int accessibilityEnabled = 0;
+        final String service = "com.reactiverobot.nudge/" + NudgeAccessibilityService.class.getCanonicalName();
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(
+                    context.getApplicationContext().getContentResolver(),
+                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+            Log.v("DEVUG", "accessibilityEnabled = " + accessibilityEnabled);
+        } catch (Settings.SettingNotFoundException e) {
+            Log.e(TAG, "Error finding setting, default accessibility to not found: "
+                    + e.getMessage());
+        }
+        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+
+        if (accessibilityEnabled == 1) {
+            Log.v(TAG, "***ACCESSIBILITY IS ENABLED*** -----------------");
+            String settingValue = Settings.Secure.getString(
+                    context.getApplicationContext().getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (settingValue != null) {
+                mStringColonSplitter.setString(settingValue);
+                while (mStringColonSplitter.hasNext()) {
+                    String accessibilityService = mStringColonSplitter.next();
+
+                    Log.v(TAG, "-------------- > accessibilityService :: " + accessibilityService + " " + service);
+                    if (accessibilityService.equalsIgnoreCase(service)) {
+                        Log.v(TAG, "We've found the correct setting - accessibility is switched on!");
+                        return true;
+                    }
+                }
+            }
+        } else {
+            Log.v(TAG, "***ACCESSIBILITY IS DISABLED***");
+        }
+
+        return false;
+
+//        final AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+//        final String nudgeServiceName = "com.reactiverobot.nudge/." + NudgeAccessibilityService.class.getSimpleName();
+//        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+//                .stream()
+//                .map((service) -> {
+//                    Log.d("DEVUG", service.getId());
+//                    return nudgeServiceName.equals(service.getId());
+//                })
+//                .reduce(false, (a, b) -> a || b);
     }
 
     @Override
