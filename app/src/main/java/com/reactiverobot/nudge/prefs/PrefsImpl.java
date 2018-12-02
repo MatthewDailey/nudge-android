@@ -31,8 +31,6 @@ public class PrefsImpl implements Prefs {
 
     public static final int TEMP_UNBLOCK_SEC = 60;
 
-    private static final String TAG = Prefs.class.getName();
-
     private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers = new HashMap<>();
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
@@ -67,7 +65,6 @@ public class PrefsImpl implements Prefs {
 
     @Override
     public void setCheckActiveEnabled(boolean enabled) {
-        Log.d(TAG, "Setting checkActiveEnabled : " + enabled);
         getPrefs().edit().putBoolean(CHECK_ACTIVE_ENABLED, enabled).commit();
     }
 
