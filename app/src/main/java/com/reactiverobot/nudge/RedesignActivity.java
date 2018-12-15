@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -108,8 +109,8 @@ public class RedesignActivity extends AppCompatActivity {
                 .onShowBriefly((packageType, packageInfo) -> showOpenBrieflyDialog(packageType, packageInfo))
                 .withCheckbox();
 
-        setupGroup(findViewById(R.id.group_blocked), "BLOCKED", builder.attach(this, PackageType.BAD_HABIT));
-        setupGroup(findViewById(R.id.group_suggested), "SUGGESTED", builder.attach(this, PackageType.GOOD_OPTION));
+        setupGroup(findViewById(R.id.group_blocked), PackageType.BAD_HABIT, "BLOCKED", builder.attach(this, PackageType.BAD_HABIT));
+        setupGroup(findViewById(R.id.group_suggested), PackageType.GOOD_OPTION, "SUGGESTED", builder.attach(this, PackageType.GOOD_OPTION));
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
 
@@ -130,12 +131,19 @@ public class RedesignActivity extends AppCompatActivity {
         enableServiceButton.setOnClickListener((view) -> setServiceEnabled.accept(true));
     }
 
-    private void setupGroup(View groupView, String title, PackageArrayAdapter adapter) {
+    private void setupGroup(View groupView, PackageType packageType, String title, PackageArrayAdapter adapter) {
         ListView blockedPackagesList = groupView.findViewById(R.id.list_packages);
         blockedPackagesList.setAdapter(adapter);
 
         TextView sectionTitle = groupView.findViewById(R.id.section_title);
         sectionTitle.setText(title);
+
+        ImageButton buttonAdd = groupView.findViewById(R.id.button_add);
+        buttonAdd.setOnClickListener((view) -> {
+            Intent intent = new Intent(this, ChooseOnePackageActivity.class);
+            intent.putExtra("packageType", packageType.name());
+            startActivity(intent);
+        });
     }
 
     private void updateEnabledViews() {

@@ -53,6 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:divider="#00000000"/>
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10.0sp" />
 
 </LinearLayout>
