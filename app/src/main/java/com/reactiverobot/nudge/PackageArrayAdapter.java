@@ -223,9 +223,9 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         ((TextView) convertView.findViewById(R.id.text_view_app_name))
                 .setText(packageInfo.name);
-
-        ((TextView) convertView.findViewById(R.id.text_view_package_name))
-                .setText(packageInfo.packageName);
+//
+//        ((TextView) convertView.findViewById(R.id.text_view_package_name))
+//                .setText(packageInfo.packageName);
 
         if (this.clickHandler != null) {
             convertView.setOnClickListener(view -> {

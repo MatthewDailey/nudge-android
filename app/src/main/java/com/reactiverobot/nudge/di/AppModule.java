@@ -4,6 +4,7 @@ import com.reactiverobot.nudge.ChooseOnePackageActivity;
 import com.reactiverobot.nudge.MainActivity;
 import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.OnboardingActivity;
+import com.reactiverobot.nudge.RedesignActivity;
 import com.reactiverobot.nudge.SelectPackagesActivity;
 import com.reactiverobot.nudge.SuggestChangeActivity;
 import com.reactiverobot.nudge.prefs.PrefsModule;
@@ -16,6 +17,9 @@ abstract class AppModule {
 
     @ContributesAndroidInjector(modules = { PrefsModule.class })
     abstract MainActivity contributeMainActivityInjector();
+
+    @ContributesAndroidInjector(modules = { PrefsModule.class })
+    abstract RedesignActivity contributeRedesignActivityInjector();
 
     @ContributesAndroidInjector(modules = { PrefsModule.class })
     abstract SuggestChangeActivity contributeSuggestChangeActivityInjector();
