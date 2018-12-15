@@ -10,4 +10,29 @@
     <color name="white">#FFFFFF</color>
 
     <color name="black_overlay">#66000000</color>
+
+
+    <color name="primary50">#FFF3E0</color>
+    <color name="primary100">#FFE0B2</color>
+    <color name="primary200">#FFCC80</color>
+    <color name="primary300">#FFB74D</color>
+    <color name="primary400">#FFA726</color>
+    <color name="primary500">#FF9800</color>
+    <color name="primary600">#FB8C00</color>
+    <color name="primary700">#F57C00</color>
+    <color name="primary800">#EF6C00</color>
+    <color name="primary900">#E65100</color>
+
+    <color name="secondary50">#E1F5FE</color>
+    <color name="secondary100">#B3E5FC</color>
+    <color name="secondary200">#81D4FA</color>
+    <color name="secondary300">#4FC3F7</color>
+    <color name="secondary400">#29B6F6</color>
+    <color name="secondary500">#03A9F4</color>
+    <color name="secondary600">#039BE5</color>
+    <color name="secondary700">#0288D1</color>
+    <color name="secondary800">#0277BD</color>
+    <color name="secondary900">#01579B</color>
+
+
 </resources>
