@@ -4,18 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="56dp">
 
-    <TextView
-        android:id="@+id/title_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="19dp"
-        android:gravity="center_vertical"
-        android:letterSpacing="1.5sp"
-        android:text="BLOCKED"
-        android:textColor="@color/blackDisabled"
-        android:textSize="10sp"
-        android:textStyle="bold"
+    <ImageButton
+        android:id="@+id/button_drawer"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_action_add_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
