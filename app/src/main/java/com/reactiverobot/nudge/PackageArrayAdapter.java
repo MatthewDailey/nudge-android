@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -139,7 +138,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
                                @NonNull PackageListManager packageListManager,
                                @Nullable PackageInfoHandler clickHandler,
                                @Nullable PackageInfoHandler longPressHandler) {
-        super(context, R.layout.list_item_package);
+        super(context, R.layout.main_package);
 
         this.activity = context;
         this.packageType = packageType;
@@ -185,7 +184,7 @@ public class PackageArrayAdapter extends ArrayAdapter<PackageInfo>
 
         if (convertView == null) {
             if (PackageInfo.Type.PACKAGE.equals(packageInfo.type)) {
-                convertView = layoutInflater.inflate(R.layout.list_item_package, null);
+                convertView = layoutInflater.inflate(R.layout.main_package, null);
             } else {
                 convertView = layoutInflater.inflate(R.layout.list_item_heading, null);
             }
