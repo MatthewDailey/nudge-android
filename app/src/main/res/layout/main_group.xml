@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <include layout="@layout/main_section" />
-
+    <include layout="@layout/main_package" />
     <include layout="@layout/main_add" />
 
 </android.widget.LinearLayout>
