@@ -2,11 +2,13 @@ package com.reactiverobot.nudge;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.reactiverobot.nudge.checker.ActivePackageChecker;
@@ -68,6 +70,33 @@ public class RedesignActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    private void showOpenSettingsAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Before you can enable Nudge, you need to grant it Accessibility Access.")
+                .setTitle("Accessibility Access is required");
+
+        builder.setPositiveButton("Open Settings",
+                (dialog, id) -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+            // User cancelled the dialog
+        });
+
+        builder.create().show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
+        if (prefs.isAccessibilityAccessGranted()) {
+            enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
+        } else {
+            enableServiceSwitch.setChecked(false);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -82,6 +111,17 @@ public class RedesignActivity extends AppCompatActivity {
 
         setupGroup(findViewById(R.id.group_blocked), "BLOCKED", builder.attach(this, PackageType.BAD_HABIT));
         setupGroup(findViewById(R.id.group_suggested), "SUGGESTED", builder.attach(this, PackageType.GOOD_OPTION));
+
+        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
+        enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
+            if (prefs.isAccessibilityAccessGranted()) {
+                prefs.setCheckActiveEnabled(isEnabled);
+            } else {
+                enableServiceSwitch.setChecked(false);
+                showOpenSettingsAlertDialog();
+            }
+        });
+
     }
 
     private void setupGroup(View groupView, String title, PackageArrayAdapter adapter) {
