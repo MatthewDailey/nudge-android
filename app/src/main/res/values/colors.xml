@@ -12,6 +12,8 @@
     <color name="black_overlay">#66000000</color>
 
 
+    <color name="blackDisabled">#61000000</color>
+
     <color name="primary50">#FFF3E0</color>
     <color name="primary100">#FFE0B2</color>
     <color name="primary200">#FFCC80</color>
