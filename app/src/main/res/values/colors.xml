@@ -13,6 +13,7 @@
 
 
     <color name="blackDisabled">#61000000</color>
+    <color name="blackHighEmphasis">#DE000000</color>
 
     <color name="primary50">#FFF3E0</color>
     <color name="primary100">#FFE0B2</color>
