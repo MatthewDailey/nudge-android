@@ -104,7 +104,7 @@ public class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.button_enable).setOnClickListener(v -> {
             prefs.completeOnboarding();
             prefs.setCheckActiveEnabled(true);
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, RedesignActivity.class));
             finish();
 
             FirebaseAnalytics.getInstance(this)

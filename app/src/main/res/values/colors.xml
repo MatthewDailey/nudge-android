@@ -39,4 +39,6 @@
 
     <color name="error">#FF0C3E</color>
 
+    <color name="buttonText">@color/primary500</color>
+
 </resources>

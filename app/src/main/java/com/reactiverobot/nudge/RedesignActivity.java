@@ -104,6 +104,12 @@ public class RedesignActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
+
+        if (!prefs.hasCompletedOnboarding()) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
 
