@@ -88,13 +88,7 @@ public class RedesignActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
-        if (prefs.isAccessibilityAccessGranted()) {
-            enableServiceSwitch.setChecked(prefs.getCheckActiveEnabled());
-        } else {
-            enableServiceSwitch.setChecked(false);
-        }
+        updateEnabledViews();
     }
 
     @Override
@@ -117,11 +111,10 @@ public class RedesignActivity extends AppCompatActivity {
             if (prefs.isAccessibilityAccessGranted()) {
                 prefs.setCheckActiveEnabled(isEnabled);
             } else {
-                enableServiceSwitch.setChecked(false);
                 showOpenSettingsAlertDialog();
             }
+            updateEnabledViews();
         });
-
     }
 
     private void setupGroup(View groupView, String title, PackageArrayAdapter adapter) {
@@ -132,4 +125,16 @@ public class RedesignActivity extends AppCompatActivity {
         sectionTitle.setText(title);
     }
 
+    private void updateEnabledViews() {
+        Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
+        View disabledView = findViewById(R.id.disabled_header);
+
+        if (prefs.isAccessibilityAccessGranted() && prefs.getCheckActiveEnabled()) {
+            enableServiceSwitch.setChecked(true);
+            disabledView.setVisibility(View.GONE);
+        } else {
+            enableServiceSwitch.setChecked(false);
+            disabledView.setVisibility(View.VISIBLE);
+        }
+    }
 }
