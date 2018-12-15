@@ -37,5 +37,6 @@
     <color name="secondary800">#0277BD</color>
     <color name="secondary900">#01579B</color>
 
+    <color name="error">#FF0C3E</color>
 
 </resources>
