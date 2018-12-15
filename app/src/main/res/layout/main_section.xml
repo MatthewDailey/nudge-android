@@ -11,7 +11,7 @@
         android:layout_marginStart="19dp"
         android:gravity="center_vertical"
         android:letterSpacing="0.15"
-        android:text="BLOCKED"
+        android:text="NOT CONFIGURED"
         android:textColor="@color/blackDisabled"
         android:textSize="10sp"
         android:textStyle="bold"
