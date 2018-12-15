@@ -1,8 +1,12 @@
 package com.reactiverobot.nudge;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -129,6 +133,49 @@ public class RedesignActivity extends AppCompatActivity {
 
         Button enableServiceButton = findViewById(R.id.button_enable_service);
         enableServiceButton.setOnClickListener((view) -> setServiceEnabled.accept(true));
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ImageButton drawerButton = findViewById(R.id.button_drawer);
+        drawerButton.setOnClickListener((view) -> drawer.openDrawer(GravityCompat.START));
+
+        NavigationView navigationView = findViewById(R.id.navigation_main);
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    drawer.closeDrawers();
+                    menuItem.setCheckable(false);
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.nav_rate:
+                            prefs.openPlayStore();
+                            return true;
+                        case R.id.nav_share:
+                            startShareAppIntent();
+                            return true;
+                        case R.id.nav_feedback:
+                            startSendFeedbackActivity();
+                            return true;
+//                    case R.id.nav_about:
+//                        // TODO: Open simple about activity
+                        default:
+                            return true;
+                    }
+                });
+
+    }
+
+    private void startShareAppIntent() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                "Hey check out Nudge to block distracting apps at: https://play.google.com/store/apps/details?id=com.reactiverobot.nudge");
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
+    }
+
+    private void startSendFeedbackActivity() {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:matt@reactiverobot.com?subject=" + Uri.encode("Feedback about Nudge App")));
+        startActivity(Intent.createChooser(emailIntent, "Send Email"));
     }
 
     private void setupGroup(View groupView, PackageType packageType, String title, PackageArrayAdapter adapter) {

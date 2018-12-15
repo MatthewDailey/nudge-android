@@ -1,10 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-    <include layout="@layout/main_header" />
-    <include android:id="@+id/disabled_header" layout="@layout/main_disabled" />
-    <include android:id="@+id/group_blocked" layout="@layout/main_group" />
-    <include android:id="@+id/group_suggested" layout="@layout/main_group" />
-</android.widget.LinearLayout>
+    android:fitsSystemWindows="true">
+
+    <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <android.widget.LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <include layout="@layout/main_header" />
+            <include android:id="@+id/disabled_header" layout="@layout/main_disabled" />
+            <include android:id="@+id/group_blocked" layout="@layout/main_group" />
+            <include android:id="@+id/group_suggested" layout="@layout/main_group" />
+        </android.widget.LinearLayout>
+    </FrameLayout>
+    <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation_main"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/header_drawer"
+        app:menu="@menu/menu_drawer" />
+</android.support.v4.widget.DrawerLayout>
+
