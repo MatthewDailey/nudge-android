@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -16,6 +17,10 @@ import com.reactiverobot.nudge.info.PackageInfoManager;
 import com.reactiverobot.nudge.info.PackageListManagerSupplier;
 import com.reactiverobot.nudge.info.PackageType;
 import com.reactiverobot.nudge.prefs.Prefs;
+
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 
@@ -107,14 +112,22 @@ public class RedesignActivity extends AppCompatActivity {
         setupGroup(findViewById(R.id.group_suggested), "SUGGESTED", builder.attach(this, PackageType.GOOD_OPTION));
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
-        enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
+
+        final Consumer<Boolean> setServiceEnabled = (Boolean isEnabled) -> {
             if (prefs.isAccessibilityAccessGranted()) {
                 prefs.setCheckActiveEnabled(isEnabled);
             } else {
                 showOpenSettingsAlertDialog();
             }
             updateEnabledViews();
+        };
+
+        enableServiceSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
+            setServiceEnabled.accept(isEnabled);
         });
+
+        Button enableServiceButton = findViewById(R.id.button_enable_service);
+        enableServiceButton.setOnClickListener((view) -> setServiceEnabled.accept(true));
     }
 
     private void setupGroup(View groupView, String title, PackageArrayAdapter adapter) {
