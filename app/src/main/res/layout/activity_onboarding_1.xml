@@ -90,7 +90,7 @@
                     android:layout_weight="1"
                     android:text="OPEN SETTINGS"
                     android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="@color/colorSecondaryDark"
+                    android:textColor="@color/buttonText"
                     android:theme="@style/PrimaryFlatButton" />
             </LinearLayout>
         </LinearLayout>
@@ -118,7 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_check_24dp"
-                android:tint="@color/colorSecondaryDark"
+                android:tint="@color/buttonText"
                 />
 
             <View
@@ -175,7 +175,7 @@
                     android:layout_weight="1"
                     android:text="CHOOSE APPS TO BLOCK"
                     android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="@color/colorSecondaryDark"
+                    android:textColor="@color/buttonText"
                     android:theme="@style/PrimaryFlatButton" />
             </LinearLayout>
 
@@ -205,7 +205,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_check_24dp"
-                android:tint="@color/colorSecondaryDark"
+                android:tint="@color/buttonText"
                 />
 
             <View
@@ -262,7 +262,7 @@
                     android:layout_weight="1"
                     android:text="CHOOSE APPS TO SUGGEST"
                     android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="@color/colorSecondaryDark"
+                    android:textColor="@color/buttonText"
                     android:theme="@style/PrimaryFlatButton" />
             </LinearLayout>
 
@@ -292,7 +292,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_check_24dp"
-                android:tint="@color/colorSecondaryDark"
+                android:tint="@color/buttonText"
                 />
 
             <View
