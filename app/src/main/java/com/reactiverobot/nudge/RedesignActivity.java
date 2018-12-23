@@ -48,7 +48,8 @@ public class RedesignActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setMessage("This will open and unblock " + packageInfo.name + " for 60 seconds.")
-                .setTitle("Open '" + packageInfo.name + "'?");
+                .setIcon(packageInfo.iconDrawable)
+                .setTitle("Open " + packageInfo.name + "?");
 
         builder.setPositiveButton("Open",
                 (dialog, id) -> {
