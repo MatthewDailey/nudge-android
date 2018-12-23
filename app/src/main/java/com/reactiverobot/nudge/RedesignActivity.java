@@ -70,7 +70,8 @@ public class RedesignActivity extends AppCompatActivity {
 
         builder.setMessage("This package will no longer appear in this list. " +
                 "You can always add it back with the '+' button.")
-                .setTitle("Remove '" + packageInfo.name + "'?");
+                .setIcon(packageInfo.iconDrawable)
+                .setTitle("Remove " + packageInfo.name + "?");
 
         builder.setPositiveButton("Remove",
                 (dialog, id) -> prefs.unpinPackage(packageType, packageInfo.packageName));

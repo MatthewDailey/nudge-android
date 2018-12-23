@@ -8,20 +8,26 @@
     android:fitsSystemWindows="true">
 
     <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
-    <FrameLayout
-        android:id="@+id/content_frame"
+    <android.widget.LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-        <android.widget.LinearLayout
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <include layout="@layout/main_header" />
+        <include android:id="@+id/disabled_header" layout="@layout/main_disabled" />
+        <ScrollView
+            android:id="@+id/content_frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <include layout="@layout/main_header" />
-            <include android:id="@+id/disabled_header" layout="@layout/main_disabled" />
-            <include android:id="@+id/group_blocked" layout="@layout/main_group" />
-            <include android:id="@+id/group_suggested" layout="@layout/main_group" />
-        </android.widget.LinearLayout>
-    </FrameLayout>
+            android:layout_height="match_parent" >
+            <android.widget.LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <include android:id="@+id/group_blocked" layout="@layout/main_group" />
+                <include android:id="@+id/group_suggested" layout="@layout/main_group" />
+            </android.widget.LinearLayout>
+        </ScrollView>
+    </android.widget.LinearLayout>
+
     <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_main"
