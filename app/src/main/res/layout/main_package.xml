@@ -30,6 +30,8 @@
         app:layout_constraintStart_toEndOf="@+id/image_view_app_icon"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View android:layout_width="0dp" android:layout_height="56dp" />
+
     <CheckBox
         android:id="@+id/checkbox_block_package"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -44,13 +46,11 @@
 
     <ImageButton
         android:id="@+id/button_briefly_show"
+        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
         android:src="@drawable/ic_eye"
-        style="@style/Widget.AppCompat.Button.Borderless"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/checkbox_block_package"
         app:layout_constraintTop_toTopOf="parent" />
