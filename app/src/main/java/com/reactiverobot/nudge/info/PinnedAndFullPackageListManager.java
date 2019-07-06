@@ -3,15 +3,12 @@ package com.reactiverobot.nudge.info;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 
-import com.google.firebase.perf.metrics.AddTrace;
 import com.reactiverobot.nudge.PackageInfo;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -60,7 +57,6 @@ public class PinnedAndFullPackageListManager implements PackageListManager {
         this.pinnedPackagesSupplier = pinnedPackagesSupplier;
     }
 
-    @AddTrace(name = "packageListInitialization")
     @Override
     public void initialize(@Nullable Runnable onComplete) {
         pinnedPackages = pinnedPackagesSupplier.get()

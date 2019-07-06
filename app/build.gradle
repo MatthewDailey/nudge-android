@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 26
@@ -36,7 +34,6 @@ android {
 
 dependencies {
     implementation 'com.android.support:support-v4:26.1.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
 
     implementation 'com.google.dagger:dagger:2.14.1'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.14.1'
@@ -46,7 +43,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.14.1'
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
-    implementation 'com.google.firebase:firebase-perf:16.1.2'
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
