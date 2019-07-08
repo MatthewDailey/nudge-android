@@ -128,7 +128,7 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppsView.setAdapter(suggestedAppAdapter);
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
-        View closeView =  layoutInflater.inflate(R.layout.button_exit_suggestions, null);
+        View closeView =  layoutInflater.inflate(R.layout.button_exit_suggestions, findViewById(R.id.suggest_list_container), true);
         Button close = closeView.findViewById(R.id.button_exit_suggestions);
         close.setOnClickListener(view -> {
             Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -137,6 +137,5 @@ public class SuggestChangeActivity extends Activity {
             startActivity(startMain);
             finish();
         });
-        suggestedAppsView.addFooterView(closeView);
     }
 }
