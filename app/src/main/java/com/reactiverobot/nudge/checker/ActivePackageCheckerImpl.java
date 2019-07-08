@@ -76,6 +76,7 @@ public class ActivePackageCheckerImpl implements ActivePackageChecker {
 
         Intent intent = new Intent(context, SuggestChangeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(SuggestChangeActivity.EXTRA_APP_BEING_BLOCKED, eventPackageName);
         context.startActivity(intent);
     }
