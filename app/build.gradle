@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.reactiverobot.nudge"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 33
         versionCode 10
         versionName "2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -30,6 +30,7 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    namespace 'com.reactiverobot.nudge'
 }
 
 dependencies {
