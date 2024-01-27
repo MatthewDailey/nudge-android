@@ -34,6 +34,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CharSequence packageName = event.getPackageName();
+
         if (packageName == null) {
             Log.d(TAG, "Saw event with no package name, doing nothing");
             return;
@@ -42,7 +43,18 @@ public class NudgeAccessibilityService extends AccessibilityService {
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
 
-        Log.d(TAG, "Saw package : " + eventPackageName);
+        int eventType = event.getEventType();
+        int contentChangeType = event.getContentChangeTypes();
+        int action = event.getAction();
+        AccessibilityNodeInfo source = event.getSource();
+        Log.d(TAG, "Saw packageName=" + eventPackageName + " eventType=" + eventType
+                + " contentChangeType=" + contentChangeType
+                + " action=" + action + " source=" + source);
+
+        if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED) {
+            Log.d(TAG, "Content change type is not CONTENT_CHANGE_TYPE_PANE_APPEARED, doing nothing");
+            return;
+        }
 
         if (prefs.isTemporarilyUnblocked(eventPackageName)) {
             new Handler().postDelayed(() -> {
