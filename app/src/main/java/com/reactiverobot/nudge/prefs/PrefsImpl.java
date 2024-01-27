@@ -37,8 +37,8 @@ public class PrefsImpl implements Prefs {
     private final Map<PackageType, List<PinnedSubscriber>> packageTypeToPinnedSubscribers = new HashMap<>();
     private final Map<PackageType, List<CheckedSubscriber>> packageTypeToCheckedSubscriber = new HashMap<>();
 
-    private static final String PINNED_PACKAGES_PREFIX = "pinned_packages_";
-    private static final String SELECTED_PACKAGES_PREFIX = "selected_package_";
+    private static final String PINNED_PACKAGES_PREFIX = "pinned_p_";
+    private static final String SELECTED_PACKAGES_PREFIX = "selected_p_";
     private static final String CHECK_ACTIVE_ENABLED = "check_active_enabled";
     private static final String ONBOARDING_COMPLETE = "onboarding_complete";
     private static final String HAS_RATED_APP = "has_rated_app";
