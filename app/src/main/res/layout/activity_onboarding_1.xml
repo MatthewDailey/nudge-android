@@ -20,7 +20,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.016" />
+        app:layout_constraintVertical_bias="0.016"
+        tools:ignore="NotSibling" />
 
     <Button
         android:id="@+id/button_get_started"
@@ -31,7 +32,7 @@
         android:layout_marginStart="64dp"
         android:background="@drawable/start_button_background"
         android:fontFamily="@font/roboto"
-        android:text="GET STARTED"
+        android:text="@string/get_started"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:elevation="0dp"

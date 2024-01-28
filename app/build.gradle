@@ -4,10 +4,10 @@ android {
     compileSdkVersion 33
     defaultConfig {
         applicationId "com.reactiverobot.nudge"
-        minSdkVersion 24
+        minSdkVersion 33
         targetSdkVersion 33
-        versionCode 10
-        versionName "2.3"
+        versionCode 12
+        versionName "2.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
