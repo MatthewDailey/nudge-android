@@ -82,6 +82,11 @@ public class OnboardingActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_onboarding_1);
 
+        findViewById(R.id.button_decline_settings).setOnClickListener(v -> {
+            findViewById(R.id.wont_function_spacer).setVisibility(View.VISIBLE);
+            findViewById(R.id.wont_function_text).setVisibility(View.VISIBLE);
+        });
+
         findViewById(R.id.button_get_started).setOnClickListener(v -> {
             changeToScene(R.layout.activity_onboarding_2);
 
