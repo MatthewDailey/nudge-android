@@ -58,11 +58,11 @@ public class OnboardingActivity extends AppCompatActivity {
     private void changeToScene(int activity_resource) {
         final ConstraintLayout constraintLayout = findViewById(R.id.onboarding_contraint_layout);
 
-        final ConstraintSet constraintSet3 = new ConstraintSet();
-        constraintSet3.clone(getApplicationContext(), activity_resource);
+        final ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(getApplicationContext(), activity_resource);
 
         TransitionManager.beginDelayedTransition(constraintLayout);
-        constraintSet3.applyTo(constraintLayout);
+        constraintSet.applyTo(constraintLayout);
     }
 
     private void launchSelectPackagesActivity(PackageType packageType, int requestCode) {
