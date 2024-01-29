@@ -72,7 +72,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="First, Nudge needs accessibility permission. This will allow Nudge to read the content of your screen which is necessary to block requested apps."
+                android:text="First, Nudge needs accessibility permission. This will allow Nudge to read the content of your screen which is necessary to block requested apps. None of your app usage data will be stored or transmitted from your device."
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <View

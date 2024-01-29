@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void showOpenSettingsAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Before you can enable Nudge, you need to grant it Accessibility Access.")
+        builder.setMessage("Before you can enable Nudge, you need to grant it Accessibility Access. This permission will allow Nudge to view all content on your screen and is necessary for Nudge to block apps. None of your app usage data will be stored or transmitted from your device.")
                 .setTitle("Accessibility Access is required");
 
         builder.setPositiveButton("Open Settings",
