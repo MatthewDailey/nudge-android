@@ -3,6 +3,7 @@ package com.reactiverobot.nudge;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -58,6 +59,8 @@ public class SuggestChangeActivity extends Activity {
 
                 if (packageName.equals("com.reactiverobot.nudge")) {
                     openSuggestionButton.setText("Take a Breath");
+                } else if (packageName.equals("com.reactiverobot.nudge.offramp")) {
+                    openSuggestionButton.setText("Offramp 🤓");
                 } else if (packageName.equals("com.reactiverobot.nudge.playstore")) {
                     openSuggestionButton.setText("Rate Nudge 😍");
                 } else {
@@ -81,6 +84,11 @@ public class SuggestChangeActivity extends Activity {
         if (packageName.equals("com.reactiverobot.nudge.playstore")) {
             prefs.openPlayStore();
             prefs.setHasRatedApp(true);
+            finish();
+            return;
+        } else if (packageName.equals("com.reactiverobot.nudge.offramp")) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://nicotine-web-proto.web.app/"));
+            startActivity(browserIntent);
             finish();
             return;
         }
@@ -122,6 +130,7 @@ public class SuggestChangeActivity extends Activity {
         suggestedAppAdapter.addAll(pinnedPackages);
 
         suggestedAppAdapter.add("com.reactiverobot.nudge");
+        suggestedAppAdapter.add("com.reactiverobot.nudge.offramp");
         if (!prefs.hasRatedApp()) {
             suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
         }
