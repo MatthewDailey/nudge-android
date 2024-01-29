@@ -112,6 +112,7 @@ public class SuggestChangeActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_suggest_change);
+        this.setFinishOnTouchOutside(false);
 
         Set<String> pinnedPackages = prefs.getSelectedPackages(PackageType.GOOD_OPTION);
 
@@ -124,6 +125,7 @@ public class SuggestChangeActivity extends Activity {
         if (!prefs.hasRatedApp()) {
             suggestedAppAdapter.add("com.reactiverobot.nudge.playstore");
         }
+
 
         suggestedAppsView.setAdapter(suggestedAppAdapter);
 
