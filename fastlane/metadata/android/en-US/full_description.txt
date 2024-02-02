@@ -8,3 +8,5 @@ Addicting apps will draw you in and before you know it, you'll find yourself ope
 There are always going to be times you're bored and want to pull out your phone. The trick to beating phone addiction is to redirect that energy in the moment of need. Instead of mindlessly scrolling, read a book or take a deep breath.
 
 Nudge breaks the habit cycle by intercepting and redirecting you right before you start using an addicting app. It provides an easier alternative to do something positive.
+
+⚠️IMPORTANT: Nudge uses the AccessibilityService API which allows it to read the content of your screen. This is necessary to determine which apps to block. None of your personal information is saved or sent off the device.
