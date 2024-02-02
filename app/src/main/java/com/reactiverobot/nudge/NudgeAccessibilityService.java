@@ -51,7 +51,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 + " contentChangeType=" + contentChangeType
                 + " action=" + action + " source=" + source);
 
-        if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED) {
+        if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
             Log.d(TAG, "Content change type is not CONTENT_CHANGE_TYPE_PANE_APPEARED, doing nothing");
             return;
         }
