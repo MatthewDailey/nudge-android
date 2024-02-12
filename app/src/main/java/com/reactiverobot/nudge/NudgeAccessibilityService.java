@@ -39,7 +39,20 @@ public class NudgeAccessibilityService extends AccessibilityService {
         CharSequence contentDescription = source.getContentDescription();
         if (text != null || contentDescription != null) {
 //            Log.d(TAG, "source=" + source);
-            Log.d(TAG, "text=" + text + " contentDescription=" + contentDescription);
+//            Log.d(TAG, "text=" + text + " contentDescription=" + contentDescription);
+        }
+
+        if (text != null && contentDescription != null
+                && text.toString().equals("Shorts") && contentDescription.toString().equals("Shorts")) {
+            Log.d(TAG, "Shorts title found.");
+            Log.d(TAG, "window=" + source.getWindow());
+            Log.d(TAG, "source=" + source);
+        }
+
+        if (text == null && contentDescription != null && contentDescription.toString().contains("play Short")) {
+            Log.d(TAG, "Short link found.");
+            Log.d(TAG, "window=" + source.getWindow());
+            Log.d(TAG, "source=" + source);
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
