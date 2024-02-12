@@ -31,10 +31,30 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
 
+    private void logEventSource(AccessibilityNodeInfo source, int depth) {
+        if (source == null) {
+            return;
+        }
+        CharSequence text = source.getText();
+        CharSequence contentDescription = source.getContentDescription();
+        if (text != null || contentDescription != null) {
+//            Log.d(TAG, "source=" + source);
+            Log.d(TAG, "text=" + text + " contentDescription=" + contentDescription);
+        }
+
+        for (int i = 0; i < source.getChildCount(); i++) {
+            AccessibilityNodeInfo nodeInfo = source.getChild(i);
+            if (source != null) {
+                logEventSource(nodeInfo, depth + 1);
+            }
+        }
+    }
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CharSequence packageName = event.getPackageName();
-
+        Log.d(TAG, "===============================================");
+        Log.d(TAG, event.toString());
         if (packageName == null) {
             Log.d(TAG, "Saw event with no package name, doing nothing");
             return;
@@ -43,16 +63,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
 
-        int eventType = event.getEventType();
         int contentChangeType = event.getContentChangeTypes();
-        int action = event.getAction();
         AccessibilityNodeInfo source = event.getSource();
-        Log.d(TAG, "Saw packageName=" + eventPackageName + " eventType=" + eventType
-                + " contentChangeType=" + contentChangeType
-                + " action=" + action + " source=" + source);
+
+        if (event.getSource() != null) {
+            logEventSource(event.getSource(), 0);
+        }
 
         if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
-            Log.d(TAG, "Content change type is not CONTENT_CHANGE_TYPE_PANE_APPEARED, doing nothing");
             return;
         }
 
@@ -78,14 +96,5 @@ public class NudgeAccessibilityService extends AccessibilityService {
         AndroidInjection.inject(this);
         Log.d(TAG, "Connecting service");
         super.onServiceConnected();
-
-        AccessibilityServiceInfo info = getServiceInfo();
-
-        info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        info.packageNames = null;
-        info.flags = AccessibilityServiceInfo.DEFAULT;
-
-        this.setServiceInfo(info);
     }
 }
