@@ -61,11 +61,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
         params.y = rect.top; // Y position
         params.height = rect.height();
         params.width = rect.width();
+        Log.d(TAG, "Adding view at " + params.x + ", " + params.y + " with height " + params.height + " and width " + params.width);
 
         Log.d(TAG, "Adding new view");
-        View view = new RedRectangleView(getApplicationContext());
-        newViewMap.put(viewKey, view);
-        windowManager.addView(view, params);
+        if (rect.height() > 0) {
+            View view = new RedRectangleView(getApplicationContext());
+            newViewMap.put(viewKey, view);
+            windowManager.addView(view, params);
+        }
     }
 
     private void traverseAccessibilityNodes(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
