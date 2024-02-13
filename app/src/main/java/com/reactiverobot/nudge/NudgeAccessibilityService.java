@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.SurfaceControlViewHost;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -20,6 +21,8 @@ import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
@@ -39,11 +42,13 @@ public class NudgeAccessibilityService extends AccessibilityService {
     ActivePackageChecker packageChecker;
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
+    ConcurrentMap<String, View> viewMap = new ConcurrentHashMap();
 
     private void logEventSource(AccessibilityNodeInfo source, int depth) {
         if (source == null) {
             return;
         }
+
         CharSequence text = source.getText();
         CharSequence contentDescription = source.getContentDescription();
         if (text != null || contentDescription != null) {
@@ -54,6 +59,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (text != null && contentDescription != null
                 && text.toString().equals("Shorts") && contentDescription.toString().equals("Shorts")) {
             Log.d(TAG, "Shorts title found.");
+            String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
+            Log.d(TAG, viewKey);
             AccessibilityWindowInfo window = source.getWindow();
             Log.d(TAG, "window=" + window);
             Log.d(TAG, "source=" + source);
@@ -77,7 +84,15 @@ public class NudgeAccessibilityService extends AccessibilityService {
             params.y = rect.top; // Y position
             params.height = rect.height();
             params.width = rect.width();
-            windowManager.addView(new RedRectangleView(getApplicationContext()), params);
+
+            View oldView = viewMap.get(viewKey);
+            View view = new RedRectangleView(getApplicationContext());
+            viewMap.put(viewKey, view);
+            windowManager.addView(view, params);
+            if (oldView != null) {
+                Log.d(TAG, "Removing old view");
+                windowManager.removeView(oldView);
+            }
 
             // TODO (mjd): Keep a map from source to view so we can remove whenever we re-draw.
             // TODO (mjd): Cover the video tiles. Make sure to account for when partially hidden.
