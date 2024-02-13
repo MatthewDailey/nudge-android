@@ -110,6 +110,9 @@ public class NudgeAccessibilityService extends AccessibilityService {
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
+        // TODO (mjd): Traverse more frequently than events.
+        // TODO (mjd): Only cover the parts of the views that are visible.
+        // TODO (mjd): Handle the case where it extends the entire screen when scrolled off to top.
         if (eventPackageName.equals("com.google.android.youtube")) {
             synchronized (this) {
                 Map<String, View> oldViewMap = viewMapRef.get();
