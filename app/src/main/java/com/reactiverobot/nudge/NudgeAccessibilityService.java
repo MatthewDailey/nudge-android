@@ -62,9 +62,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 return;
             }
 
-            final DisplayManager dm = getApplication().getSystemService(DisplayManager.class);
-            final Display primaryDisplay = dm.getDisplay(DEFAULT_DISPLAY);
-
             Rect rect = new Rect();
             source.getBoundsInWindow(rect);
 
@@ -85,6 +82,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
             // TODO (mjd): Keep a map from source to view so we can remove whenever we re-draw.
             // TODO (mjd): Cover the video tiles. Make sure to account for when partially hidden.
 
+//            final DisplayManager dm = getApplication().getSystemService(DisplayManager.class);
+//            final Display primaryDisplay = dm.getDisplay(DEFAULT_DISPLAY);
 //            Context windowContext = createWindowContext(primaryDisplay, WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);
 //            SurfaceControlViewHost viewHost = new SurfaceControlViewHost(windowContext, primaryDisplay, null);
 //            viewHost.setView(new RedRectangleView(getApplicationContext()), rect.height(), rect.width());
