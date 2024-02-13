@@ -2,8 +2,16 @@ package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.Context;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.SurfaceControlViewHost;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
@@ -18,6 +26,7 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 
+import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.accessibility.AccessibilityNodeInfo.FOCUS_ACCESSIBILITY;
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
@@ -45,8 +54,37 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (text != null && contentDescription != null
                 && text.toString().equals("Shorts") && contentDescription.toString().equals("Shorts")) {
             Log.d(TAG, "Shorts title found.");
-            Log.d(TAG, "window=" + source.getWindow());
+            AccessibilityWindowInfo window = source.getWindow();
+            Log.d(TAG, "window=" + window);
             Log.d(TAG, "source=" + source);
+            if (window == null) {
+                Log.d(TAG, "Window is null, doing nothing");
+                return;
+            }
+
+            final DisplayManager dm = getApplication().getSystemService(DisplayManager.class);
+            final Display primaryDisplay = dm.getDisplay(DEFAULT_DISPLAY);
+
+            Rect rect = new Rect();
+            source.getBoundsInWindow(rect);
+
+            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
+            params.gravity = Gravity.TOP | Gravity.START;
+            params.x = rect.left; // X position
+            params.y = rect.top; // Y position
+            params.height = rect.height();
+            params.width = rect.width();
+            windowManager.addView(new RedRectangleView(getApplicationContext()), params);
+//            Context windowContext = createWindowContext(primaryDisplay, WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);
+//            SurfaceControlViewHost viewHost = new SurfaceControlViewHost(windowContext, primaryDisplay, null);
+//            viewHost.setView(new RedRectangleView(getApplicationContext()), rect.height(), rect.width());
+//            attachAccessibilityOverlayToWindow(window.getId(), viewHost.getSurfacePackage().getSurfaceControl());
         }
 
         if (text == null && contentDescription != null && contentDescription.toString().contains("play Short")) {
