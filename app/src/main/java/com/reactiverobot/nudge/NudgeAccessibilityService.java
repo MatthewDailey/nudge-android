@@ -1,16 +1,11 @@
 package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
-import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
-import android.view.SurfaceControlViewHost;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
@@ -20,7 +15,8 @@ import android.view.accessibility.AccessibilityWindowInfo;
 import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.prefs.Prefs;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,8 +25,6 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 
-import static android.view.Display.DEFAULT_DISPLAY;
-import static android.view.accessibility.AccessibilityNodeInfo.FOCUS_ACCESSIBILITY;
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class NudgeAccessibilityService extends AccessibilityService {
@@ -42,79 +36,62 @@ public class NudgeAccessibilityService extends AccessibilityService {
     ActivePackageChecker packageChecker;
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
-    ConcurrentMap<String, View> viewMap = new ConcurrentHashMap();
+    AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
-    private void logEventSource(AccessibilityNodeInfo source, int depth) {
+    private void addCoverViewForAccessibilityNode(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
+        String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
+        AccessibilityWindowInfo window = source.getWindow();
+        Log.d(TAG, "window=" + window);
+        Log.d(TAG, "source=" + source);
+        if (window == null) {
+            Log.d(TAG, "Window is null, doing nothing");
+            return;
+        }
+        Rect rect = new Rect();
+        source.getBoundsInWindow(rect);
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.TOP | Gravity.START;
+        params.x = rect.left; // X position
+        params.y = rect.top; // Y position
+        params.height = rect.height();
+        params.width = rect.width();
+
+        Log.d(TAG, "Adding new view");
+        View view = new RedRectangleView(getApplicationContext());
+        newViewMap.put(viewKey, view);
+        windowManager.addView(view, params);
+    }
+
+    private void traverseAccessibilityNodes(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
         if (source == null) {
             return;
         }
 
         CharSequence text = source.getText();
         CharSequence contentDescription = source.getContentDescription();
-        if (text != null || contentDescription != null) {
-//            Log.d(TAG, "source=" + source);
-//            Log.d(TAG, "text=" + text + " contentDescription=" + contentDescription);
-        }
+
 
         if (text != null && contentDescription != null
                 && text.toString().equals("Shorts") && contentDescription.toString().equals("Shorts")) {
             Log.d(TAG, "Shorts title found.");
-            String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
-            Log.d(TAG, viewKey);
-            AccessibilityWindowInfo window = source.getWindow();
-            Log.d(TAG, "window=" + window);
-            Log.d(TAG, "source=" + source);
-            if (window == null) {
-                Log.d(TAG, "Window is null, doing nothing");
-                return;
-            }
-
-            Rect rect = new Rect();
-            source.getBoundsInWindow(rect);
-
-            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.TRANSLUCENT);
-            params.gravity = Gravity.TOP | Gravity.START;
-            params.x = rect.left; // X position
-            params.y = rect.top; // Y position
-            params.height = rect.height();
-            params.width = rect.width();
-
-            View oldView = viewMap.get(viewKey);
-            View view = new RedRectangleView(getApplicationContext());
-            viewMap.put(viewKey, view);
-            windowManager.addView(view, params);
-            if (oldView != null) {
-                Log.d(TAG, "Removing old view");
-                windowManager.removeView(oldView);
-            }
-
-            // TODO (mjd): Keep a map from source to view so we can remove whenever we re-draw.
-            // TODO (mjd): Cover the video tiles. Make sure to account for when partially hidden.
-
-//            final DisplayManager dm = getApplication().getSystemService(DisplayManager.class);
-//            final Display primaryDisplay = dm.getDisplay(DEFAULT_DISPLAY);
-//            Context windowContext = createWindowContext(primaryDisplay, WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);
-//            SurfaceControlViewHost viewHost = new SurfaceControlViewHost(windowContext, primaryDisplay, null);
-//            viewHost.setView(new RedRectangleView(getApplicationContext()), rect.height(), rect.width());
-//            attachAccessibilityOverlayToWindow(window.getId(), viewHost.getSurfacePackage().getSurfaceControl());
+            addCoverViewForAccessibilityNode(source, oldViewMap, newViewMap);
         }
 
         if (text == null && contentDescription != null && contentDescription.toString().contains("play Short")) {
             Log.d(TAG, "Short link found.");
-            Log.d(TAG, "window=" + source.getWindow());
-            Log.d(TAG, "source=" + source);
+            addCoverViewForAccessibilityNode(source, oldViewMap, newViewMap);
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
             AccessibilityNodeInfo nodeInfo = source.getChild(i);
             if (source != null) {
-                logEventSource(nodeInfo, depth + 1);
+                traverseAccessibilityNodes(nodeInfo, oldViewMap, newViewMap);
             }
         }
     }
@@ -131,12 +108,31 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
-
         int contentChangeType = event.getContentChangeTypes();
-        AccessibilityNodeInfo source = event.getSource();
 
-        if (event.getSource() != null) {
-            logEventSource(event.getSource(), 0);
+        if (eventPackageName.equals("com.google.android.youtube")) {
+            synchronized (this) {
+                Map<String, View> oldViewMap = viewMapRef.get();
+                Map<String, View> newViewMap = new HashMap<>();
+                if (event.getSource() != null && event.getSource().getWindow() != null) {
+                    AccessibilityNodeInfo root = event.getSource().getWindow().getRoot();
+                    traverseAccessibilityNodes(root, oldViewMap, newViewMap);
+                    viewMapRef.set(newViewMap);
+                }
+                Log.d(TAG, "Old view map size: " + oldViewMap.size());
+                Log.d(TAG, "New view map size: " + newViewMap.size());
+                Log.d(TAG, "Old view map: " + oldViewMap.keySet());
+                // Remove views that were not found in the traversal.
+                oldViewMap.values().forEach(view -> {
+                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                    try {
+                        windowManager.removeView(view);
+                    } catch (Exception e) {
+                        Log.e(TAG, "View did not exist when trying to cleanup.", e);
+                    }
+
+                });
+            }
         }
 
         if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
