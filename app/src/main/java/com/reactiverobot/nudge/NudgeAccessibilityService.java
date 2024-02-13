@@ -81,6 +81,10 @@ public class NudgeAccessibilityService extends AccessibilityService {
             params.height = rect.height();
             params.width = rect.width();
             windowManager.addView(new RedRectangleView(getApplicationContext()), params);
+
+            // TODO (mjd): Keep a map from source to view so we can remove whenever we re-draw.
+            // TODO (mjd): Cover the video tiles. Make sure to account for when partially hidden.
+
 //            Context windowContext = createWindowContext(primaryDisplay, WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);
 //            SurfaceControlViewHost viewHost = new SurfaceControlViewHost(windowContext, primaryDisplay, null);
 //            viewHost.setView(new RedRectangleView(getApplicationContext()), rect.height(), rect.width());
