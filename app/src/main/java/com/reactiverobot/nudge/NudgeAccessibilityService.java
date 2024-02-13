@@ -1,10 +1,12 @@
 package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
+import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,8 +19,6 @@ import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
@@ -38,11 +38,81 @@ public class NudgeAccessibilityService extends AccessibilityService {
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
     AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
+    private int getScreenHeight(AccessibilityNodeInfo source) {
+        Rect screenRect = new Rect();
+        AccessibilityWindowInfo window = source.getWindow();
+        window.getBoundsInScreen(screenRect);
+        return screenRect.height();
+    }
+
+    private int getScreenWidth(AccessibilityNodeInfo source) {
+        Rect screenRect = new Rect();
+        AccessibilityWindowInfo window = source.getWindow();
+        window.getBoundsInScreen(screenRect);
+        return screenRect.width();
+    }
+
+    private int navBarHeightPx() {
+        float dip = 72f;
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dip,
+                r.getDisplayMetrics()
+        );
+        return (int) px;
+    }
+
+    private int bottomLatchHeightPx() {
+        float dip = 24f;
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dip,
+                r.getDisplayMetrics()
+        );
+        return (int) px;
+    }
+
+    private boolean isSourceFromNavBar(AccessibilityNodeInfo source) {
+        int px = navBarHeightPx();
+        int screenHeight = getScreenHeight(source);
+        Rect rect = new Rect();
+        source.getBoundsInWindow(rect);
+
+        return rect.top > screenHeight - px;
+    }
+    private int getHeightAccountingForNavBar(AccessibilityNodeInfo source, int y, int initialHeight) {
+        int px = navBarHeightPx();
+        int screenHeight = getScreenHeight(source);
+
+        if (y + initialHeight > screenHeight - px) {
+            return screenHeight - y - px;
+        }
+        return initialHeight;
+    }
+
+    private Rect rectToCoverNavBarButton(AccessibilityNodeInfo source) {
+        int px = navBarHeightPx();
+        int screenHeight = getScreenHeight(source);
+        int screenWidth = getScreenWidth(source);
+        int buttonWidth = screenWidth / 4;
+
+        Rect rect = new Rect();
+        source.getBoundsInWindow(rect);
+        int centerX = rect.centerX();
+        rect.left = centerX - buttonWidth / 2;
+        rect.right = centerX + buttonWidth / 2;
+        rect.top = screenHeight - px;
+        rect.bottom = screenHeight - bottomLatchHeightPx();
+        return rect;
+    }
+
     private void addCoverViewForAccessibilityNode(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
         String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
         AccessibilityWindowInfo window = source.getWindow();
-        Log.d(TAG, "window=" + window);
-        Log.d(TAG, "source=" + source);
+//        Log.d(TAG, "window=" + window);
+//        Log.d(TAG, "source=" + source);
         if (window == null) {
             Log.d(TAG, "Window is null, doing nothing");
             return;
@@ -57,13 +127,21 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.START;
-        params.x = rect.left; // X position
-        params.y = rect.top; // Y position
-        params.height = rect.height();
-        params.width = rect.width();
-        Log.d(TAG, "Adding view at " + params.x + ", " + params.y + " with height " + params.height + " and width " + params.width);
 
-        Log.d(TAG, "Adding new view");
+        if (isSourceFromNavBar(source)) {
+            Log.d(TAG, "Source is from nav bar, skipping");
+            Rect toCoverNavBar = rectToCoverNavBarButton(source);
+            params.x = toCoverNavBar.left; // X position
+            params.y = toCoverNavBar.top; // Y position
+            params.height = toCoverNavBar.height();
+            params.width = toCoverNavBar.width();
+        } else {
+            params.x = rect.left; // X position
+            params.y = rect.top; // Y position
+            params.height = getHeightAccountingForNavBar(source, rect.top, rect.height());
+            params.width = rect.width();
+        }
+        Log.d(TAG, "Adding view for rect: " + rect + ", params: " + params);
         if (rect.height() > 0) {
             View view = new RedRectangleView(getApplicationContext());
             newViewMap.put(viewKey, view);
@@ -79,9 +157,25 @@ public class NudgeAccessibilityService extends AccessibilityService {
         CharSequence text = source.getText();
         CharSequence contentDescription = source.getContentDescription();
 
+        if (text != null || contentDescription != null) {
+            Log.d(TAG, "Text: " + text + ", ContentDescription: " + contentDescription);
+        }
 
-        if (text != null && contentDescription != null
-                && text.toString().equals("Shorts") && contentDescription.toString().equals("Shorts")) {
+//        if (text == null && contentDescription != null && contentDescription.toString().equals("Home")) {
+//            Log.d(TAG, "FOUND HOME Text: " + text + ", ContentDescription: " + contentDescription);
+//            Rect r = new Rect();
+//            source.getBoundsInScreen(r);
+//
+//            // get the bounds of the entire screen
+//            Rect screenRect = new Rect();
+//            AccessibilityWindowInfo window = source.getWindow();
+//            window.getBoundsInScreen(screenRect);
+//            addCoverViewForAccessibilityNode(source, oldViewMap, newViewMap);
+//            Log.d(TAG, "Bounds: " + r + ", ScreenBounds: " + screenRect);
+//        }
+
+        if ((text != null && text.toString().equals("Shorts"))
+                || (contentDescription != null && contentDescription.toString().equals("Shorts"))) {
             Log.d(TAG, "Shorts title found.");
             addCoverViewForAccessibilityNode(source, oldViewMap, newViewMap);
         }
@@ -102,12 +196,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CharSequence packageName = event.getPackageName();
-        Log.d(TAG, "===============================================");
-        Log.d(TAG, event.toString());
         if (packageName == null) {
-            Log.d(TAG, "Saw event with no package name, doing nothing");
             return;
         }
+        Log.d(TAG, "===============================================");
+        Log.d(TAG, event.toString());
 
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
@@ -115,13 +208,16 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         // TODO (mjd): Traverse more frequently than events.
         // TODO (mjd): Only cover the parts of the views that are visible.
-        // TODO (mjd): Handle the case where it extends the entire screen when scrolled off to top.
         if (eventPackageName.equals("com.google.android.youtube")) {
             synchronized (this) {
                 Map<String, View> oldViewMap = viewMapRef.get();
                 Map<String, View> newViewMap = new HashMap<>();
                 if (event.getSource() != null && event.getSource().getWindow() != null) {
-                    AccessibilityNodeInfo root = event.getSource().getWindow().getRoot();
+                    AccessibilityWindowInfo eventWindow = event.getSource().getWindow();
+                    Log.d(TAG, "Event window: " + eventWindow);
+                    Log.d(TAG, "Event window root: " + eventWindow.getRoot());
+                    Log.d(TAG, "Event source: " + event.getSource());
+                    AccessibilityNodeInfo root = eventWindow.getRoot();
                     traverseAccessibilityNodes(root, oldViewMap, newViewMap);
                     viewMapRef.set(newViewMap);
                 }
