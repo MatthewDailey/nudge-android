@@ -141,9 +141,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
             params.width = rect.width();
         }
         if (params.height > 0) {
-            View view = new RedRectangleView(getApplicationContext());
+            View view = oldViewMap.get(viewKey);
+            if (view != null) {
+                windowManager.updateViewLayout(view, params);
+            } else {
+                view = new RedRectangleView(getApplicationContext());
+                windowManager.addView(view, params);
+            }
             newViewMap.put(viewKey, view);
-            windowManager.addView(view, params);
         }
     }
 
@@ -210,15 +215,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 Log.d(TAG, "New view map size: " + newViewMap.size());
                 Log.d(TAG, "Old view map: " + oldViewMap.keySet());
                 // Remove views that were not found in the traversal.
-                oldViewMap.values().forEach(view -> {
-                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                    try {
-                        windowManager.removeView(view);
-                    } catch (Exception e) {
-                        Log.e(TAG, "View did not exist when trying to cleanup.", e);
-                    }
-
-                });
+//                oldViewMap.values().forEach(view -> {
+//                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+//                    try {
+//                        windowManager.removeView(view);
+//                    } catch (Exception e) {
+//                        Log.e(TAG, "View did not exist when trying to cleanup.", e);
+//                    }
+//                });
         }
 
         if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
