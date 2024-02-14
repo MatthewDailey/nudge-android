@@ -204,8 +204,10 @@ public class NudgeAccessibilityService extends AccessibilityService {
         WindowManager.LayoutParams params = computeParamsForNode(source);
         if (params.height > 0) {
             Log.d(logTag, "Updating view with params: " + params);
-            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-            windowManager.updateViewLayout(view, params);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                windowManager.updateViewLayout(view, params);
+            });
         } else {
             Log.d(logTag, " Skipping because of <0 height. params: " + params);
         }
@@ -261,13 +263,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 Log.d(logTag, "Updating existing view for node: " + node);
                 updateCoverViewForAccessibilityNode(logTag, node, view.get());
             } else {
-                Log.d(logTag, "Creating new view for node: " + node);
-                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                WindowManager.LayoutParams params = computeParamsForNode(node);
-                View newView = new RedRectangleView(getApplicationContext());
-                viewKeyToViewMap.put(viewKey, Optional.of(newView));
-                windowManager.addView(newView, params);
-//                updateCoverViewForAccessibilityNode(logTag, node, newView);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Log.d(logTag, "[post to main thread] Creating new view for node: " + node);
+                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                    WindowManager.LayoutParams params = computeParamsForNode(node);
+                    View newView = new RedRectangleView(getApplicationContext());
+                    viewKeyToViewMap.put(viewKey, Optional.of(newView));
+                    windowManager.addView(newView, params);
+                });
             }
             initialViewKeys.remove(viewKey);
             numViews.incrementAndGet();
@@ -303,6 +306,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
+        NudgeAccessibilityService service = this;
         // TODO (mjd): Traverse more frequently than events.
         // TODO (mjd): Only cover the parts of the views that are visible.
         if (eventPackageName.equals("com.google.android.youtube")) {
@@ -311,13 +315,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
             if (!isBackgroundThreadRunning.getAndSet(true)) {
                 Log.d(TAG, "Starting background thread");
                 executorService.submit(() -> {
-                    Looper.getMainLooper().prepare();
                     Log.d(BACKGROUND, "Background thread started.");
                     try {
                         while(traverseNodesAndAddOrRemove(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
-                                Thread.sleep(30000);
+                                Thread.sleep(5);
                                 Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
