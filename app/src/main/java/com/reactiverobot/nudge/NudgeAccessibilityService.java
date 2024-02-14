@@ -111,14 +111,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
     private void addCoverViewForAccessibilityNode(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
         String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
         AccessibilityWindowInfo window = source.getWindow();
-//        Log.d(TAG, "window=" + window);
-//        Log.d(TAG, "source=" + source);
+        Log.d(TAG, "window=" + window);
+        Log.d(TAG, "source=" + source);
         if (window == null) {
             Log.d(TAG, "Window is null, doing nothing");
             return;
         }
         Rect rect = new Rect();
-        source.getBoundsInWindow(rect);
+        source.getBoundsInScreen(rect); // TODO: try wthis on phone
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -129,7 +129,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
         params.gravity = Gravity.TOP | Gravity.START;
 
         if (isSourceFromNavBar(source)) {
-            Log.d(TAG, "Source is from nav bar, skipping");
             Rect toCoverNavBar = rectToCoverNavBarButton(source);
             params.x = toCoverNavBar.left; // X position
             params.y = toCoverNavBar.top; // Y position
@@ -141,8 +140,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
             params.height = getHeightAccountingForNavBar(source, rect.top, rect.height());
             params.width = rect.width();
         }
-        Log.d(TAG, "Adding view for rect: " + rect + ", params: " + params);
-        if (rect.height() > 0) {
+        if (params.height > 0) {
             View view = new RedRectangleView(getApplicationContext());
             newViewMap.put(viewKey, view);
             windowManager.addView(view, params);
@@ -160,19 +158,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (text != null || contentDescription != null) {
             Log.d(TAG, "Text: " + text + ", ContentDescription: " + contentDescription);
         }
-
-//        if (text == null && contentDescription != null && contentDescription.toString().equals("Home")) {
-//            Log.d(TAG, "FOUND HOME Text: " + text + ", ContentDescription: " + contentDescription);
-//            Rect r = new Rect();
-//            source.getBoundsInScreen(r);
-//
-//            // get the bounds of the entire screen
-//            Rect screenRect = new Rect();
-//            AccessibilityWindowInfo window = source.getWindow();
-//            window.getBoundsInScreen(screenRect);
-//            addCoverViewForAccessibilityNode(source, oldViewMap, newViewMap);
-//            Log.d(TAG, "Bounds: " + r + ", ScreenBounds: " + screenRect);
-//        }
 
         if ((text != null && text.toString().equals("Shorts"))
                 || (contentDescription != null && contentDescription.toString().equals("Shorts"))) {
@@ -209,10 +194,10 @@ public class NudgeAccessibilityService extends AccessibilityService {
         // TODO (mjd): Traverse more frequently than events.
         // TODO (mjd): Only cover the parts of the views that are visible.
         if (eventPackageName.equals("com.google.android.youtube")) {
-            synchronized (this) {
                 Map<String, View> oldViewMap = viewMapRef.get();
                 Map<String, View> newViewMap = new HashMap<>();
                 if (event.getSource() != null && event.getSource().getWindow() != null) {
+                    getWindows().forEach(window -> Log.d(TAG, "Window: " + window));
                     AccessibilityWindowInfo eventWindow = event.getSource().getWindow();
                     Log.d(TAG, "Event window: " + eventWindow);
                     Log.d(TAG, "Event window root: " + eventWindow.getRoot());
@@ -234,7 +219,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
                     }
 
                 });
-            }
         }
 
         if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
