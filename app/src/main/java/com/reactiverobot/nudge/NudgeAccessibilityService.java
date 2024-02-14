@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -108,17 +109,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         return rect;
     }
 
-    private void addCoverViewForAccessibilityNode(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
-        String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
-        AccessibilityWindowInfo window = source.getWindow();
-        Log.d(TAG, "window=" + window);
-        Log.d(TAG, "source=" + source);
-        if (window == null) {
-            Log.d(TAG, "Window is null, doing nothing");
-            return;
-        }
-        Rect rect = new Rect();
-        source.getBoundsInScreen(rect); // TODO: try wthis on phone
+    private void drawRectAt(int x, int y) {
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -128,18 +119,56 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.START;
 
+        params.x = x; // X position
+        params.y = y; // Y position
+        params.height = 20;
+        params.width = 20;
+        View view = new RedRectangleView(getApplicationContext());
+        windowManager.addView(view, params);
+    }
+
+    private int getStatusBarHeight() {
+        Resources resources = getResources();
+        int identifier = resources.getIdentifier("status_bar_height", "dimen", "android");
+        int statusBarHeight = resources.getDimensionPixelSize(identifier);
+        return statusBarHeight;
+    }
+
+    private void addCoverViewForAccessibilityNode(AccessibilityNodeInfo source, Map<String, View> oldViewMap, Map<String, View> newViewMap) {
+        String viewKey = "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
+        AccessibilityWindowInfo window = source.getWindow();
+        Log.d(TAG, "window=" + window);
+        Log.d(TAG, "source=" + source);
+        if (window == null) {
+            Log.d(TAG, "Window is null, doing nothing");
+            return;
+        }
+
+        Rect rect = new Rect();
+        source.getBoundsInScreen(rect);
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.TOP | Gravity.START;
+
+        int statusBarHeight = getStatusBarHeight();
         if (isSourceFromNavBar(source)) {
             Rect toCoverNavBar = rectToCoverNavBarButton(source);
             params.x = toCoverNavBar.left; // X position
-            params.y = toCoverNavBar.top; // Y position
+            params.y = toCoverNavBar.top - statusBarHeight; // Y position
             params.height = toCoverNavBar.height();
             params.width = toCoverNavBar.width();
         } else {
             params.x = rect.left; // X position
-            params.y = rect.top; // Y position
+            params.y = rect.top - statusBarHeight; // Y position
             params.height = getHeightAccountingForNavBar(source, rect.top, rect.height());
             params.width = rect.width();
         }
+        Log.d(TAG, "Adding view with params: " + params + " for rect: " + rect );
         if (params.height > 0) {
             View view = oldViewMap.get(viewKey);
             if (view != null) {
