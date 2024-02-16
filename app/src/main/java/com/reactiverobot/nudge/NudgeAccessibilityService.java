@@ -158,7 +158,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
     }
 
     private String getViewKey(AccessibilityNodeInfo source) {
-        return "viewKey://" + source.getClassName() + "/" + source.getContentDescription();
+        return "viewKey://" + source.getClassName() + "/" + source.getText() + "/" + source.getContentDescription();
     }
 
     private WindowManager.LayoutParams computeParamsForNode(AccessibilityNodeInfo source) {
@@ -213,7 +213,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
     }
 
-    private void traverseAccessibilityNodes(String logTag, AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
+    private synchronized void traverseAccessibilityNodes(String logTag, AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
         if (source == null) {
             return;
         }
@@ -240,54 +240,53 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
     }
 
-    ConcurrentMap<String, Optional<View>> viewKeyToViewMap = new ConcurrentHashMap<>();
+    class ViewAndNode {
+        public Optional<View> view;
+        final public AccessibilityNodeInfo node;
+
+        public ViewAndNode(Optional<View> view, AccessibilityNodeInfo node) {
+            this.view = view;
+            this.node = node;
+        }
+    }
+    ConcurrentMap<String, ViewAndNode> viewKeyToViewMap = new ConcurrentHashMap<>();
     AtomicBoolean isBackgroundThreadRunning = new AtomicBoolean(false);
 
     Function<AccessibilityNodeInfo, Void> saveNodesToCover = (node) -> {
-        viewKeyToViewMap.putIfAbsent(getViewKey(node), Optional.empty());
+        viewKeyToViewMap.putIfAbsent(getViewKey(node), new ViewAndNode(Optional.empty(), node));
         return null;
     };
 
-    private int traverseNodesAndAddOrRemove(String logTag) {
-        Set<String> initialViewKeys = new HashSet(viewKeyToViewMap.keySet());
+    private synchronized int iterateOverKnownNodes(String logTag) {
         AtomicInteger numViews = new AtomicInteger(0);
-
-        Function<AccessibilityNodeInfo, Void> addCoverViews = (AccessibilityNodeInfo node) -> {
-            Log.d(logTag, "Adding cover view for node: " + node);
-            if (node == null) {
-                return null;
-            }
-            String viewKey = getViewKey(node);
-            Optional<View> view = viewKeyToViewMap.get(viewKey);
-            if (view != null && view.isPresent()) {
-                Log.d(logTag, "Updating existing view for node: " + node);
-                updateCoverViewForAccessibilityNode(logTag, node, view.get());
+        Handler handler = new Handler(Looper.getMainLooper());
+        viewKeyToViewMap.values().forEach(viewAndNode -> {
+            // TODO (mjd): Animate the changes in location so it's not sudden and jarring. https://stackoverflow.com/questions/8664939/animate-view-added-on-windowmanagera
+            boolean refreshSucceeded = viewAndNode.node.refresh();
+            if (viewAndNode != null && viewAndNode.view.isPresent()) {
+                Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
+                if (refreshSucceeded) {
+                    updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
+                } else {
+                    handler.post(() -> {
+                        Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
+                        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                        windowManager.removeView(viewAndNode.view.get());
+                    });
+                }
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Log.d(logTag, "[post to main thread] Creating new view for node: " + node);
+                View newView = new RedRectangleView(getApplicationContext());
+                viewAndNode.view = Optional.of(newView);
+                handler.post(() -> {
+                    Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
                     WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                    WindowManager.LayoutParams params = computeParamsForNode(node);
-                    View newView = new RedRectangleView(getApplicationContext());
-                    viewKeyToViewMap.put(viewKey, Optional.of(newView));
+                    WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
                     windowManager.addView(newView, params);
                 });
             }
-            initialViewKeys.remove(viewKey);
             numViews.incrementAndGet();
-            return null;
-        };
+        });
 
-        traverseAccessibilityNodes(logTag, getRootInActiveWindow(), addCoverViews);
-
-        // TODO: Implement removing.
-//        initialViewKeys.forEach(viewKey -> {
-//            Optional<View> view = viewKeyToViewMap.get(viewKey);
-//            if (view != null && view.isPresent()) {
-//                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-//                windowManager.removeView(view.get());
-//                viewKeyToViewMap.remove(viewKey);
-//            }
-//        });
         Log.d(logTag, "Num views: " + numViews.get() +  " keysInMap: " + viewKeyToViewMap.keySet());
         return numViews.get();
     }
@@ -307,17 +306,16 @@ public class NudgeAccessibilityService extends AccessibilityService {
         int contentChangeType = event.getContentChangeTypes();
 
         NudgeAccessibilityService service = this;
-        // TODO (mjd): Traverse more frequently than events.
-        // TODO (mjd): Only cover the parts of the views that are visible.
         if (eventPackageName.equals("com.google.android.youtube")) {
-//            traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
+            traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
+
             Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
             if (!isBackgroundThreadRunning.getAndSet(true)) {
                 Log.d(TAG, "Starting background thread");
                 executorService.submit(() -> {
                     Log.d(BACKGROUND, "Background thread started.");
                     try {
-                        while(traverseNodesAndAddOrRemove(BACKGROUND) > 0) {
+                        while(iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
                                 Thread.sleep(5);
@@ -333,31 +331,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 });
                 return;
             }
-
-//            Map<String, View> oldViewMap = viewMapRef.get();
-//            Map<String, View> newViewMap = new HashMap<>();
-//            if (event.getSource() != null && event.getSource().getWindow() != null) {
-//                getWindows().forEach(window -> Log.d(TAG, "Window: " + window));
-//                AccessibilityWindowInfo eventWindow = event.getSource().getWindow();
-//                Log.d(TAG, "Event window: " + eventWindow);
-//                Log.d(TAG, "Event window root: " + eventWindow.getRoot());
-//                Log.d(TAG, "Event source: " + event.getSource());
-//                AccessibilityNodeInfo root = eventWindow.getRoot();
-//                traverseAccessibilityNodes(root, oldViewMap, newViewMap);
-//                viewMapRef.set(newViewMap);
-//            }
-//            Log.d(TAG, "Old view map size: " + oldViewMap.size());
-//            Log.d(TAG, "New view map size: " + newViewMap.size());
-//            Log.d(TAG, "Old view map: " + oldViewMap.keySet());
-                // Remove views that were not found in the traversal.
-//                oldViewMap.values().forEach(view -> {
-//                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-//                    try {
-//                        windowManager.removeView(view);
-//                    } catch (Exception e) {
-//                        Log.e(TAG, "View did not exist when trying to cleanup.", e);
-//                    }
-//                });
         }
 
         if (contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED && contentChangeType != AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
