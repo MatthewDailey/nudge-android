@@ -225,7 +225,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         animationFrameParams.copyFrom(params);
                         animationFrameParams.y = (int) animation.getAnimatedValue();
                         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                        windowManager.updateViewLayout(view, animationFrameParams);
+                        synchronized (NudgeAccessibilityService.this) {
+                            if (view.isAttachedToWindow()) {
+                                windowManager.updateViewLayout(view, animationFrameParams);
+                            }
+                        }
+
                     });
                     animator.setDuration(10);
                     animator.start();
@@ -300,7 +305,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
         AtomicInteger numViews = new AtomicInteger(0);
         Handler handler = new Handler(Looper.getMainLooper());
         viewKeyToViewMap.values().forEach(viewAndNode -> {
-            // TODO (mjd): Animate the changes in location so it's not sudden and jarring. https://stackoverflow.com/questions/8664939/animate-view-added-on-windowmanagera
             if (viewAndNode != null && viewAndNode.view.isPresent()) {
                 Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
                 boolean didFindForUpdate = updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
