@@ -20,7 +20,7 @@
         android:layout_marginStart="19dp"
         android:layout_marginEnd="19dp"
         android:layout_marginBottom="19dp"
-        android:text="Nudge will add white rectangles to cover links to Youtube Shorts." />
+        android:text="Nudge will add white rectangles to cover links to Youtube Shorts. This should make it less tempting to start down a scrolling binge. This is an experimental feature and may be slow or imperfect at times." />
 
     <Switch
         android:id="@+id/switch_intercept_shorts"
@@ -37,5 +37,5 @@
         android:layout_marginStart="19dp"
         android:layout_marginEnd="19dp"
         android:layout_marginBottom="19dp"
-        android:text="As you scroll through Youtube Shorts, Nudge will detect when the subject of the videos changes. This will allow you to view Shorts but block you from falling to far into a hole." />
+        android:text="As you scroll through Youtube Shorts, Nudge will detect when the subject of the videos changes. This will allow you to view Shorts but block you from binging. This is an experimental feature and may be slow or imperfect at times." />
 </android.widget.LinearLayout>
