@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.view.View;
 
 public class RedRectangleView extends View {
@@ -17,7 +19,7 @@ public class RedRectangleView extends View {
     private void init() {
         // Initialize a paint object with color red
         paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setColor(Color.WHITE);
     }
 
     @Override
@@ -25,6 +27,7 @@ public class RedRectangleView extends View {
         super.onDraw(canvas);
         // Fill the canvas with red color
         // Use getWidth() for the view's current width and getHeight() for the view's current height
-        canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+        RectF r = new RectF(0, 0, getWidth(), getHeight());
+        canvas.drawRoundRect(r, 0 , 0, paint);
     }
 }

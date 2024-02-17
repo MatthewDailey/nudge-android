@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -101,6 +102,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
         return rect.top > screenHeight - px;
     }
     private int getHeightAccountingForNavBar(AccessibilityNodeInfo source, int y, int initialHeight) {
+        // TODO: check if navbar is visible? maybe on traversal?
+
         int px = navBarHeightPx();
         int screenHeight = getScreenHeight(source);
 
@@ -174,8 +177,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.START;
-        params.setCanPlayMoveAnimation(true);
-        params.windowAnimations = android.R.style.Animation;
 
         int statusBarHeight = getStatusBarHeight();
         if (isSourceFromNavBar(source)) {
@@ -226,7 +227,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                         windowManager.updateViewLayout(view, animationFrameParams);
                     });
-                    animator.setDuration(25);
+                    animator.setDuration(10);
                     animator.start();
 //                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //                    windowManager.removeView(view);
@@ -239,7 +240,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
             return true;
         } else {
             handler.post(() -> {
-                Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(source) + " " + source);
+                Log.d(logTag, "[post to main thread] Removing view for node: " + getViewKey(source) + " " + source);
                 WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                 try {
                     windowManager.removeView(view);
@@ -350,7 +351,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         while(iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
-                                Thread.sleep(5);
+                                Thread.sleep(10);
                                 Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
