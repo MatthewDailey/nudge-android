@@ -190,6 +190,14 @@ public class RedesignActivity extends AppCompatActivity {
     private void setupYoutubeGroup(View groupView) {
         TextView sectionTitle = groupView.findViewById(R.id.section_title);
         sectionTitle.setText("YOUTUBE");
+
+        Switch blockShortsSwitch = groupView.findViewById(R.id.switch_block_shorts);
+        blockShortsSwitch.setChecked(prefs.isBlockShortsEnabled());
+        blockShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> prefs.setBlockShortsEnabled(isEnabled));
+
+        Switch interceptShortsSwitch = groupView.findViewById(R.id.switch_intercept_shorts);
+        interceptShortsSwitch.setChecked(prefs.isInterceptShortsEnabled());
+        interceptShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> prefs.setInterceptShortsEnabled(isEnabled));
     }
 
     private void setupGroup(View groupView, PackageType packageType, String title, PackageArrayAdapter adapter) {

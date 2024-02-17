@@ -43,6 +43,9 @@ public class PrefsImpl implements Prefs {
     private static final String ONBOARDING_COMPLETE = "onboarding_complete";
     private static final String HAS_RATED_APP = "has_rated_app";
 
+    private static final String YOUTUBE_SHORTS_BLOCKED = "youtube_shorts_block_enabled";
+    private static final String YOUTUBE_SHORTS_INTERCEPT = "youtube_shorts_intercept_enabled";
+
     private final Context context;
 
     public static PrefsImpl from(Context context) {
@@ -74,6 +77,26 @@ public class PrefsImpl implements Prefs {
     @Override
     public boolean getCheckActiveEnabled() {
         return getPrefs().getBoolean(CHECK_ACTIVE_ENABLED, false);
+    }
+
+    @Override
+    public boolean isBlockShortsEnabled() {
+        return getPrefs().getBoolean(YOUTUBE_SHORTS_BLOCKED, false);
+    }
+
+    @Override
+    public void setBlockShortsEnabled(boolean enabled) {
+        getPrefs().edit().putBoolean(YOUTUBE_SHORTS_BLOCKED, enabled).commit();
+    }
+
+    @Override
+    public boolean isInterceptShortsEnabled() {
+        return getPrefs().getBoolean(YOUTUBE_SHORTS_INTERCEPT, false);
+    }
+
+    @Override
+    public void setInterceptShortsEnabled(boolean enabled) {
+        getPrefs().edit().putBoolean(YOUTUBE_SHORTS_INTERCEPT, enabled).commit();
     }
 
     private Set<String> getPackages(String key, Set<String> defaultPackages) {

@@ -18,6 +18,14 @@ public interface Prefs {
 
     boolean getCheckActiveEnabled();
 
+    boolean isBlockShortsEnabled();
+
+    void setBlockShortsEnabled(boolean enabled);
+
+    boolean isInterceptShortsEnabled();
+
+    void setInterceptShortsEnabled(boolean enabled);
+
     Set<String> getPinnedPackages(PackageType packageType);
 
     Set<String> getSelectedPackages(PackageType packageType);
