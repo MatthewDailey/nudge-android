@@ -14,7 +14,7 @@
         android:layout_marginStart="19dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto"
-        android:text="Nudge is disabled."
+        android:text="App blocking is disabled."
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,20 +1,16 @@
 package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
-import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -24,10 +20,8 @@ import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -290,7 +284,22 @@ public class NudgeAccessibilityService extends AccessibilityService {
         AtomicInteger numViews = new AtomicInteger(0);
         Handler handler = new Handler(Looper.getMainLooper());
         viewKeyToViewMap.values().forEach(viewAndNode -> {
-            if (viewAndNode != null && viewAndNode.view.isPresent()) {
+            if (viewAndNode.node == null) {
+                return;
+            }
+            if (!prefs.isBlockShortsEnabled() && viewAndNode.view.isPresent()) {
+                handler.post(() -> {
+                    Log.d(logTag, "[post to main thread] Block shorts disabled. Removing view for node: " + getViewKey(viewAndNode.node));
+                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                    try {
+                        if (viewAndNode.view.get().isAttachedToWindow()) {
+                            windowManager.removeView(viewAndNode.view.get());
+                        }
+                    } catch (Exception e) {
+                        Log.e(logTag, "Error removing view", e);
+                    }
+                });
+            } else if (viewAndNode.view.isPresent()) {
                 Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
                 boolean didFindForUpdate = updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
                 if (!didFindForUpdate) {
@@ -335,7 +344,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
-        if (eventPackageName.equals("com.google.android.youtube")) {
+        if (eventPackageName.equals("com.google.android.youtube") && prefs.isBlockShortsEnabled()) {
             traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
 
             Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
@@ -344,7 +353,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 executorService.submit(() -> {
                     Log.d(BACKGROUND, "Background thread started.");
                     try {
-                        while(iterateOverKnownNodes(BACKGROUND) > 0) {
+                        while (iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
                                 Thread.sleep(10);

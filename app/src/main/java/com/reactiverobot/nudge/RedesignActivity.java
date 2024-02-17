@@ -192,12 +192,26 @@ public class RedesignActivity extends AppCompatActivity {
         sectionTitle.setText("YOUTUBE");
 
         Switch blockShortsSwitch = groupView.findViewById(R.id.switch_block_shorts);
-        blockShortsSwitch.setChecked(prefs.isBlockShortsEnabled());
-        blockShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> prefs.setBlockShortsEnabled(isEnabled));
+        blockShortsSwitch.setChecked(prefs.isAccessibilityAccessGranted() && prefs.isBlockShortsEnabled());
+        blockShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
+            if (prefs.isAccessibilityAccessGranted()) {
+                prefs.setBlockShortsEnabled(isEnabled);
+            } else {
+                showOpenSettingsAlertDialog();
+            }
+            updateEnabledViews();
+        });
 
         Switch interceptShortsSwitch = groupView.findViewById(R.id.switch_intercept_shorts);
-        interceptShortsSwitch.setChecked(prefs.isInterceptShortsEnabled());
-        interceptShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> prefs.setInterceptShortsEnabled(isEnabled));
+        interceptShortsSwitch.setChecked(prefs.isAccessibilityAccessGranted() && prefs.isInterceptShortsEnabled());
+        interceptShortsSwitch.setOnCheckedChangeListener((compoundButton, isEnabled) -> {
+            if (prefs.isAccessibilityAccessGranted()) {
+                prefs.setInterceptShortsEnabled(isEnabled);
+            } else {
+                showOpenSettingsAlertDialog();
+            }
+            updateEnabledViews();
+        });
     }
 
     private void setupGroup(View groupView, PackageType packageType, String title, PackageArrayAdapter adapter) {
@@ -226,5 +240,10 @@ public class RedesignActivity extends AppCompatActivity {
             enableServiceSwitch.setChecked(false);
             disabledView.setVisibility(View.VISIBLE);
         }
+
+        Switch blockShortsSwitch = findViewById(R.id.switch_block_shorts);
+        blockShortsSwitch.setChecked(prefs.isAccessibilityAccessGranted() && prefs.isBlockShortsEnabled());
+        Switch interceptShortsSwitch = findViewById(R.id.switch_intercept_shorts);
+        interceptShortsSwitch.setChecked(prefs.isAccessibilityAccessGranted() && prefs.isInterceptShortsEnabled());
     }
 }
