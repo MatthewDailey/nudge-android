@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class RedRectangleView extends View {
@@ -14,6 +16,9 @@ public class RedRectangleView extends View {
     public RedRectangleView(Context context) {
         super(context);
         init();
+
+        // Set the view's onTouchListener to a new instance of HapticTouchListener
+        setOnTouchListener(new HapticTouchListener());
     }
 
     private void init() {
@@ -30,4 +35,20 @@ public class RedRectangleView extends View {
         RectF r = new RectF(0, 0, getWidth(), getHeight());
         canvas.drawRoundRect(r, 0 , 0, paint);
     }
+
+    class HapticTouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE);
+                    break;
+            }
+            return true;
+        }
+    }
+
 }

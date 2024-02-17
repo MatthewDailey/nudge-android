@@ -121,8 +121,9 @@ public class RedesignActivity extends AppCompatActivity {
                 .onShowBriefly((packageType, packageInfo) -> showOpenBrieflyDialog(packageType, packageInfo))
                 .withCheckbox();
 
-        setupGroup(findViewById(R.id.group_blocked), PackageType.BAD_HABIT, "BLOCKED", builder.attach(this, PackageType.BAD_HABIT));
-        setupGroup(findViewById(R.id.group_suggested), PackageType.GOOD_OPTION, "SUGGESTED", builder.attach(this, PackageType.GOOD_OPTION));
+        setupYoutubeGroup(findViewById(R.id.group_youtube));
+        setupGroup(findViewById(R.id.group_blocked), PackageType.BAD_HABIT, "BLOCKED APPS", builder.attach(this, PackageType.BAD_HABIT));
+        setupGroup(findViewById(R.id.group_suggested), PackageType.GOOD_OPTION, "SUGGESTED APPS", builder.attach(this, PackageType.GOOD_OPTION));
 
         Switch enableServiceSwitch = findViewById(R.id.switch_enable_service);
 
@@ -184,6 +185,11 @@ public class RedesignActivity extends AppCompatActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
         emailIntent.setData(Uri.parse("mailto:matt@reactiverobot.com?subject=" + Uri.encode("Feedback about Nudge App")));
         startActivity(Intent.createChooser(emailIntent, "Send Email"));
+    }
+
+    private void setupYoutubeGroup(View groupView) {
+        TextView sectionTitle = groupView.findViewById(R.id.section_title);
+        sectionTitle.setText("YOUTUBE");
     }
 
     private void setupGroup(View groupView, PackageType packageType, String title, PackageArrayAdapter adapter) {
