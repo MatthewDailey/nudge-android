@@ -155,7 +155,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         // TODO (mjd): properly detect if there is a cutout and the size of the cutout.
 //        DisplayCutout displayCutout = (new WindowInsets.Builder().build()).getDisplayCutout();
-//        Log.d(TAG, "Display cutout: " + displayCutout);
+//        //Log.d(TAG, "Display cutout: " + displayCutout);
 //        if (displayCutout != null) {
 //            return statusBarHeight;
 //        }
@@ -196,14 +196,14 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     private boolean updateCoverViewForAccessibilityNode(String logTag, AccessibilityNodeInfo source, View view) {
         AccessibilityWindowInfo window = source.getWindow();
-        Log.d(logTag, "window=" + window);
-        Log.d(logTag, "source=" + source);
+        //Log.d(logTag, "window=" + window);
+        //Log.d(logTag, "source=" + source);
         if (window == null) {
-            Log.d(logTag, "Window is null, doing nothing");
+            //Log.d(logTag, "Window is null, doing nothing");
             return false;
         }
         if (view == null) {
-            Log.d(logTag, "View is null, doing nothing");
+            //Log.d(logTag, "View is null, doing nothing");
             return false;
         }
 
@@ -214,13 +214,13 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (refreshSucceeded) {
             WindowManager.LayoutParams params = computeParamsForNode(source);
             if (params.height > 0) {
-                Log.d(logTag, "Updating view with params: " + params);
+                //Log.d(logTag, "Updating view with params: " + params);
                 new Handler(Looper.getMainLooper()).post(() -> {
                     ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, params.y);
                     String animTag = logTag + "-anim-";
-                    Log.d(animTag, "Animating from: " + priorParams.y + " to " + params.y + " for " + getViewKey(source));
+                    //Log.d(animTag, "Animating from: " + priorParams.y + " to " + params.y + " for " + getViewKey(source));
                     animator.addUpdateListener(animation -> {
-                        Log.d(animTag, "Animating to: " + animation.getAnimatedValue() + " for " + getViewKey(source));
+                        //Log.d(animTag, "Animating to: " + animation.getAnimatedValue() + " for " + getViewKey(source));
                         WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
                         animationFrameParams.copyFrom(params);
                         animationFrameParams.y = (int) animation.getAnimatedValue();
@@ -240,12 +240,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 });
 
             } else {
-                Log.d(logTag, " Skipping because of <0 height. params: " + params);
+                //Log.d(logTag, " Skipping because of <0 height. params: " + params);
             }
             return true;
         } else {
             handler.post(() -> {
-                Log.d(logTag, "[post to main thread] Removing view for node: " + getViewKey(source) + " " + source);
+                //Log.d(logTag, "[post to main thread] Removing view for node: " + getViewKey(source) + " " + source);
                 WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                 try {
                     windowManager.removeView(view);
@@ -265,17 +265,17 @@ public class NudgeAccessibilityService extends AccessibilityService {
         CharSequence contentDescription = source.getContentDescription();
 
         if (text != null || contentDescription != null) {
-            Log.d(logTag, "Text: " + text + ", ContentDescription: " + contentDescription);
+            //Log.d(logTag, "Text: " + text + ", ContentDescription: " + contentDescription);
         }
 
         if ((text != null && text.toString().equals("Shorts"))
                 || (contentDescription != null && contentDescription.toString().equals("Shorts"))) {
-            Log.d(logTag, "Shorts title found.");
+            //Log.d(logTag, "Shorts title found.");
             f.apply(source);
         }
 
         if (text == null && contentDescription != null && contentDescription.toString().contains("play Short")) {
-            Log.d(logTag, "Short link found.");
+            //Log.d(logTag, "Short link found.");
             f.apply(source);
         }
 
@@ -306,7 +306,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         Handler handler = new Handler(Looper.getMainLooper());
         viewKeyToViewMap.values().forEach(viewAndNode -> {
             if (viewAndNode != null && viewAndNode.view.isPresent()) {
-                Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
+                //Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
                 boolean didFindForUpdate = updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
                 if (!didFindForUpdate) {
                     viewKeyToViewMap.remove(getViewKey(viewAndNode.node));
@@ -315,7 +315,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 View newView = new RedRectangleView(getApplicationContext());
                 viewAndNode.view = Optional.of(newView);
                 handler.post(() -> {
-                    Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
+                    //Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
                     WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                     WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
                     windowManager.addView(newView, params);
@@ -324,7 +324,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
             numViews.incrementAndGet();
         });
 
-        Log.d(logTag, "Num views: " + numViews.get() +  " keysInMap: " + viewKeyToViewMap.keySet());
+        //Log.d(logTag, "Num views: " + numViews.get() +  " keysInMap: " + viewKeyToViewMap.keySet());
         return numViews.get();
     }
 
@@ -335,28 +335,27 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (packageName == null) {
             return;
         }
-        Log.d(TAG, "===============================================");
-        Log.d(TAG, event.toString());
+        //Log.d(TAG, "===============================================");
+        //Log.d(TAG, event.toString());
 
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
-        NudgeAccessibilityService service = this;
         if (eventPackageName.equals("com.google.android.youtube")) {
             traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
 
-            Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
+            //Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
             if (!isBackgroundThreadRunning.getAndSet(true)) {
-                Log.d(TAG, "Starting background thread");
+                //Log.d(TAG, "Starting background thread");
                 executorService.submit(() -> {
-                    Log.d(BACKGROUND, "Background thread started.");
+                    //Log.d(BACKGROUND, "Background thread started.");
                     try {
                         while(iterateOverKnownNodes(BACKGROUND) > 0) {
-                            Log.d(BACKGROUND, "Finished traversal, sleeping.");
+                            //Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
                                 Thread.sleep(10);
-                                Log.d(BACKGROUND, "Woke up from sleep.");
+                                //Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
                             }
@@ -376,7 +375,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         if (prefs.isTemporarilyUnblocked(eventPackageName)) {
             new Handler().postDelayed(() -> {
-                Log.d("handler", "Calling handler " + eventPackageName);
+                //Log.d("handler", "Calling handler " + eventPackageName);
                 if (eventPackageName.equals(lastEventPackage.get())) {
                     packageChecker.launchSuggestActivityIfBlocked(eventPackageName);
                 }
@@ -388,13 +387,13 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {
-        Log.d(TAG, "Got interrupt");
+        //Log.d(TAG, "Got interrupt");
     }
 
     @Override
     public void onServiceConnected() {
         AndroidInjection.inject(this);
-        Log.d(TAG, "Connecting service");
+        //Log.d(TAG, "Connecting service");
         super.onServiceConnected();
     }
 }
