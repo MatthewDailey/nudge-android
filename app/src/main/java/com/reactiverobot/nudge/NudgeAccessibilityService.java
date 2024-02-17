@@ -14,6 +14,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -53,6 +54,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
     AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
+    AtomicBoolean isCutout = new AtomicBoolean(false);
     AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
     ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -151,16 +153,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
         Resources resources = getResources();
         int identifier = resources.getIdentifier("status_bar_height", "dimen", "android");
         int statusBarHeight = resources.getDimensionPixelSize(identifier);
-        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        // TODO (mjd): properly detect if there is a cutout and the size of the cutout.
-//        DisplayCutout displayCutout = (new WindowInsets.Builder().build()).getDisplayCutout();
-//        Log.d(TAG, "Display cutout: " + displayCutout);
-//        if (displayCutout != null) {
-//            return statusBarHeight;
-//        }
-//        return 0;
-        return statusBarHeight;
+        if (isCutout.get()) {
+            return statusBarHeight;
+        }
+        return 0;
     }
 
     private String getViewKey(AccessibilityNodeInfo source) {
@@ -327,6 +324,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
                     WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                     WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
                     windowManager.addView(newView, params);
+                    if (!isCutout.get()) {
+                        newView.setOnApplyWindowInsetsListener((v, insets) -> {
+                            isCutout.set(insets.getDisplayCutout() != null);
+                            return insets;
+                        });
+                    }
                 });
             }
             numViews.incrementAndGet();
