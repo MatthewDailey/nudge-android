@@ -226,7 +226,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                         windowManager.updateViewLayout(view, animationFrameParams);
                     });
-                    animator.setDuration(500);
+                    animator.setDuration(25);
                     animator.start();
 //                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //                    windowManager.removeView(view);
@@ -350,7 +350,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         while(iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
-                                Thread.sleep(10000);
+                                Thread.sleep(5);
                                 Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
