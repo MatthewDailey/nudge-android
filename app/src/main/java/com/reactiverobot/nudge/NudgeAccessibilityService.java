@@ -54,7 +54,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
     AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
-    AtomicBoolean isCutout = new AtomicBoolean(false);
     AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
     ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -149,17 +148,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
         windowManager.addView(view, params);
     }
 
-    private int getStatusBarHeight() {
-        Resources resources = getResources();
-        int identifier = resources.getIdentifier("status_bar_height", "dimen", "android");
-        int statusBarHeight = resources.getDimensionPixelSize(identifier);
-
-        if (isCutout.get()) {
-            return statusBarHeight;
-        }
-        return 0;
-    }
-
     private String getViewKey(AccessibilityNodeInfo source) {
         return "viewKey://" + source.getClassName() + "/" + source.getText() + "/" + source.getContentDescription();
     }
@@ -174,17 +162,17 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.START;
+        params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
 
-        int statusBarHeight = getStatusBarHeight();
         if (isSourceFromNavBar(source)) {
             Rect toCoverNavBar = rectToCoverNavBarButton(source);
             params.x = toCoverNavBar.left; // X position
-            params.y = toCoverNavBar.top - statusBarHeight; // Y position
+            params.y = toCoverNavBar.top; // Y position
             params.height = toCoverNavBar.height();
             params.width = toCoverNavBar.width();
         } else {
             params.x = rect.left; // X position
-            params.y = rect.top - statusBarHeight; // Y position
+            params.y = rect.top; // Y position
             params.height = getHeightAccountingForNavBar(source, rect.top, rect.height());
             params.width = rect.width();
         }
@@ -324,12 +312,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
                     WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
                     WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
                     windowManager.addView(newView, params);
-                    if (!isCutout.get()) {
-                        newView.setOnApplyWindowInsetsListener((v, insets) -> {
-                            isCutout.set(insets.getDisplayCutout() != null);
-                            return insets;
-                        });
-                    }
                 });
             }
             numViews.incrementAndGet();
