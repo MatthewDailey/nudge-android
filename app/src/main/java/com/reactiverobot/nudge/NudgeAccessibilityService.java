@@ -1,11 +1,14 @@
 package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -39,7 +42,7 @@ import dagger.android.AndroidInjection;
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class NudgeAccessibilityService extends AccessibilityService {
-    private final static String TAG = NudgeAccessibilityService.class.getName();
+    private final static String TAG = NudgeAccessibilityService.class.getName() + "-foreground";
     private final static String BACKGROUND = NudgeAccessibilityService.class.getName() + "-background";
 
     @Inject
@@ -171,6 +174,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.START;
+        params.setCanPlayMoveAnimation(true);
+        params.windowAnimations = android.R.style.Animation;
 
         int statusBarHeight = getStatusBarHeight();
         if (isSourceFromNavBar(source)) {
@@ -188,28 +193,61 @@ public class NudgeAccessibilityService extends AccessibilityService {
         return params;
     }
 
-    private void updateCoverViewForAccessibilityNode(String logTag, AccessibilityNodeInfo source, View view) {
+    private boolean updateCoverViewForAccessibilityNode(String logTag, AccessibilityNodeInfo source, View view) {
         AccessibilityWindowInfo window = source.getWindow();
         Log.d(logTag, "window=" + window);
         Log.d(logTag, "source=" + source);
         if (window == null) {
             Log.d(logTag, "Window is null, doing nothing");
-            return;
+            return false;
         }
         if (view == null) {
             Log.d(logTag, "View is null, doing nothing");
-            return;
+            return false;
         }
 
-        WindowManager.LayoutParams params = computeParamsForNode(source);
-        if (params.height > 0) {
-            Log.d(logTag, "Updating view with params: " + params);
-            new Handler(Looper.getMainLooper()).post(() -> {
-                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                windowManager.updateViewLayout(view, params);
-            });
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        WindowManager.LayoutParams priorParams = computeParamsForNode(source);
+        boolean refreshSucceeded = source.refresh();
+        if (refreshSucceeded) {
+            WindowManager.LayoutParams params = computeParamsForNode(source);
+            if (params.height > 0) {
+                Log.d(logTag, "Updating view with params: " + params);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, params.y);
+                    String animTag = logTag + "-anim-";
+                    Log.d(animTag, "Animating from: " + priorParams.y + " to " + params.y + " for " + getViewKey(source));
+                    animator.addUpdateListener(animation -> {
+                        Log.d(animTag, "Animating to: " + animation.getAnimatedValue() + " for " + getViewKey(source));
+                        WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
+                        animationFrameParams.copyFrom(params);
+                        animationFrameParams.y = (int) animation.getAnimatedValue();
+                        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                        windowManager.updateViewLayout(view, animationFrameParams);
+                    });
+                    animator.setDuration(500);
+                    animator.start();
+//                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+//                    windowManager.removeView(view);
+//                    windowManager.addView(view, params);
+                });
+
+            } else {
+                Log.d(logTag, " Skipping because of <0 height. params: " + params);
+            }
+            return true;
         } else {
-            Log.d(logTag, " Skipping because of <0 height. params: " + params);
+            handler.post(() -> {
+                Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(source) + " " + source);
+                WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                try {
+                    windowManager.removeView(view);
+                } catch (Exception e) {
+                    Log.e(logTag, "Error removing view", e);
+                }
+            });
+            return false;
         }
     }
 
@@ -262,17 +300,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
         Handler handler = new Handler(Looper.getMainLooper());
         viewKeyToViewMap.values().forEach(viewAndNode -> {
             // TODO (mjd): Animate the changes in location so it's not sudden and jarring. https://stackoverflow.com/questions/8664939/animate-view-added-on-windowmanagera
-            boolean refreshSucceeded = viewAndNode.node.refresh();
             if (viewAndNode != null && viewAndNode.view.isPresent()) {
                 Log.d(logTag, "Updating existing view for node: " + viewAndNode.node);
-                if (refreshSucceeded) {
-                    updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
-                } else {
-                    handler.post(() -> {
-                        Log.d(logTag, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
-                        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                        windowManager.removeView(viewAndNode.view.get());
-                    });
+                boolean didFindForUpdate = updateCoverViewForAccessibilityNode(logTag, viewAndNode.node, viewAndNode.view.get());
+                if (!didFindForUpdate) {
+                    viewKeyToViewMap.remove(getViewKey(viewAndNode.node));
                 }
             } else {
                 View newView = new RedRectangleView(getApplicationContext());
@@ -318,7 +350,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         while(iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
-                                Thread.sleep(5);
+                                Thread.sleep(10000);
                                 Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
