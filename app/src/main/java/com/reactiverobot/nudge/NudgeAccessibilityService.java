@@ -17,11 +17,13 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 import com.reactiverobot.nudge.checker.ActivePackageChecker;
+import com.reactiverobot.nudge.nicotine.NicotineApi;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +36,9 @@ import java.util.function.Function;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
@@ -397,5 +402,33 @@ public class NudgeAccessibilityService extends AccessibilityService {
         AndroidInjection.inject(this);
         Log.d(TAG, "Connecting service");
         super.onServiceConnected();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(NicotineApi.COMPARE_SHORTS_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        NicotineApi service = retrofit.create(NicotineApi.class);
+        Call<NicotineApi.CompareShortsResponse> compareShortsResponseCall = service.compareYoutubeShortDescriptions(
+                "Beef Wellington is overrated #shorts #menwiththepot #foodporn #asmr #food #cooking #fire",
+                "It's About The Banelings At The End Of The Day • TASTELESS #SHORTS");
+
+        // get start time
+        long startTime = System.currentTimeMillis();
+
+        compareShortsResponseCall.enqueue(new retrofit2.Callback<NicotineApi.CompareShortsResponse>() {
+            @Override
+            public void onResponse(Call<NicotineApi.CompareShortsResponse> call, retrofit2.Response<NicotineApi.CompareShortsResponse> response) {
+                // get end time
+                long endTime = System.currentTimeMillis();
+                Log.d(TAG + "-nico", "[" + (endTime - startTime) + "ms] Got response: " + response.body());
+            }
+
+            @Override
+            public void onFailure(Call<NicotineApi.CompareShortsResponse> call, Throwable t) {
+                Log.e(TAG + "-nico", "Error" + t.getMessage());
+                throw new RuntimeException(t);
+            }
+        });
     }
 }
