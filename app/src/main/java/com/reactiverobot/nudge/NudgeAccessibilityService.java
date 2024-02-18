@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -261,7 +260,36 @@ public class NudgeAccessibilityService extends AccessibilityService {
         return sameTextAndDescription && isNotKnownUiString && isNotUserName && hasNoClassName && isNotNumber;
     }
 
-    private synchronized void traverseAccessibilityNodes(String logTag, AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
+    private static Set<String> KNOWN_SHORT_UI_ELEMENT_DESCRIPTIONS = new HashSet<>(Arrays.asList(
+            "Dislike this video", "Share this video", "Remix", "See more videos using this sound"
+    ));
+    private Optional<String> isShortVideoEvent(AccessibilityEvent event) {
+        CharSequence packageName = event.getPackageName();
+        if (packageName == null || !packageName.toString().equals("com.google.android.youtube")) {
+            return Optional.empty();
+        }
+
+        AtomicReference<String> result = new AtomicReference<>(null);
+        Map<String, Boolean> contentDescriptions = new ConcurrentHashMap<>();
+        traverseAllAccessibilityNodes(getRootInActiveWindow(), (accessibilityNodeInfo) -> {
+            CharSequence text = accessibilityNodeInfo.getText();
+            CharSequence contentDescription = accessibilityNodeInfo.getContentDescription();
+            if (text == null && contentDescription != null) {
+                contentDescriptions.put(contentDescription.toString(), true);
+            }
+            if (isShortVideoDescription(accessibilityNodeInfo)) {
+                result.set(text.toString());
+            }
+            return null;
+        });
+
+        if (contentDescriptions.keySet().containsAll(KNOWN_SHORT_UI_ELEMENT_DESCRIPTIONS)) {
+            return Optional.of(result.get());
+        }
+        return Optional.empty();
+    }
+
+    private synchronized void traverseAccessibilityNodesForNodesToCover(String logTag, AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
         if (source == null) {
             return;
         }
@@ -271,11 +299,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         if (text != null || contentDescription != null) {
             Log.d(logTag, "Text: " + text + ", ContentDescription: " + contentDescription);
-        }
-
-        // TODO verify is short view
-        if (isShortVideoDescription(source)) {
-            Log.d(logTag, "Found video description: " + text);
         }
 
         if ((text != null && text.toString().equals("Shorts"))
@@ -290,7 +313,17 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
-            traverseAccessibilityNodes(logTag, source.getChild(i), f);
+            traverseAccessibilityNodesForNodesToCover(logTag, source.getChild(i), f);
+        }
+    }
+
+    private synchronized void traverseAllAccessibilityNodes(AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
+        if (source == null) {
+            return;
+        }
+        f.apply(source);
+        for (int i = 0; i < source.getChildCount(); i++) {
+            traverseAllAccessibilityNodes(source.getChild(i), f);
         }
     }
 
@@ -370,20 +403,24 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
         Log.d(TAG, "===============================================");
         Log.d(TAG, event.toString());
-        if (event.getRecordCount() > 0) {
-            Log.d(TAG, "record count: " + event.getRecord(0));
-        }
 
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isInterceptShortsEnabled()) {
-            traverseAccessibilityNodes(TAG, getRootInActiveWindow(), (accessibilityNodeInfo) -> null);
+            Optional<String> shortVideoDescription = isShortVideoEvent(event);
+            // TODO: cache description and if different check with ChatGPT if they are different, if so block.
+            if (shortVideoDescription.isPresent()) {
+
+                Log.d(TAG + "-shorts", "Found short video: " + shortVideoDescription.get());
+            } else {
+                Log.d(TAG + "-shorts", "Not a short video event.");
+            }
         }
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isBlockShortsEnabled()) {
-            traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
+            traverseAccessibilityNodesForNodesToCover(TAG, getRootInActiveWindow(), saveNodesToCover);
 
             Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
             if (!isBackgroundThreadRunning.getAndSet(true)) {
