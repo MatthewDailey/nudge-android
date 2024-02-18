@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.inject.Inject;
@@ -43,6 +44,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
 public class NudgeAccessibilityService extends AccessibilityService {
+
+    private final static int INTERVAL_UPDATE_THREAD_SLEEP = 30000;
+    private final static int DURATION_ANIMATE_COVER = 100;
+
     private final static String TAG = NudgeAccessibilityService.class.getName() + "-foreground";
     private final static String BACKGROUND = NudgeAccessibilityService.class.getName() + "-background";
 
@@ -198,26 +203,24 @@ public class NudgeAccessibilityService extends AccessibilityService {
         if (refreshSucceeded) {
             WindowManager.LayoutParams params = computeParamsForNode(source);
             if (params.height > 0) {
-                Log.d(logTag, "Updating view with params: " + params);
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, params.y);
-                    String animTag = logTag + "-anim-";
-                    Log.d(animTag, "Animating from: " + priorParams.y + " to " + params.y + " for " + getViewKey(source));
-                    animator.addUpdateListener(animation -> {
-                        Log.d(animTag, "Animating to: " + animation.getAnimatedValue() + " for " + getViewKey(source));
-                        WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
-                        animationFrameParams.copyFrom(params);
-                        animationFrameParams.y = (int) animation.getAnimatedValue();
-                        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                        synchronized (NudgeAccessibilityService.this) {
-                            if (view.isAttachedToWindow()) {
-                                windowManager.updateViewLayout(view, animationFrameParams);
+                    if (priorParams.y != params.y) {
+                        ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, params.y);
+                        animator.addUpdateListener(animation -> {
+                            WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
+                            animationFrameParams.copyFrom(params);
+                            animationFrameParams.y = (int) animation.getAnimatedValue();
+                            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                            synchronized (NudgeAccessibilityService.this) {
+                                if (view.isAttachedToWindow()) {
+                                    windowManager.updateViewLayout(view, animationFrameParams);
+                                }
                             }
-                        }
 
-                    });
-                    animator.setDuration(10);
-                    animator.start();
+                        });
+                        animator.setDuration(DURATION_ANIMATE_COVER);
+                        animator.start();
+                    }
 //                    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 //                    windowManager.removeView(view);
 //                    windowManager.addView(view, params);
@@ -247,6 +250,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
         CharSequence text = source.getText();
         CharSequence contentDescription = source.getContentDescription();
+        Log.v(TAG + "-verbose", source.toString());
 
         if (text != null || contentDescription != null) {
             Log.d(logTag, "Text: " + text + ", ContentDescription: " + contentDescription);
@@ -349,6 +353,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
+        if (eventPackageName.equals("com.google.android.youtube") && prefs.isInterceptShortsEnabled()) {
+            Log.d(TAG, "ROOT");
+            traverseAccessibilityNodes(TAG, getRootInActiveWindow(), (accessibilityNodeInfo) -> null);
+        }
+
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isBlockShortsEnabled()) {
             traverseAccessibilityNodes(TAG, getRootInActiveWindow(), saveNodesToCover);
 
@@ -361,7 +370,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
                         while (iterateOverKnownNodes(BACKGROUND) > 0) {
                             Log.d(BACKGROUND, "Finished traversal, sleeping.");
                             try {
-                                Thread.sleep(10);
+                                Thread.sleep(INTERVAL_UPDATE_THREAD_SLEEP);
                                 Log.d(BACKGROUND, "Woke up from sleep.");
                             } catch (Exception e) {
                                 Log.e(BACKGROUND, "Error sleeping", e);
@@ -402,7 +411,9 @@ public class NudgeAccessibilityService extends AccessibilityService {
         AndroidInjection.inject(this);
         Log.d(TAG, "Connecting service");
         super.onServiceConnected();
+    }
 
+    private void areTwoShortsSimilar(String description1, String description2, Consumer<Boolean> callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(NicotineApi.COMPARE_SHORTS_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -410,8 +421,8 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         NicotineApi service = retrofit.create(NicotineApi.class);
         Call<NicotineApi.CompareShortsResponse> compareShortsResponseCall = service.compareYoutubeShortDescriptions(
-                "Beef Wellington is overrated #shorts #menwiththepot #foodporn #asmr #food #cooking #fire",
-                "It's About The Banelings At The End Of The Day • TASTELESS #SHORTS");
+                description1,
+                description2);
 
         // get start time
         long startTime = System.currentTimeMillis();
@@ -422,12 +433,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 // get end time
                 long endTime = System.currentTimeMillis();
                 Log.d(TAG + "-nico", "[" + (endTime - startTime) + "ms] Got response: " + response.body());
+                callback.accept(response.body().similar);
             }
 
             @Override
             public void onFailure(Call<NicotineApi.CompareShortsResponse> call, Throwable t) {
-                Log.e(TAG + "-nico", "Error" + t.getMessage());
-                throw new RuntimeException(t);
+                Log.e(TAG + "-nico", "Error: " + t.getMessage());
             }
         });
     }
