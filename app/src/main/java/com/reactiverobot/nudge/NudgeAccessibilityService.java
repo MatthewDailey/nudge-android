@@ -20,9 +20,12 @@ import com.reactiverobot.nudge.checker.ActivePackageChecker;
 import com.reactiverobot.nudge.nicotine.NicotineApi;
 import com.reactiverobot.nudge.prefs.Prefs;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -244,6 +247,20 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
     }
 
+    private static Set<String> KNOWN_SHORT_UI_STRINGS = new HashSet<>(Arrays.asList(
+            "Subscribe", "Dislike", "Share", "Remix"
+    ));
+    private boolean isShortVideoDescription(AccessibilityNodeInfo source) {
+        CharSequence text = source.getText();
+        CharSequence contentDescription = source.getContentDescription();
+        boolean sameTextAndDescription = text != null && contentDescription != null && text.toString().equals(contentDescription.toString());
+        boolean isNotKnownUiString = text != null && !KNOWN_SHORT_UI_STRINGS.contains(text.toString());
+        boolean isNotUserName = text != null && !text.toString().startsWith("@");
+        boolean hasNoClassName = source.getClassName().toString().equals("");
+        boolean isNotNumber = text != null && !text.toString().matches("/^\\d*\\.?\\d*(K|M)$");
+        return sameTextAndDescription && isNotKnownUiString && isNotUserName && hasNoClassName && isNotNumber;
+    }
+
     private synchronized void traverseAccessibilityNodes(String logTag, AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
         if (source == null) {
             return;
@@ -254,6 +271,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
         if (text != null || contentDescription != null) {
             Log.d(logTag, "Text: " + text + ", ContentDescription: " + contentDescription);
+        }
+
+        // TODO verify is short view
+        if (isShortVideoDescription(source)) {
+            Log.d(logTag, "Found video description: " + text);
         }
 
         if ((text != null && text.toString().equals("Shorts"))
@@ -348,13 +370,15 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
         Log.d(TAG, "===============================================");
         Log.d(TAG, event.toString());
+        if (event.getRecordCount() > 0) {
+            Log.d(TAG, "record count: " + event.getRecord(0));
+        }
 
         String eventPackageName = packageName.toString();
         lastEventPackage.set(eventPackageName);
         int contentChangeType = event.getContentChangeTypes();
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isInterceptShortsEnabled()) {
-            Log.d(TAG, "ROOT");
             traverseAccessibilityNodes(TAG, getRootInActiveWindow(), (accessibilityNodeInfo) -> null);
         }
 
