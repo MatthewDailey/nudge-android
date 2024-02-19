@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,6 +40,7 @@ import java.util.function.Function;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -409,14 +411,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         int contentChangeType = event.getContentChangeTypes();
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isInterceptShortsEnabled()) {
-            Optional<String> shortVideoDescription = isShortVideoEvent(event);
-            // TODO: cache description and if different check with ChatGPT if they are different, if so block.
-            if (shortVideoDescription.isPresent()) {
-
-                Log.d(TAG + "-shorts", "Found short video: " + shortVideoDescription.get());
-            } else {
-                Log.d(TAG + "-shorts", "Not a short video event.");
-            }
+            interceptShortIfNecessary(event);
         }
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isBlockShortsEnabled()) {
@@ -467,6 +462,44 @@ public class NudgeAccessibilityService extends AccessibilityService {
         Log.d(TAG, "Got interrupt");
     }
 
+    AtomicBoolean isCheckingShortDescriptions = new AtomicBoolean(false);
+    AtomicReference<String> lastShortVideoDescription = new AtomicReference<>(null);
+
+    private void interceptShortIfNecessary(AccessibilityEvent event) {
+        Optional<String> shortVideoDescription = isShortVideoEvent(event);
+        // TODO: figure out how to properly handle non-short events that fall in between short events
+        // TODO: ignore ad
+        if (shortVideoDescription.isPresent()) {
+            String thisDescription = shortVideoDescription.get();
+            String priorDescription = lastShortVideoDescription.get();
+            Log.d(TAG+ "-nico", "Found short video. thisDescription=" + thisDescription + " priorDescription=" + priorDescription);
+            if (priorDescription != null
+                    && !thisDescription.equals(priorDescription)
+                    && !isCheckingShortDescriptions.getAndSet(true)) {
+                areTwoShortsSimilar(thisDescription, priorDescription, (areSimilar) -> {
+                    if (!areSimilar) {
+                        Log.d(TAG + "-nico", "Blocking short video: " + shortVideoDescription.get());
+                        performGlobalAction(GLOBAL_ACTION_BACK);
+                        lastShortVideoDescription.set(null);
+                    } else {
+                        Log.d(TAG + "-nico", "Not blocking short video: " + shortVideoDescription.get());
+                        lastShortVideoDescription.set(thisDescription);
+                    }
+                    isCheckingShortDescriptions.set(false);
+                }, (error) -> {
+                    Log.e(TAG + "-nico", "Error comparing shorts", error);
+                    isCheckingShortDescriptions.set(false);
+                });
+            } else {
+                lastShortVideoDescription.set(shortVideoDescription.get());
+            }
+            Log.d(TAG + "-nico", "Found short video: " + shortVideoDescription.get());
+        } else {
+            lastShortVideoDescription.set(null);
+            Log.d(TAG + "-nico", "No short video found. " + event);
+        }
+    }
+
     @Override
     public void onServiceConnected() {
         AndroidInjection.inject(this);
@@ -474,9 +507,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
     }
 
-    private void areTwoShortsSimilar(String description1, String description2, Consumer<Boolean> callback) {
+    private void areTwoShortsSimilar(String description1, String description2, Consumer<Boolean> onSuccess, Consumer<Throwable> onError) {
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).connectTimeout(60, TimeUnit.SECONDS).build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(NicotineApi.COMPARE_SHORTS_URL)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -488,18 +524,20 @@ public class NudgeAccessibilityService extends AccessibilityService {
         // get start time
         long startTime = System.currentTimeMillis();
 
+        Log.d(TAG + "-nico", "Making request: " + description1 + " " + description2);
         compareShortsResponseCall.enqueue(new retrofit2.Callback<NicotineApi.CompareShortsResponse>() {
             @Override
             public void onResponse(Call<NicotineApi.CompareShortsResponse> call, retrofit2.Response<NicotineApi.CompareShortsResponse> response) {
                 // get end time
                 long endTime = System.currentTimeMillis();
                 Log.d(TAG + "-nico", "[" + (endTime - startTime) + "ms] Got response: " + response.body());
-                callback.accept(response.body().similar);
+                onSuccess.accept(response.body().similar);
             }
 
             @Override
             public void onFailure(Call<NicotineApi.CompareShortsResponse> call, Throwable t) {
                 Log.e(TAG + "-nico", "Error: " + t.getMessage());
+                onError.accept(t);
             }
         });
     }
