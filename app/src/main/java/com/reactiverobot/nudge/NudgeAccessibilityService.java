@@ -2,10 +2,13 @@ package com.reactiverobot.nudge;
 
 import android.accessibilityservice.AccessibilityService;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
@@ -33,11 +36,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import dagger.android.AndroidInjection;
 import okhttp3.OkHttpClient;
@@ -47,6 +52,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.reactiverobot.nudge.prefs.PrefsImpl.TEMP_UNBLOCK_SEC;
 
+@Singleton
 public class NudgeAccessibilityService extends AccessibilityService {
 
     private final static int INTERVAL_UPDATE_THREAD_SLEEP = 30000;
@@ -60,11 +66,17 @@ public class NudgeAccessibilityService extends AccessibilityService {
     @Inject
     ActivePackageChecker packageChecker;
 
+
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
     AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
     AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
     ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+    private static NudgeAccessibilityService instance;
+    public static NudgeAccessibilityService instance() {
+        return instance;
+    }
 
 
     private int getScreenHeight(AccessibilityNodeInfo source) {
@@ -462,8 +474,30 @@ public class NudgeAccessibilityService extends AccessibilityService {
         Log.d(TAG, "Got interrupt");
     }
 
+    private final static int DEBOUNCE_MS = 500;
+    AtomicLong allowedTimestampToClearShortVideoDescription = new AtomicLong(0);
     AtomicBoolean isCheckingShortDescriptions = new AtomicBoolean(false);
     AtomicReference<String> lastShortVideoDescription = new AtomicReference<>(null);
+
+    private void updateLastShortVideoDescription(String description) {
+        long currentTime = System.currentTimeMillis();
+
+        long allowedTime = allowedTimestampToClearShortVideoDescription.getAndUpdate((allowedNextTime) -> {
+            if (description == null) {
+                return allowedNextTime;
+            }
+
+            // Bump up the time if the description exists.
+            return currentTime + DEBOUNCE_MS;
+        });
+
+        if (currentTime < allowedTime) {
+            Log.d(TAG, "Debouncing launching SuggestChangeActivity");
+            return;
+        }
+
+        lastShortVideoDescription.set(description);
+    }
 
     private void interceptShortIfNecessary(AccessibilityEvent event) {
         Optional<String> shortVideoDescription = isShortVideoEvent(event);
@@ -479,8 +513,12 @@ public class NudgeAccessibilityService extends AccessibilityService {
                 areTwoShortsSimilar(thisDescription, priorDescription, (areSimilar) -> {
                     if (!areSimilar) {
                         Log.d(TAG + "-nico", "Blocking short video: " + shortVideoDescription.get());
-                        performGlobalAction(GLOBAL_ACTION_BACK);
+                        Intent intent = new Intent(getApplicationContext(), InterceptShortActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent);
                         lastShortVideoDescription.set(null);
+                        allowedTimestampToClearShortVideoDescription.set(0);
                     } else {
                         Log.d(TAG + "-nico", "Not blocking short video: " + shortVideoDescription.get());
                         lastShortVideoDescription.set(thisDescription);
@@ -491,11 +529,11 @@ public class NudgeAccessibilityService extends AccessibilityService {
                     isCheckingShortDescriptions.set(false);
                 });
             } else {
-                lastShortVideoDescription.set(shortVideoDescription.get());
+                updateLastShortVideoDescription(shortVideoDescription.get());
             }
             Log.d(TAG + "-nico", "Found short video: " + shortVideoDescription.get());
         } else {
-            lastShortVideoDescription.set(null);
+            updateLastShortVideoDescription(null);
             Log.d(TAG + "-nico", "No short video found. " + event);
         }
     }
@@ -503,8 +541,22 @@ public class NudgeAccessibilityService extends AccessibilityService {
     @Override
     public void onServiceConnected() {
         AndroidInjection.inject(this);
+        instance = this;
         Log.d(TAG, "Connecting service");
         super.onServiceConnected();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "Unbinding service");
+        instance = null;
+        return super.onUnbind(intent);
+    }
+
+    public void goBack() {
+        Log.d(TAG, "goBack");
+        performGlobalAction(GLOBAL_ACTION_BACK);
+        performGlobalAction(GLOBAL_ACTION_BACK);
     }
 
     private void areTwoShortsSimilar(String description1, String description2, Consumer<Boolean> onSuccess, Consumer<Throwable> onError) {

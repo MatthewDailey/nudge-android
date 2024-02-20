@@ -52,6 +52,13 @@
             android:theme="@android:style/Theme.Material.Light.Dialog.NoActionBar">
         </activity>
 
+        <activity
+            android:name=".InterceptShortActivity"
+            android:label="InterceptShorts"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Material.Light.Dialog.NoActionBar">
+        </activity>
+
         <activity android:name=".SelectPackagesActivity"
             android:parentActivityName=".OnboardingActivity" >
             <meta-data
