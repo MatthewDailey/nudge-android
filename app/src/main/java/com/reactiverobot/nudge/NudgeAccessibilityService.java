@@ -69,7 +69,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
 
     AtomicReference<String> lastEventPackage = new AtomicReference<>(null);
     AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
-    AtomicReference<Map<String, View>> viewMapRef = new AtomicReference<>(new HashMap<>());
 
     ExecutorService executorService = Executors.newFixedThreadPool(1);
 
