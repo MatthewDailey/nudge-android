@@ -150,24 +150,6 @@ public class NudgeAccessibilityService extends AccessibilityService {
         return rect;
     }
 
-    private void drawRectAt(int x, int y) {
-        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.TOP | Gravity.START;
-
-        params.x = x; // X position
-        params.y = y; // Y position
-        params.height = 20;
-        params.width = 20;
-        View view = new RedRectangleView(getApplicationContext());
-        windowManager.addView(view, params);
-    }
-
     private String getViewKey(AccessibilityNodeInfo source) {
         return "viewKey://" + source.getClassName() + "/" + source.getText() + "/" + source.getContentDescription();
     }
