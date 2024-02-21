@@ -302,6 +302,8 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
 
     private void removeView(ViewAndNode viewAndNode) {
         new Handler(Looper.getMainLooper()).post(() -> {
+            boolean sourceFromNavBar = isSourceFromNavBar(viewAndNode.node);
+
             if (viewAndNode.view.isPresent()) {
                 WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(
                         WINDOW_SERVICE);
@@ -312,7 +314,7 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
                 }
             }
 
-            if (isSourceFromNavBar(viewAndNode.node)) {
+            if (sourceFromNavBar) {
                 Log.v(TAG, "Setting nav bar hidden");
                 isYoutubeNavBarVisible.set(false);
             }
