@@ -129,6 +129,7 @@ public class NudgeAccessibilityService extends AccessibilityService {
         }
 
         if (eventPackageName.equals("com.google.android.youtube") && prefs.isBlockShortsEnabled()) {
+            // TODO: break out blocking just navbar link. choose either all link, just nav or none blocked.
             youtubeShortBlocker.blockShorts();
         }
 
