@@ -18,7 +18,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import com.reactiverobot.nudge.RedRectangleView;
+import com.reactiverobot.nudge.RectangleView;
 import com.reactiverobot.nudge.prefs.Prefs;
 
 import java.util.Optional;
@@ -38,8 +38,26 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
     private final AccessibilityService accessibilityService;
     private final Prefs prefs;
 
-    AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
-    ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final AtomicBoolean isYoutubeNavBarVisible = new AtomicBoolean(false);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+    private final ConcurrentMap<String, ViewAndNode> viewKeyToViewMap = new ConcurrentHashMap<>();
+    private final AtomicBoolean isBackgroundThreadRunning = new AtomicBoolean(false);
+
+    private static class ViewAndNode {
+        public Optional<View> view;
+        final public AccessibilityNodeInfo node;
+
+        public ViewAndNode(Optional<View> view, AccessibilityNodeInfo node) {
+            this.view = view;
+            this.node = node;
+        }
+    }
+
+    private Function<AccessibilityNodeInfo, Void> saveNodesToCover = (node) -> {
+        viewKeyToViewMap.putIfAbsent(getViewKey(node), new ViewAndNode(Optional.empty(), node));
+        return null;
+    };
 
     public YoutubeShortBlocker(AccessibilityService accessibilityService, Prefs prefs) {
         this.accessibilityService = accessibilityService;
@@ -51,7 +69,8 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
             return;
         }
 
-        traverseAccessibilityNodesForNodesToCover(TAG, accessibilityService.getRootInActiveWindow(), saveNodesToCover);
+        traverseAccessibilityNodesForNodesToCover(accessibilityService.getRootInActiveWindow(),
+                saveNodesToCover);
 
         Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
         if (!isBackgroundThreadRunning.getAndSet(true)) {
@@ -68,6 +87,7 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
                             Log.e(TAG, "Error sleeping", e);
                         }
                     }
+                    Log.d(TAG, "No more views to update, stopping background thread.");
                 } catch (Exception e) {
                     Log.e(TAG, "Error in background thread", e);
                 }
@@ -121,7 +141,9 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
 
         return rect.top > screenHeight - px;
     }
-    private int getHeightAccountingForNavBar(AccessibilityNodeInfo source, int y, int initialHeight) {
+
+    private int getHeightAccountingForNavBar(AccessibilityNodeInfo source, int y,
+                                             int initialHeight) {
         int px = navBarHeightPx();
         int screenHeight = getScreenHeight(source);
 
@@ -152,7 +174,8 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
         return "viewKey://" + source.getClassName() + "/" + source.getText() + "/" + source.getContentDescription();
     }
 
-    private synchronized void traverseAccessibilityNodesForNodesToCover(AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
+    private synchronized void traverseAccessibilityNodesForNodesToCover(
+            AccessibilityNodeInfo source, Function<AccessibilityNodeInfo, Void> f) {
         if (source == null) {
             return;
         }
@@ -170,7 +193,8 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
             f.apply(source);
         }
 
-        if (text == null && contentDescription != null && contentDescription.toString().contains("play Short")) {
+        if (text == null && contentDescription != null && contentDescription.toString()
+                .contains("play Short")) {
             Log.d(TAG, "Short link found.");
             f.apply(source);
         }
@@ -207,10 +231,10 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
         return params;
     }
 
-    private boolean updateCoverViewForAccessibilityNode(AccessibilityNodeInfo source, View view) {
-        AccessibilityWindowInfo window = source.getWindow();
-        Log.d(TAG, "window=" + window);
-        Log.d(TAG, "source=" + source);
+    private boolean updateViewCoveringNode(ViewAndNode viewAndNode) {
+        AccessibilityWindowInfo window = viewAndNode.node.getWindow();
+        View view = viewAndNode.view.orElse(null);
+        AccessibilityNodeInfo node = viewAndNode.node;
         if (window == null) {
             Log.d(TAG, "Window is null, doing nothing");
             return false;
@@ -219,116 +243,110 @@ public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
             Log.d(TAG, "View is null, doing nothing");
             return false;
         }
+        Log.d(TAG, "window=" + window);
+        Log.d(TAG, "node=" + node);
 
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        WindowManager.LayoutParams priorParams = computeParamsForNode(source);
-        boolean refreshSucceeded = source.refresh();
+        WindowManager.LayoutParams priorParams = computeParamsForNode(node);
+        boolean refreshSucceeded = node.refresh();
         if (refreshSucceeded) {
-            WindowManager.LayoutParams params = computeParamsForNode(source);
-            if (params.height > 0) {
+            WindowManager.LayoutParams newParams = computeParamsForNode(node);
+            if (newParams.height > 0) {
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    if (priorParams.y != params.y) {
-                        ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, params.y);
-                        animator.addUpdateListener(animation -> {
-                            WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
-                            animationFrameParams.copyFrom(params);
-                            animationFrameParams.y = (int) animation.getAnimatedValue();
-                            WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(WINDOW_SERVICE);
-                            synchronized (accessibilityService) {
-                                if (view.isAttachedToWindow()) {
-                                    windowManager.updateViewLayout(view, animationFrameParams);
-                                }
-                            }
-
-                        });
-                        animator.setDuration(DURATION_ANIMATE_COVER);
-                        animator.start();
-                    }
+                    animateViewYParam(view, priorParams, newParams);
                 });
-
             } else {
-                Log.d(TAG, " Skipping because of <0 height. params: " + params);
+                Log.d(TAG, " Skipping because of <0 height. params: " + newParams);
             }
-            return true;
-        } else {
-            handler.post(() -> {
-                Log.d(TAG, "[post to main thread] Removing view for node: " + getViewKey(source) + " " + source);
-                WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(WINDOW_SERVICE);
+        }
+        return refreshSucceeded;
+    }
+
+    private void animateViewYParam(View view, WindowManager.LayoutParams priorParams,
+                                   WindowManager.LayoutParams newParams) {
+        if (priorParams.y != newParams.y) {
+            ValueAnimator animator = ValueAnimator.ofInt(priorParams.y, newParams.y);
+            animator.addUpdateListener(animation -> {
+                WindowManager.LayoutParams animationFrameParams = new WindowManager.LayoutParams();
+                animationFrameParams.copyFrom(newParams);
+                animationFrameParams.y = (int) animation.getAnimatedValue();
+                WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(
+                        WINDOW_SERVICE);
+                synchronized (accessibilityService) {
+                    if (view.isAttachedToWindow()) {
+                        windowManager.updateViewLayout(view, animationFrameParams);
+                    }
+                }
+
+            });
+            animator.setDuration(DURATION_ANIMATE_COVER);
+            animator.start();
+        }
+    }
+
+    private void addViewCoveringNode(ViewAndNode viewAndNode) {
+        View newView = new RectangleView(accessibilityService.getApplicationContext());
+        viewAndNode.view = Optional.of(newView);
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (isSourceFromNavBar(viewAndNode.node)) {
+                Log.v(TAG, "Setting nav bar visible");
+                isYoutubeNavBarVisible.set(true);
+            }
+            Log.d(TAG, "[post to main thread] Creating new view for node: " + getViewKey(
+                    viewAndNode.node) + " " + viewAndNode.node);
+            WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(
+                    WINDOW_SERVICE);
+            WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
+            windowManager.addView(newView, params);
+        });
+    }
+
+    private void removeView(ViewAndNode viewAndNode) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (viewAndNode.view.isPresent()) {
+                WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(
+                        WINDOW_SERVICE);
                 try {
-                    windowManager.removeView(view);
+                    windowManager.removeView(viewAndNode.view.get());
                 } catch (Exception e) {
                     Log.e(TAG, "Error removing view", e);
                 }
-            });
-            return false;
-        }
+            }
+
+            if (isSourceFromNavBar(viewAndNode.node)) {
+                Log.v(TAG, "Setting nav bar hidden");
+                isYoutubeNavBarVisible.set(false);
+            }
+            viewKeyToViewMap.remove(getViewKey(viewAndNode.node));
+        });
     }
-
-    private static class ViewAndNode {
-        public Optional<View> view;
-        final public AccessibilityNodeInfo node;
-
-        public ViewAndNode(Optional<View> view, AccessibilityNodeInfo node) {
-            this.view = view;
-            this.node = node;
-        }
-    }
-    ConcurrentMap<String, ViewAndNode> viewKeyToViewMap = new ConcurrentHashMap<>();
-    AtomicBoolean isBackgroundThreadRunning = new AtomicBoolean(false);
-
-    Function<AccessibilityNodeInfo, Void> saveNodesToCover = (node) -> {
-        viewKeyToViewMap.putIfAbsent(getViewKey(node), new ViewAndNode(Optional.empty(), node));
-        return null;
-    };
 
     private synchronized int iterateOverKnownNodes() {
         AtomicInteger numViews = new AtomicInteger(0);
-        Handler handler = new Handler(Looper.getMainLooper());
         viewKeyToViewMap.values().forEach(viewAndNode -> {
             if (viewAndNode.node == null) {
                 return;
             }
+
             if (!prefs.isBlockShortsEnabled() && viewAndNode.view.isPresent()) {
-                handler.post(() -> {
-                    Log.d(TAG, "[post to main thread] Block shorts disabled. Removing view for node: " + getViewKey(viewAndNode.node));
-                    WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(WINDOW_SERVICE);
-                    try {
-                        if (viewAndNode.view.get().isAttachedToWindow()) {
-                            windowManager.removeView(viewAndNode.view.get());
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error removing view", e);
-                    }
-                });
+                Log.d(TAG, "Block shorts disabled. Removing view for node: " + getViewKey(
+                        viewAndNode.node));
+                removeView(viewAndNode);
             } else if (viewAndNode.view.isPresent()) {
                 Log.d(TAG, "Updating existing view for node: " + viewAndNode.node);
-                boolean didFindForUpdate = updateCoverViewForAccessibilityNode(viewAndNode.node, viewAndNode.view.get());
+                boolean didFindForUpdate = updateViewCoveringNode(viewAndNode);
                 if (!didFindForUpdate) {
-                    if (isSourceFromNavBar(viewAndNode.node)) {
-                        Log.d(TAG + "-nav", "Setting nav bar hidden");
-                        isYoutubeNavBarVisible.set(false);
-                    }
-                    viewKeyToViewMap.remove(getViewKey(viewAndNode.node));
+                    removeView(viewAndNode);
                 }
             } else {
-                View newView = new RedRectangleView(accessibilityService.getApplicationContext());
-                viewAndNode.view = Optional.of(newView);
-                handler.post(() -> {
-                    if (isSourceFromNavBar(viewAndNode.node)) {
-                        Log.d(TAG + "-nav", "Setting nav bar visible");
-                        isYoutubeNavBarVisible.set(true);
-                    }
-                    Log.d(TAG, "[post to main thread] Creating new view for node: " + getViewKey(viewAndNode.node) + " " + viewAndNode.node);
-                    WindowManager windowManager = (WindowManager) accessibilityService.getSystemService(WINDOW_SERVICE);
-                    WindowManager.LayoutParams params = computeParamsForNode(viewAndNode.node);
-                    windowManager.addView(newView, params);
-                });
+                Log.d(TAG, "Creating new view for node: " + getViewKey(
+                        viewAndNode.node) + " " + viewAndNode.node);
+                addViewCoveringNode(viewAndNode);
             }
             numViews.incrementAndGet();
         });
 
-        Log.d(TAG, "Num views: " + numViews.get() +  " keysInMap: " + viewKeyToViewMap.keySet());
+        Log.d(TAG, "Num views: " + numViews.get() + " keysInMap: " + viewKeyToViewMap.keySet());
         return numViews.get();
     }
+
 }

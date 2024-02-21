@@ -4,16 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class RedRectangleView extends View {
+public class RectangleView extends View {
     private Paint paint;
 
-    public RedRectangleView(Context context) {
+    public RectangleView(Context context) {
         super(context);
         init();
 
