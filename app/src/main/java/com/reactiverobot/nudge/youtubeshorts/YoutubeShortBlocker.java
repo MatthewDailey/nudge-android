@@ -33,8 +33,8 @@ import java.util.function.Function;
 public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
 
     private static final String TAG = YoutubeAccessibilityEventListener.class.getName();
-    private final static int INTERVAL_UPDATE_THREAD_SLEEP = 50;
-    private final static int DURATION_ANIMATE_COVER = 100;
+    private final static int INTERVAL_UPDATE_THREAD_SLEEP = 10;
+    private final static int DURATION_ANIMATE_COVER = 10;
     private final AccessibilityService accessibilityService;
     private final Prefs prefs;
 
