@@ -18,7 +18,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import com.reactiverobot.nudge.NudgeAccessibilityService;
 import com.reactiverobot.nudge.RedRectangleView;
 import com.reactiverobot.nudge.prefs.Prefs;
 
@@ -31,9 +30,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public class YoutubeShortBlocker {
+public class YoutubeShortBlocker implements YoutubeAccessibilityEventListener {
 
-    private static final String TAG = YoutubeShortBlocker.class.getName();
+    private static final String TAG = YoutubeAccessibilityEventListener.class.getName();
     private final static int INTERVAL_UPDATE_THREAD_SLEEP = 50;
     private final static int DURATION_ANIMATE_COVER = 100;
     private final AccessibilityService accessibilityService;
@@ -238,7 +237,11 @@ public class YoutubeShortBlocker {
         return rect;
     }
 
-    public void blockShorts() {
+    public void onYoutubeEvent(AccessibilityEvent event) {
+        if (!prefs.isBlockShortsEnabled()) {
+            return;
+        }
+
         traverseAccessibilityNodesForNodesToCover(TAG, accessibilityService.getRootInActiveWindow(), saveNodesToCover);
 
         Log.d(TAG, "Event for youtube backgroundThreadRunning=" + isBackgroundThreadRunning.get());
